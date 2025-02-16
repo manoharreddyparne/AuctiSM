@@ -1,101 +1,33 @@
-.navbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background-color: #333;
-  padding: 10px 20px;
-  color: white;
-  flex-wrap: wrap;
-}
-
-.navbar-left {
-  display: flex;
-  align-items: center;
-  flex: 1;
-}
-
 .navbar-logo {
-  width: 150px;  /* Adjust size */
-  height: 100px;
-  display:flex;
-  object-fit: contain;
-  filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.2)); /* Soft shadow */
+  width: 120px; /* Adjust based on preference */
+  height: auto;
 }
 
-.navbar-title {
-  font-size: 24px;
-  font-weight: bold;
-  flex: 1;
-  text-align: center; /* Centering the AuctiSM title */
-}
-
-.navbar-right {
-  display: flex;
-  align-items: center;
-  gap: 15px; /* Space between elements */
-}
-
-/* Navigation links moved beside Login & Signup */
-.navbar-links {
-  display: flex;
-  gap: 15px;
-}
-
-.navbar-links a {
-  text-decoration: none;
-  color: white;
-  font-size: 16px;
+.navbar-nav .nav-link {
+  font-size: 1rem;
   transition: color 0.3s ease-in-out;
 }
 
-.navbar-links a:hover {
-  color: #f8b400;
+.navbar-nav .nav-link:hover {
+  color: #f8b400 !important;
 }
 
-/* Login & Signup Buttons */
-.navbar-auth {
-  display: flex;
-  gap: 15px;
-}
-
-.navbar-auth a {
-  padding: 8px 15px;
-  border: 2px solid white;
+.btn {
   border-radius: 20px;
-  color: white;
-  font-size: 16px;
-  text-decoration: none;
-  transition: background 0.3s ease-in-out, color 0.3s ease-in-out;
+  padding: 6px 15px;
+  font-size: 0.9rem;
 }
 
-.navbar-auth a:hover {
-  background-color: #f8b400;
-  color: #333;
-}
-
-/* Responsive Navbar */
-@media (max-width: 768px) {
-  .navbar {
-    flex-direction: column;
-    align-items: center;
-    padding: 15px;
+@media (max-width: 1024px) {
+  .navbar-logo {
+    width: 90px;
   }
 
-  .navbar-title {
-    margin-bottom: 10px;
-  }
-
-  .navbar-right {
-    flex-direction: column;
-    gap: 10px;
-  }
-
-  .navbar-links {
-    flex-direction: column;
+  .navbar-nav {
     text-align: center;
   }
 
-  .navbar-auth {
-    margin-top: 10px;
+  .btn {
+    width: 100px;
   }
 }

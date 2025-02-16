@@ -1,36 +1,41 @@
 import React from "react";
-import { Link } from "react-router-dom"; // Import Link
-import "./Navbar.css";
-import logo from "../assets/images/logo.png";
-function Navbar() {
+import { Navbar, Nav, Container, Button } from "react-bootstrap";
+import { Link } from "react-router-dom";
+import "./Navbar.css"; // Keep if additional custom styling is needed
+import logo from "../assets/images/logo.png"; // Adjust path accordingly
+
+const CustomNavbar = () => {
   return (
-    <nav className="navbar">
-      {/* Left Section: Logo */}
-      <div className="navbar-left">
-        <img src={logo} alt="AuctiSM Logo" className="navbar-logo" />
-      </div>
+    <Navbar expand="lg" bg="dark" variant="dark" sticky="top" className="px-3">
+      <Container fluid>
+        {/* Left - Logo */}
+        <Navbar.Brand as={Link} to="/" className="d-flex align-items-center">
+          <img src={logo} alt="AuctiSM Logo" className="navbar-logo" />
+        </Navbar.Brand>
 
-      {/* Centered Title */}
-      <h2 className="navbar-title">AuctiSM</h2>
+        {/* Navbar Toggler for Mobile */}
+        <Navbar.Toggle aria-controls="navbarNav" />
 
-      {/* Right Section: Links + Auth */}
-      <div className="navbar-right">
-        <div className="navbar-links">
-          <Link to="/">Home</Link>
-          <Link to="/auctions">Auctions</Link>
-          <Link to="/guidance">Guidance</Link>
-          <Link to="/contact">Contact</Link>
-          <Link to="/get-started">Get Started</Link>
-          <Link to="/help">Help</Link>
+        {/* Center - Navbar Links */}
+        <Navbar.Collapse id="navbarNav" className="justify-content-center">
+          <Nav className="mx-auto">
+            <Nav.Link as={Link} to="/" className="mx-2">Home</Nav.Link>
+            <Nav.Link as={Link} to="/auctions" className="mx-2">Auctions</Nav.Link>
+            <Nav.Link as={Link} to="/guidance" className="mx-2">Guidance</Nav.Link>
+            <Nav.Link as={Link} to="/contact" className="mx-2">Contact</Nav.Link>
+            <Nav.Link as={Link} to="/get-started" className="mx-2">Get Started</Nav.Link>
+            <Nav.Link as={Link} to="/help" className="mx-2">Help</Nav.Link>
+          </Nav>
+        </Navbar.Collapse>
+
+        {/* Right - Login & Signup */}
+        <div className="d-flex gap-2">
+          <Button as={Link} to="/login" variant="outline-light" size="sm">Login</Button>
+          <Button as={Link} to="/signup" variant="warning" size="sm">Signup</Button>
         </div>
-
-        <div className="navbar-auth">
-          <Link to="/login">Login</Link>
-          <Link to="/signup">Signup</Link>
-        </div>
-      </div>
-    </nav>
+      </Container>
+    </Navbar>
   );
-}
+};
 
-export default Navbar;
+export default CustomNavbar;
