@@ -1,8 +1,8 @@
 import React from "react";
 import { Navbar, Nav, Container, Button } from "react-bootstrap";
 import { Link } from "react-router-dom";
-import "./Navbar.css"; // Keep if additional custom styling is needed
-import logo from "../assets/images/logo.png"; // Adjust path accordingly
+import "./Navbar.css"; // Custom styling (if necessary)
+import logo from "../assets/images/logo.png"; // Ensure this path is correct
 
 const CustomNavbar = () => {
   return (

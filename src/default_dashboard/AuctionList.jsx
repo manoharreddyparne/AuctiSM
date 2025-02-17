@@ -1,18 +1,15 @@
 import React, { useState } from "react";
 import { Container, Row, Col } from "react-bootstrap";
-import AuctionCard from "../default_dashboard/AuctionCard";
-import auctionData from "../default_dashboard/data";
+import AuctionCard from "./AuctionCard";
+import auctionData from "./data"; // Auction data import
 
 const AuctionsList = ({ type }) => {
-  // Filter auctions based on the provided type (ongoing or upcoming)
   const filteredAuctions = auctionData.filter(auction => auction.status === type);
+  const [visibleAuctions, setVisibleAuctions] = useState(7); // Initial items per page
 
-  // Pagination state
-  const [visibleAuctions, setVisibleAuctions] = useState(9);
-
-  // Load more auctions
-  const loadMoreAuctions = () => {
-    setVisibleAuctions(prev => prev + 5);
+  // Handle load more auctions
+  const loadMore = () => {
+    setVisibleAuctions(prev => prev + 7); // Load 7 more items on click
   };
 
   return (
@@ -23,18 +20,21 @@ const AuctionsList = ({ type }) => {
         </h2>
         <Row>
           {filteredAuctions.length > 0 ? (
-            filteredAuctions.slice(0, visibleAuctions).map(auction => (
+            filteredAuctions.slice(0, visibleAuctions).map((auction) => (
               <Col key={auction.id} md={4} sm={6} className="mb-4">
                 <AuctionCard auction={auction} />
               </Col>
             ))
           ) : (
-            <p className="text-center">No {type} auctions available.</p>
+            <Col className="text-center">
+              <p>No {type} auctions available.</p>
+            </Col>
           )}
         </Row>
+        {/* Show "See More..." if there are more auctions to load */}
         {visibleAuctions < filteredAuctions.length && (
           <div className="text-center mt-4">
-            <span  onClick={loadMoreAuctions} className="text-primary fw-bold" style={{ cursor: "pointer" }}>
+            <span onClick={loadMore} className="text-primary fw-bold" style={{ cursor: "pointer" }}>
               See More...
             </span>
           </div>

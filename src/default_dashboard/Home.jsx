@@ -1,7 +1,7 @@
 import React from "react";
 import { Container } from "react-bootstrap";
-import Contact from "../default_dashboard/Contact";
-import AuctionsList from "./AuctionList";
+import Contact from "./Contact.jsx";
+import AuctionsList from "./AuctionList.jsx";
 
 const Home = () => {
   return (

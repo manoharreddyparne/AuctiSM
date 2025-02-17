@@ -4,7 +4,7 @@ import { FaFacebook, FaTwitter, FaInstagram, FaEnvelope, FaPhone, FaMapMarkerAlt
 
 const Contact = () => {
   return (
-    <section className="w-100 bg-dark text-white py-5">
+    <footer className="w-100 bg-dark text-white py-5">
       <Container fluid className="px-0">
         <Row className="mx-0">
           {/* Buyer Section */}
@@ -43,18 +43,18 @@ const Contact = () => {
           {/* Contact Information */}
           <Col md={3} className="mb-4">
             <h4 className="fw-bold">Contact Us</h4>
-            <p><FaMapMarkerAlt />  123 Auction Street, Tech City</p>
-            <p><FaPhone />  +91 98765 43210</p>
-            <p><FaEnvelope />  support@auctism.com</p>
+            <p><FaMapMarkerAlt /> 123 Auction Street, Tech City</p>
+            <p><FaPhone /> +91 98765 43210</p>
+            <p><FaEnvelope /> support@auctism.com</p>
             <div className="d-flex gap-3 fs-4">
-              <a href="/" className="text-white"><FaFacebook /></a>
-              <a href="/" className="text-white"><FaTwitter /></a>
-              <a href="/" className="text-white"><FaInstagram /></a>
+              <a href="https://facebook.com" className="text-white" aria-label="Facebook"><FaFacebook /></a>
+              <a href="https://twitter.com" className="text-white" aria-label="Twitter"><FaTwitter /></a>
+              <a href="https://instagram.com" className="text-white" aria-label="Instagram"><FaInstagram /></a>
             </div>
           </Col>
         </Row>
       </Container>
-    </section>
+    </footer>
   );
 };
 
