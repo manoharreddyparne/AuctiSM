@@ -499,7 +499,102 @@ const auctionData = [
     endDate: "2025-03-01",
     status: "upcoming",
     image: "https://images.unsplash.com/photo-1525393836362-b2788f1a2f56?w=500&auto=format&fit=crop",
-  }
+  },
+  {
+    id: 1,
+    title: "Vintage Watch",
+    image: "https://via.placeholder.com/150",
+    highestBid: 500,
+    status: "ongoing",
+    winner: "John Doe"
+  },
+  {
+    id: 2,
+    title: "Antique Vase",
+    image: "https://via.placeholder.com/150",
+    highestBid: 300,
+    status: "ongoing"
+  },
+  {
+    id: 3,
+    title: "Classic Car Model",
+    image: "https://via.placeholder.com/150",
+    highestBid: 1200,
+    status: "ongoing",
+    winner: "Jane Smith"
+  },
+  {
+    id: 4,
+    title: "Painting by Picasso",
+    image: "https://via.placeholder.com/150",
+    highestBid: 5000,
+    status: "ongoing"
+  },
+  {
+    id: 5,
+    title: "Gaming Laptop",
+    image: "https://via.placeholder.com/150",
+    highestBid: 2000,
+    status: "recent"
+  },
+  {
+    id: 6,
+    title: "Smartphone",
+    image: "https://via.placeholder.com/150",
+    highestBid: 900,
+    status: "recent"
+  },
+  {
+    id: 7,
+    title: "Luxury Handbag",
+    image: "https://via.placeholder.com/150",
+    highestBid: 750,
+    status: "recent",
+    winner: "Emily Clark"
+  },
+  {
+    id: 8,
+    title: "Mountain Bike",
+    image: "https://via.placeholder.com/150",
+    highestBid: 850,
+    status: "recent"
+  },
+  {
+    id: 9,
+    title: "High-End Headphones",
+    image: "https://via.placeholder.com/150",
+    highestBid: 300,
+    status: "top-bid-this-month"
+  },
+  {
+    id: 10,
+    title: "4K Smart TV",
+    image: "https://via.placeholder.com/150",
+    highestBid: 2200,
+    status: "top-bid-this-month"
+  },
+  {
+    id: 11,
+    title: "Designer Shoes",
+    image: "https://via.placeholder.com/150",
+    highestBid: 450,
+    status: "top-bid-this-month"
+  },
+  {
+    id: 12,
+    title: "Collectible Coin Set",
+    image: "https://via.placeholder.com/150",
+    highestBid: 650,
+    status: "top-bid-this-month"
+  },
+  {
+    id: 13,
+    title: "Luxury Watch",
+    image: "https://via.placeholder.com/150",
+    highestBid: 3200,
+    status: "winner-last-month",
+    winner: "Michael Lee"
+  } 
 ];
 
 export default auctionData;
