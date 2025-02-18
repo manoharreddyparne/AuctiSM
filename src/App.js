@@ -1,24 +1,41 @@
 import React, { useState } from "react";
-import { BrowserRouter as Router } from "react-router-dom";
-import Navbar from "./default_dashboard/components/Navbar";
-import DashboardRoutes from "./default_dashboard/jsx/DashboardRoutes";
+import { Routes, Route } from "react-router-dom"; // Removed extra Router
+import Navbar from "./shared_components/Navbar"; // Navbar remains global
+import DashboardRoutes from "./routes/DashboardRoutes"; // Default dashboard
+import UserRoutes from "./routes/UserRoutes"; // Logged-in user routes
+import PrivateRoute from "./utils/PrivateRoute"; // Private route protection
 import "bootstrap/dist/css/bootstrap.min.css";
-import "./default_dashboard/global.css"; // Global CSS
+import "./global.css"; // Global CSS
 
 function App() {
-  // State for search query
   const [searchQuery, setSearchQuery] = useState("");
+
+  // Check if user is authenticated (JWT in localStorage)
+  const isAuthenticated = () => !!localStorage.getItem("token");
 
   return (
     <>
       {/* Global Background applied once */}
       <div className="global-background"></div>
 
-      {/* Router wrapping the Navbar and Routes */}
-      <Router>
-        <Navbar searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
-        <DashboardRoutes />
-      </Router>
+      {/* Navbar remains outside Routes */}
+      <Navbar searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
+
+      {/* Routes without extra <Router> */}
+      <Routes>
+        {/* Public routes */}
+        <Route path="/*" element={<DashboardRoutes />} />
+
+        {/* Protected routes for authenticated users */}
+        <Route
+          path="/mainpage/*"
+          element={
+            <PrivateRoute isAuthenticated={isAuthenticated}>
+              <UserRoutes />
+            </PrivateRoute>
+          }
+        />
+      </Routes>
     </>
   );
 }

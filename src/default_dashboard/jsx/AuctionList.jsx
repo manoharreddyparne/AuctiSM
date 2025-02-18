@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Container, Row, Col } from "react-bootstrap";
 import AuctionCard from "../jsx/AuctionCard";
-import auctionData from "../jsx/data"; // Auction data import
+import auctionData from "../data"; // Auction data import
 
 const AuctionsList = ({ type }) => {
   const filteredAuctions = auctionData.filter(auction => auction.status === type);

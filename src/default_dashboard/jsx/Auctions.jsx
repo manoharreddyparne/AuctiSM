@@ -1,8 +1,8 @@
-import "../global.css";
+import "../../global.css";
 import React, { useState } from "react";
 import { Container, Row, Col, Table } from "react-bootstrap";
 import AuctionCard from "./AuctionCard";
-import auctionData from "./data";
+import auctionData from "../data";
 import Pagination from "./Pagination";
 
 const Auctions = () => {
