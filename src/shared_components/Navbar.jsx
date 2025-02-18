@@ -1,25 +1,27 @@
+// shared_components/Navbar.jsx
 import React from "react";
-import { Link, NavLink, useNavigate } from "react-router-dom"; // Import useNavigate
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import { Navbar, Nav, Container, Form, Button } from "react-bootstrap";
 import { FaSearch } from "react-icons/fa";
-import logo from "../../assets/images/logo.png"; // Ensure the path is correct
+import logo from "../assets/images/logo.png"; // Ensure the path is correct
 import "./Navbar.css";
 
 const CustomNavbar = ({ searchQuery, setSearchQuery }) => {
-  const navigate = useNavigate(); // Use navigate for programmatic navigation
+  const navigate = useNavigate();
+
+  // Check if the user is authenticated (based on token in localStorage)
+  const isLoggedIn = localStorage.getItem("token") ? true : false;
 
   const handleSearchChange = (event) => setSearchQuery(event.target.value);
 
   const handleSearch = (event) => {
     if (event.key === "Enter" || event.type === "click") {
       if (searchQuery.trim()) {
-        // Simulate a search result check (replace with real search logic)
-        const results = []; // Empty array simulating no results (replace this with real data fetch logic)
-  
+        const results = [];
         if (results.length === 0) {
-          navigate("/404", { state: { searchQuery } }); // Navigate to 404 with search query
+          navigate("/404", { state: { searchQuery } });
         } else {
-          navigate(`/?search=${searchQuery}`); // Otherwise, navigate with the search query in the URL
+          navigate(`/?search=${searchQuery}`);
         }
       }
     }
@@ -28,14 +30,11 @@ const CustomNavbar = ({ searchQuery, setSearchQuery }) => {
   return (
     <Navbar expand="lg" className="px-3 shadow-sm navbar-custom">
       <Container>
-        {/* Logo */}
         <Navbar.Brand as={Link} to="/">
           <img src={logo} alt="AuctiSM Logo" className="navbar-logo" />
         </Navbar.Brand>
 
-        {/* Mobile Toggle Button */}
         <Navbar.Toggle aria-controls="navbar-nav" />
-
         <Navbar.Collapse id="navbar-nav">
           <Nav className="me-auto">
             {["/", "/auctions", "/guidance", "/contact", "/get-started", "/help"].map((path, index) => (
@@ -51,7 +50,6 @@ const CustomNavbar = ({ searchQuery, setSearchQuery }) => {
             ))}
           </Nav>
 
-          {/* Search Bar */}
           <Form className="search-form">
             <FaSearch className="search-icon" onClick={handleSearch} />
             <input
@@ -65,15 +63,29 @@ const CustomNavbar = ({ searchQuery, setSearchQuery }) => {
             />
           </Form>
 
-          {/* Login & Signup Buttons */}
-          <div className="auth-buttons">
-            <Button as={Link} to="/login" variant="outline-primary" className="btn-custom mx-2">
-              Login
-            </Button>
-            <Button as={Link} to="/signup" variant="primary" className="btn-custom">
-              Signup
-            </Button>
-          </div>
+          {/* Conditionally render Profile & Logout Buttons if logged in */}
+          {isLoggedIn && (
+            <div className="auth-buttons">
+              <Button as={Link} to="/profile" variant="outline-primary" className="btn-custom mx-2">
+                Profile
+              </Button>
+              <Button as={Link} to="/logout" variant="primary" className="btn-custom">
+                Logout
+              </Button>
+            </div>
+          )}
+
+          {/* Conditionally render Login & Signup Buttons if not logged in */}
+          {!isLoggedIn && (
+            <div className="auth-buttons">
+              <Button as={Link} to="/login" variant="outline-primary" className="btn-custom mx-2">
+                Login
+              </Button>
+              <Button as={Link} to="/signup" variant="primary" className="btn-custom">
+                Signup
+              </Button>
+            </div>
+          )}
         </Navbar.Collapse>
       </Container>
     </Navbar>
