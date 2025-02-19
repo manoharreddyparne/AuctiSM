@@ -1,29 +1,51 @@
 // shared_components/Navbar.jsx
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { Navbar, Nav, Container, Form, Button } from "react-bootstrap";
-import { FaSearch } from "react-icons/fa";
-import logo from "../assets/images/logo.png"; // Ensure the path is correct
+import { FaSearch, FaMoon, FaSun } from "react-icons/fa"; // Icons for dark mode toggle
+import logo from "../assets/images/logo.png";
 import "./Navbar.css";
 
 const CustomNavbar = ({ searchQuery, setSearchQuery }) => {
   const navigate = useNavigate();
+  const isLoggedIn = !!localStorage.getItem("token");
 
-  // Check if the user is authenticated (based on token in localStorage)
-  const isLoggedIn = localStorage.getItem("token") ? true : false;
+  const [inputError, setInputError] = useState(false);
+  const [darkMode, setDarkMode] = useState(
+    localStorage.getItem("darkMode") === "enabled"
+  );
 
-  const handleSearchChange = (event) => setSearchQuery(event.target.value);
+  // Toggle Dark Mode
+  const toggleDarkMode = () => {
+    const newMode = !darkMode;
+    setDarkMode(newMode);
+    localStorage.setItem("darkMode", newMode ? "enabled" : "disabled");
+    document.body.classList.toggle("dark-mode", newMode);
+  };
+
+  // Apply dark mode on page load
+  useEffect(() => {
+    if (darkMode) {
+      document.body.classList.add("dark-mode");
+    } else {
+      document.body.classList.remove("dark-mode");
+    }
+  }, [darkMode]);
+
+  const handleSearchChange = (event) => {
+    const trimmedValue = event.target.value.trim();
+    setSearchQuery(trimmedValue);
+    if (inputError) setInputError(false);
+  };
 
   const handleSearch = (event) => {
     if (event.key === "Enter" || event.type === "click") {
-      if (searchQuery.trim()) {
-        const results = [];
-        if (results.length === 0) {
-          navigate("/404", { state: { searchQuery } });
-        } else {
-          navigate(`/?search=${searchQuery}`);
-        }
+      if (!searchQuery) {
+        setInputError(true);
+        setTimeout(() => setInputError(false), 1500);
+        return;
       }
+      navigate(`/?search=${searchQuery}`);
     }
   };
 
@@ -37,7 +59,14 @@ const CustomNavbar = ({ searchQuery, setSearchQuery }) => {
         <Navbar.Toggle aria-controls="navbar-nav" />
         <Navbar.Collapse id="navbar-nav">
           <Nav className="me-auto">
-            {["/", "/auctions", "/guidance", "/contact", "/get-started", "/help"].map((path, index) => (
+            {[
+              { path: "/", label: "Home" },
+              { path: "/auctions", label: "Auctions" },
+              { path: "/guidance", label: "Guidance" },
+              { path: "/contact", label: "Contact" },
+              { path: "/get-started", label: "Get Started" },
+              { path: "/help", label: "Help" },
+            ].map(({ path, label }, index) => (
               <NavLink
                 key={index}
                 to={path}
@@ -45,47 +74,51 @@ const CustomNavbar = ({ searchQuery, setSearchQuery }) => {
                   isActive ? "nav-link active" : "nav-link"
                 }
               >
-                {path.replace("/", "").toUpperCase() || "Home"}
+                {label}
               </NavLink>
             ))}
           </Nav>
 
+          {/* Dark Mode Toggle */}
+          <div className="dark-mode-toggle" onClick={toggleDarkMode}>
+            {darkMode ? <FaSun className="toggle-icon sun" /> : <FaMoon className="toggle-icon moon" />}
+          </div>
+
+          {/* Search Bar */}
           <Form className="search-form">
             <FaSearch className="search-icon" onClick={handleSearch} />
             <input
               type="text"
-              name="search"
               placeholder="Search..."
-              className="search-input"
+              className={`search-input ${inputError ? "error" : ""}`}
               value={searchQuery}
               onChange={handleSearchChange}
               onKeyDown={handleSearch}
             />
           </Form>
 
-          {/* Conditionally render Profile & Logout Buttons if logged in */}
-          {isLoggedIn && (
-            <div className="auth-buttons">
-              <Button as={Link} to="/profile" variant="outline-primary" className="btn-custom mx-2">
-                Profile
-              </Button>
-              <Button as={Link} to="/logout" variant="primary" className="btn-custom">
-                Logout
-              </Button>
-            </div>
-          )}
-
-          {/* Conditionally render Login & Signup Buttons if not logged in */}
-          {!isLoggedIn && (
-            <div className="auth-buttons">
-              <Button as={Link} to="/login" variant="outline-primary" className="btn-custom mx-2">
-                Login
-              </Button>
-              <Button as={Link} to="/signup" variant="primary" className="btn-custom">
-                Signup
-              </Button>
-            </div>
-          )}
+          {/* Authentication Buttons */}
+          <div className="auth-buttons">
+            {isLoggedIn ? (
+              <>
+                <Button as={Link} to="/profile" variant="outline-primary" className="btn-custom">
+                  Profile
+                </Button>
+                <Button as={Link} to="/logout" variant="primary" className="btn-custom">
+                  Logout
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button as={Link} to="/login" variant="outline-primary" className="btn-custom">
+                  Login
+                </Button>
+                <Button as={Link} to="/signup" variant="primary" className="btn-custom">
+                  Signup
+                </Button>
+              </>
+            )}
+          </div>
         </Navbar.Collapse>
       </Container>
     </Navbar>

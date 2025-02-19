@@ -1,33 +1,26 @@
 /* General Navbar Styling */
-.navbar-custom {
+.user-navbar {
   background: rgba(0, 51, 102, 0.85);
   backdrop-filter: blur(5px);
   box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.15);
 }
 
-/* Logo */
-.navbar-logo {
+.user-navbar-logo {
   width: 100px;
   height: auto;
-  max-width: 100%;
 }
 
 /* Navigation Links */
 .navbar-nav .nav-link {
   color: #fff;
-  transition: color 0.3s, background-color 0.3s;
+  transition: color 0.3s ease, background-color 0.3s ease;
 }
 
-.navbar-nav .nav-link:hover {
+.navbar-nav .nav-link:hover,
+.navbar-nav .nav-link.active {
   color: #f8b400;
   background-color: rgba(255, 255, 255, 0.1);
   border-radius: 5px;
-}
-
-.navbar-nav .nav-link.active {
-  color: #fff;
-  background-color: #f8b400;
-  border-radius: 20px;
 }
 
 /* Search Bar */
@@ -39,7 +32,7 @@
   padding: 5px;
   margin-right: 20px;
   box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.2);
-  transition: box-shadow 0.3s ease;
+  transition: box-shadow 0.2s ease;
 }
 
 .search-form:hover {
@@ -92,13 +85,26 @@
   color: #ffd700;
 }
 
+/* Buttons */
+.auth-buttons .btn-custom {
+  border-radius: 20px;
+  padding: 6px 15px;
+  font-size: 0.9rem;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.auth-buttons .btn-custom:hover {
+  background-color: #f8b400;
+  color: #fff;
+}
+
 /* Dark Mode Styles */
 .dark-mode {
   background-color: #121212;
   color: #e0e0e0;
 }
 
-.dark-mode .navbar-custom {
+.dark-mode .user-navbar {
   background: rgba(20, 20, 20, 0.9);
 }
 
@@ -126,4 +132,59 @@
 .dark-mode .btn-custom:hover {
   background-color: #f8b400;
   color: #121212;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 992px) {
+  .user-navbar {
+    padding: 10px;
+  }
+
+  .search-form {
+    width: 100%;
+    margin-right: 0;
+  }
+
+  .search-input {
+    width: 180px;
+  }
+}
+
+@media (max-width: 768px) {
+  .navbar-nav {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .search-form {
+    width: 80%;
+    margin: 10px 0;
+  }
+
+  .user-navbar-logo {
+    width: 80px;
+  }
+
+  .search-input {
+    width: 150px;
+  }
+
+  .btn-custom {
+    width: 90%;
+  }
+}
+
+@media (max-width: 576px) {
+  .search-input {
+    width: 120px;
+    font-size: 14px;
+  }
+
+  .btn-custom {
+    width: 80%;
+  }
+
+  .user-navbar-logo {
+    width: 70px;
+  }
 }
