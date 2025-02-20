@@ -1,36 +1,33 @@
-import React, { useState } from "react";
-import { Routes, Route } from "react-router-dom"; // Removed extra Router
-import Navbar from "./shared_components/Navbar"; // Navbar remains global
-import DashboardRoutes from "./routes/DashboardRoutes"; // Default dashboard
-import UserRoutes from "./routes/UserRoutes"; // Logged-in user routes
-import PrivateRoute from "./utils/PrivateRoute"; // Private route protection
+import React, { useContext } from "react";
+import { Routes, Route } from "react-router-dom";
+import Navbar from "./shared_components/Navbar";
+import UserNavbar from "./users_dashboard/UserNavbar"; // ✅ Import UserNavbar
+import DashboardRoutes from "./routes/DashboardRoutes";
+import UserRoutes from "./routes/UserRoutes";
+import PrivateRoute from "./utils/PrivateRoute";
+import { AuthContext } from "./utils/AuthContext";
 import "bootstrap/dist/css/bootstrap.min.css";
-import "./global.css"; // Global CSS
+import "./global.css";
 
 function App() {
-  const [searchQuery, setSearchQuery] = useState("");
-
-  // Check if user is authenticated (JWT in localStorage)
-  const isAuthenticated = () => !!localStorage.getItem("token");
+  const { user } = useContext(AuthContext); // ✅ Get user from context
 
   return (
     <>
-      {/* Global Background applied once */}
       <div className="global-background"></div>
 
-      {/* Navbar remains outside Routes */}
-      <Navbar searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
+      {/* ✅ Show UserNavbar after login, otherwise Navbar */}
+      {user ? <UserNavbar /> : <Navbar />}
 
-      {/* Routes without extra <Router> */}
       <Routes>
-        {/* Public routes */}
+        {/* ✅ Public routes (before login) */}
         <Route path="/*" element={<DashboardRoutes />} />
 
-        {/* Protected routes for authenticated users */}
+        {/* ✅ Private routes (after login) */}
         <Route
           path="/mainpage/*"
           element={
-            <PrivateRoute isAuthenticated={isAuthenticated}>
+            <PrivateRoute>
               <UserRoutes />
             </PrivateRoute>
           }

@@ -1,41 +1,46 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import { AuthContext } from "../utils/AuthContext"; // ✅ Import AuthContext
 
 const Profile = () => {
   const [profileData, setProfileData] = useState(null);
+  const { logout } = useContext(AuthContext); // ✅ Get logout from AuthContext
+  const navigate = useNavigate();
 
   useEffect(() => {
-    // Function to fetch user data from protected route
     const fetchUserData = async () => {
-      const token = localStorage.getItem("authToken"); // Retrieve the JWT token from localStorage
+      const token = localStorage.getItem("authToken");
 
-      if (token) {
-        try {
-          const response = await fetch("http:/localhost:3000/api/profile", {
-            method: "GET",
-            headers: {
-              "Authorization": `Bearer ${token}`, // Sending the token in Authorization header
-              "Content-Type": "application/json",
-            },
-          });
+      if (!token) {
+        console.log("No token found, redirecting to login...");
+        navigate("/login");
+        return;
+      }
 
-          if (!response.ok) {
-            throw new Error("Authentication failed");
-          }
+      try {
+        const response = await axios.get("http://localhost:5000/api/profile", {
+          headers: { Authorization: `Bearer ${token}` },
+          withCredentials: true,
+        });
 
-          const data = await response.json();
-          setProfileData(data); // Store the fetched profile data
-        } catch (error) {
-          console.error("Error fetching profile:", error); // Handle any errors
-        }
-      } else {
-        console.log("No token found");
+        console.log("Profile data received:", response.data);
+        setProfileData(response.data);
+      } catch (error) {
+        console.error("Error fetching profile:", error);
+        navigate("/login");
       }
     };
 
-    fetchUserData(); // Call the function to fetch data when the component mounts
-  }, []); // Empty dependency array ensures it only runs once when the component mounts
+    fetchUserData();
+  }, [navigate]);
 
-  // Display loading state or profile data
+  // ✅ Use AuthContext logout function
+  const handleLogout = () => {
+    logout(); // Clears tokens & cookies + updates state
+    navigate("/"); // Redirects to home
+  };
+
   if (!profileData) return <div>Loading...</div>;
 
   return (
@@ -43,6 +48,14 @@ const Profile = () => {
       <h2>Profile</h2>
       <p>Name: {profileData.name}</p>
       <p>Email: {profileData.email}</p>
+      <p>Phone: {profileData.phone}</p>
+      <p>Date of Birth: {new Date(profileData.dob).toLocaleDateString()}</p>
+      <p>Address: {profileData.address}</p>
+
+      {/* ✅ Logout Button */}
+      <button onClick={handleLogout} style={{ marginTop: "20px", padding: "10px 15px", cursor: "pointer" }}>
+        Logout
+      </button>
     </div>
   );
 };
