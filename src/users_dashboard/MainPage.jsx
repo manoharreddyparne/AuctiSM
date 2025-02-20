@@ -1,8 +1,7 @@
-// users_dashboard/MainPage.jsx
 import React, { useState, useEffect } from "react";
-import "../shared_components/Navbar.css";
+import "../users_dashboard/UserNavbar.css";
 import UserNavbar from "./UserNavbar.jsx";
-import AuctionCard from "../default_dashboard/jsx/AuctionCard.jsx"; // Reusing component
+import AuctionCard from "../default_dashboard/jsx/AuctionCard.jsx";
 import auctionData from "../default_dashboard/data.jsx";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
@@ -14,18 +13,22 @@ function MainPage() {
 
   useEffect(() => {
     const fetchUserProfile = async () => {
-      const authToken = localStorage.getItem("authToken");
-      if (!authToken) {
-        navigate("/login");
-        return;
-      }
-
       try {
-        const response = await axios.get("http://localhost:5000/profile", {
-          headers: { Authorization: `Bearer ${authToken}` },
+        const token = localStorage.getItem("authToken");
+        if (!token) {
+          console.error("No auth token found. Redirecting to login...");
+          navigate("/login");
+          return;
+        }
+
+        const response = await axios.get("http://localhost:5000/api/profile", {  // ✅ Ensure correct endpoint
+          headers: { Authorization: `Bearer ${token}` },
+          withCredentials: true,
         });
-        setUser(response.data);
+
+        setUser(response.data.user); // ✅ Access 'user' field in response
       } catch (error) {
+        console.error("Failed to fetch profile:", error);
         navigate("/login");
       }
     };
@@ -34,8 +37,10 @@ function MainPage() {
   }, [navigate]);
 
   useEffect(() => {
-    if (auctionData.length > 0) {
+    if (auctionData && auctionData.length > 0) {
       setData(auctionData);
+    } else {
+      console.warn("No auction data available.");
     }
   }, []);
 
@@ -44,7 +49,7 @@ function MainPage() {
   return (
     <div className="dashboard-container">
       <UserNavbar />
-      <h2 className="dashboard-title">Welcome, {user.message}!</h2>
+      <h2 className="dashboard-title">Welcome, {user.name}!</h2>
       <h3 className="dashboard-subtitle">Your Auctions</h3>
       <div className="auction-list">
         {data.map((auction) => (
