@@ -1,5 +1,5 @@
 const express = require("express");
-const { register, login } = require("./authController");
+const { register, login, googleLogin } = require("./authController"); // ✅ Added googleLogin
 const verifyToken = require("./verifyToken");
 const User = require("./userModel");
 
@@ -8,8 +8,9 @@ const router = express.Router();
 // Public Routes
 router.post("/signup", register);
 router.post("/login", login);
+router.post("/google-login", googleLogin); // ✅ Added Google login route
 
-// ✅ Fixed: Fetch complete user profile
+// ✅ Fetch complete user profile
 router.get("/profile", verifyToken, async (req, res) => {
   try {
     const user = await User.findById(req.user.userId).select("-password -__v"); // 🚀 Fetch all fields except password

@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect } from "react";
+import React, { createContext, useState, useEffect, useCallback } from "react";
 import { jwtDecode } from "jwt-decode";
 import { useNavigate } from "react-router-dom";
 
@@ -7,7 +7,17 @@ export const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate(); // Import navigate
+  const navigate = useNavigate();
+
+  // ✅ Fix: Wrap logout in useCallback to avoid dependency issues
+  const logout = useCallback(() => {
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("user");
+    document.cookie = "authToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+    setUser(null);
+    console.log("User logged out.");
+    navigate("/login"); // Redirect to login page
+  }, [navigate]);
 
   useEffect(() => {
     const token = localStorage.getItem("authToken");
@@ -16,38 +26,35 @@ export const AuthProvider = ({ children }) => {
       try {
         const decoded = jwtDecode(token);
         console.log("Decoded token:", decoded);
-        setUser({ id: decoded.userId, email: decoded.email });
+
+        const storedUser = localStorage.getItem("user");
+        if (storedUser) {
+          setUser(JSON.parse(storedUser));
+        } else {
+          setUser({ id: decoded.userId, email: decoded.email });
+        }
       } catch (error) {
-        console.error("Error decoding token:", error);
-        localStorage.removeItem("authToken");
-        setUser(null);
+        console.error("Invalid token, logging out:", error);
+        logout(); // ✅ Now safely used inside useEffect
       }
     } else {
       setUser(null);
     }
     setLoading(false);
-  }, []);
+  }, [logout]); // ✅ Fix: Added `logout` to dependency array
 
-  const login = (token) => {
+  const login = (token, userData) => {
     localStorage.setItem("authToken", token);
+    localStorage.setItem("user", JSON.stringify(userData));
+
     try {
-      const decoded = jwtDecode(token);
-      setUser({ id: decoded.userId, email: decoded.email });
-      console.log("User set after login:", { id: decoded.userId, email: decoded.email });
+      jwtDecode(token); // ✅ Fix: Removed unused `decoded` variable
+      setUser(userData); // Store full user details
+      console.log("User logged in:", userData);
     } catch (error) {
       console.error("Error decoding login token:", error);
-      localStorage.removeItem("authToken");
-      setUser(null);
+      logout();
     }
-  };
-
-  // 🔴 FIX: Move logout inside AuthContext to update state correctly
-  const logout = () => {
-    localStorage.removeItem("authToken");
-    document.cookie = "authToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-    setUser(null); // ✅ Update state immediately
-    console.log("User logged out successfully.");
-    navigate("/"); // ✅ Redirect to login/home after logout
   };
 
   return (
