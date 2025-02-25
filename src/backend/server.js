@@ -17,6 +17,15 @@ const app = express();
 app.use(morgan("dev")); // Logs requests for debugging
 app.use(cookieParser());
 app.use(express.json());
+
+// ✅ Debugging Request Headers
+app.use((req, res, next) => {
+  console.log("🔵 Incoming Request:", req.method, req.url);
+  console.log("🔹 Headers:", req.headers);
+  console.log("🔹 Body:", req.body);
+  next();
+});
+
 app.use(
   cors({
     origin: "http://localhost:3000",
@@ -44,7 +53,7 @@ app.get("/", (req, res) => {
 
 // ✅ Database Connection
 mongoose
-  .connect(config.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+  .connect(config.MONGO_URI)
   .then(() => {
     console.log("✅ Connected to MongoDB");
 
@@ -54,4 +63,7 @@ mongoose
       console.log(`🚀 Server is running on port ${PORT}`);
     });
   })
-  .catch((err) => console.log("❌ MongoDB connection error:", err));
+  .catch((err) => {
+    console.error("❌ MongoDB connection error:", err);
+    process.exit(1); // Exit on DB failure
+  });

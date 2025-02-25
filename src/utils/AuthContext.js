@@ -7,58 +7,95 @@ export const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [needsPassword, setNeedsPassword] = useState(false); // ✅ Track password reset status
   const navigate = useNavigate();
 
-  // ✅ Fix: Wrap logout in useCallback to avoid dependency issues
+  // ✅ Login function - Handles Google login response
+  const login = (token, userData, needsPasswordFlag = false) => {
+    console.log("🔵 Storing auth token...");
+
+    if (!token || !userData || !userData.email) {
+      console.error("❌ Invalid login data received:", { token, userData });
+      return;
+    }
+
+    try {
+      localStorage.setItem("authToken", token);
+      localStorage.setItem("user", JSON.stringify(userData));
+
+      if (needsPasswordFlag) {
+        console.log("🔴 User needs to set a password. Storing flag...");
+        localStorage.setItem("needsPassword", "true"); // Store flag in localStorage
+      } else {
+        localStorage.removeItem("needsPassword");
+      }
+
+      setUser(userData);
+      setNeedsPassword(needsPasswordFlag); // ✅ Update state
+
+      console.log("🟢 User logged in:", userData);
+
+      console.log("🚀 Redirecting to /mainpage...");
+      setTimeout(() => {
+        navigate("/mainpage", { replace: true });
+      }, 500);
+    } catch (error) {
+      console.error("❌ Error storing login data:", error);
+    }
+  };
+
+  // ✅ Logout function
   const logout = useCallback(() => {
+    console.log("🔴 Logging out user...");
     localStorage.removeItem("authToken");
     localStorage.removeItem("user");
+    localStorage.removeItem("needsPassword"); // ✅ Clear password reset flag
     document.cookie = "authToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
     setUser(null);
-    console.log("User logged out.");
-    navigate("/login"); // Redirect to login page
+    setNeedsPassword(false);
+    navigate("/login", { replace: true });
   }, [navigate]);
 
+  // ✅ Check authentication on page load
   useEffect(() => {
+    console.log("🔍 Checking authentication status...");
     const token = localStorage.getItem("authToken");
 
     if (token) {
       try {
         const decoded = jwtDecode(token);
-        console.log("Decoded token:", decoded);
+        console.log("🟢 Decoded token:", decoded);
 
-        const storedUser = localStorage.getItem("user");
-        if (storedUser) {
-          setUser(JSON.parse(storedUser));
-        } else {
-          setUser({ id: decoded.userId, email: decoded.email });
+        if (decoded.exp * 1000 < Date.now()) {
+          console.warn("⚠️ Token expired. Logging out...");
+          logout();
+          return;
         }
+
+        const storedUser = JSON.parse(localStorage.getItem("user"));
+        setUser({ id: decoded.userId, email: decoded.email, ...storedUser });
+
+        const needsPasswordFlag = localStorage.getItem("needsPassword") === "true";
+        setNeedsPassword(needsPasswordFlag); // ✅ Restore password reset state
+
+        if (needsPasswordFlag) {
+          console.warn("🔴 User needs to set a password. Showing reset modal.");
+        }
+
       } catch (error) {
-        console.error("Invalid token, logging out:", error);
-        logout(); // ✅ Now safely used inside useEffect
+        console.error("❌ Invalid token:", error);
+        logout();
       }
     } else {
+      console.warn("⚠️ No token found. User is not logged in.");
       setUser(null);
     }
+
     setLoading(false);
-  }, [logout]); // ✅ Fix: Added `logout` to dependency array
-
-  const login = (token, userData) => {
-    localStorage.setItem("authToken", token);
-    localStorage.setItem("user", JSON.stringify(userData));
-
-    try {
-      jwtDecode(token); // ✅ Fix: Removed unused `decoded` variable
-      setUser(userData); // Store full user details
-      console.log("User logged in:", userData);
-    } catch (error) {
-      console.error("Error decoding login token:", error);
-      logout();
-    }
-  };
+  }, [logout]);
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout }}>
+    <AuthContext.Provider value={{ user, loading, logout, login, needsPassword, setNeedsPassword }}>
       {children}
     </AuthContext.Provider>
   );
