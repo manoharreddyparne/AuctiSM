@@ -33,6 +33,13 @@ const Login = () => {
     setLoading(true);
     console.log("🔵 Attempting manual login with:", { email, password });
 
+    const needsPassword = localStorage.getItem("needsPassword") === "true";
+    if (needsPassword) {
+      setError("Please reset your password first by logging in with Google.");
+      setLoading(false);
+      return; // Prevent manual login if password is not set
+    }
+
     try {
       const response = await fetch("http://localhost:5000/api/login", {
         method: "POST",
