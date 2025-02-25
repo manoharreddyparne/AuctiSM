@@ -46,7 +46,7 @@ const Profile = () => {
   return (
     <div>
       <h2>Profile</h2>
-      <p>Name: {profileData.name}</p>
+      <p>Name: {profileData.fullName}</p>
       <p>Email: {profileData.email}</p>
       <p>Phone: {profileData.phone}</p>
       <p>Date of Birth: {new Date(profileData.dob).toLocaleDateString()}</p>

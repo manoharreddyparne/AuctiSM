@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Form, Button, Container, Row, Col } from "react-bootstrap";
 import { GoogleLogin } from "@react-oauth/google";
 import axios from "axios";
+import SetPasswordModal from "../shared_components/SetPasswordModal";
 
 const Signup = () => {
   const [formData, setFormData] = useState({
@@ -17,8 +18,10 @@ const Signup = () => {
 
   const [errors, setErrors] = useState({});
   const navigate = useNavigate();
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [googleEmail, setGoogleEmail] = useState("");
 
-  // Check if user is already logged in and redirect
+  // ✅ Check if the user is already logged in
   useEffect(() => {
     const token = localStorage.getItem("authToken");
     if (token) {
@@ -27,12 +30,12 @@ const Signup = () => {
     }
   }, [navigate]);
 
-  // Handle input change
+  // ✅ Handle input changes
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // Validate form fields
+  // ✅ Form validation
   const validateForm = () => {
     let newErrors = {};
     if (!formData.fullName.trim()) newErrors.fullName = "Full Name is required";
@@ -48,7 +51,7 @@ const Signup = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  // Handle signup form submission
+  // ✅ Handle manual signup
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
@@ -62,7 +65,7 @@ const Signup = () => {
       localStorage.setItem("user", JSON.stringify(response.data.user));
 
       axios.defaults.headers.common["Authorization"] = `Bearer ${response.data.token}`;
-      navigate("/mainpage"); // Redirect without alert
+      navigate("/mainpage");
     } catch (error) {
       console.error("Signup error:", error);
       setErrors({
@@ -72,13 +75,13 @@ const Signup = () => {
     }
   };
 
-  // Handle Google login
+  // ✅ Handle Google login
   const handleGoogleSuccess = async (response) => {
     console.log("Google authentication success:", response);
 
     try {
       const res = await axios.post("http://localhost:5000/api/google-login", {
-        credential: response.credential, // Send Google token to backend
+        credential: response.credential,
       });
 
       console.log("Server response:", res.data);
@@ -87,7 +90,18 @@ const Signup = () => {
         localStorage.setItem("authToken", res.data.token);
         localStorage.setItem("user", JSON.stringify(res.data.user));
         axios.defaults.headers.common["Authorization"] = `Bearer ${res.data.token}`;
-        navigate("/mainpage"); // Directly navigate after successful login
+
+        console.log("Checking if user is new:", res.data.needsPassword);
+
+        if (res.data.needsPassword) {
+          console.log("🟠 New Google User - Showing Password Reset Modal...");
+          setGoogleEmail(res.data.user.email);
+          setShowPasswordModal(true);
+          return; // ✅ Stop execution to prevent redirection
+        }
+
+        console.log("🟢 Existing Google User - Redirecting to MainPage...");
+        navigate("/mainpage");
       }
     } catch (error) {
       console.error("Google login failed:", error);
@@ -182,6 +196,17 @@ const Signup = () => {
           <GoogleLogin onSuccess={handleGoogleSuccess} onError={() => console.log("Google login failed")} />
         </Col>
       </Row>
+
+      {/* ✅ Password Reset Modal for Google Signup Users */}
+      <SetPasswordModal
+        isOpen={showPasswordModal}
+        onClose={() => {
+          console.log("Closing password modal. Redirecting to mainpage...");
+          setShowPasswordModal(false); // Ensure modal closes before navigation
+          setTimeout(() => navigate("/mainpage"), 500); // Delayed navigation
+        }}
+        userEmail={googleEmail}
+      />
     </Container>
   );
 };

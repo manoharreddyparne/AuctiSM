@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import { Routes, Route } from "react-router-dom";
 import Navbar from "./shared_components/Navbar";
 import UserNavbar from "./users_dashboard/UserNavbar";
@@ -11,19 +11,28 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "./global.css";
 
 function App() {
-  const { user } = useContext(AuthContext);
+  const { user, loading } = useContext(AuthContext);
+
+  useEffect(() => {
+    console.log("🔍 Checking App.js render...");
+    console.log("User:", user);
+    console.log("Loading:", loading);
+  }, [user, loading]);
 
   return (
     <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}>
       <div className="global-background"></div>
-      {/* ✅ Fix: Conditional Rendering for Navbar */}
-      {user ? <UserNavbar /> : <Navbar />}
+
+      {loading ? (
+        <div className="text-center mt-5">🔄 Loading...</div>
+      ) : user ? (
+        <UserNavbar />
+      ) : (
+        <Navbar />
+      )}
 
       <Routes>
-        {/* ✅ Main Dashboard Routes */}
         <Route path="/*" element={<DashboardRoutes />} />
-
-        {/* ✅ User Routes (Protected) */}
         <Route
           path="/mainpage/*"
           element={
