@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Form, Button, Container, Row, Col } from "react-bootstrap";
 import { GoogleLogin } from "@react-oauth/google";
 import axios from "axios";
-import SetPasswordModal from "../shared_components/SetPasswordModal";
+import ResetPasswordModal from "../shared_components/ResetPasswordModal";
 
 const Signup = () => {
   const [formData, setFormData] = useState({
@@ -91,20 +91,32 @@ const Signup = () => {
         localStorage.setItem("user", JSON.stringify(res.data.user));
         axios.defaults.headers.common["Authorization"] = `Bearer ${res.data.token}`;
 
-        console.log("Checking if user is new:", res.data.needsPassword);
-
+        // ✅ Show the password reset modal if needed
         if (res.data.needsPassword) {
           console.log("🟠 New Google User - Showing Password Reset Modal...");
-          setGoogleEmail(res.data.user.email);
-          setShowPasswordModal(true);
-          return; // ✅ Stop execution to prevent redirection
+          setGoogleEmail(res.data.user.email);  // Set the Google email
+          setShowPasswordModal(true);  // Show modal for new users who need to set a password
+        } else {
+          console.log("🟢 Existing Google User - Redirecting to MainPage...");
+          navigate("/mainpage");
         }
-
-        console.log("🟢 Existing Google User - Redirecting to MainPage...");
-        navigate("/mainpage");
       }
     } catch (error) {
       console.error("Google login failed:", error);
+    }
+  };
+
+  const handlePasswordReset = async (newPassword) => {
+    try {
+      const res = await axios.post("http://localhost:5000/api/reset-password", {
+        email: googleEmail, // Pass the Google email for password reset
+        newPassword,
+      });
+
+      console.log("Password reset successful:", res.data);
+      navigate("/mainpage");
+    } catch (error) {
+      console.error("Password reset failed:", error);
     }
   };
 
@@ -114,7 +126,8 @@ const Signup = () => {
         <Col md={6}>
           <h2 className="text-center">Sign Up</h2>
           <Form onSubmit={handleSubmit}>
-            <Form.Group>
+            {/* Form Fields */}
+            <Form.Group controlId="fullName">
               <Form.Label>Full Name</Form.Label>
               <Form.Control
                 type="text"
@@ -126,7 +139,7 @@ const Signup = () => {
               <Form.Control.Feedback type="invalid">{errors.fullName}</Form.Control.Feedback>
             </Form.Group>
 
-            <Form.Group>
+            <Form.Group controlId="email">
               <Form.Label>Email</Form.Label>
               <Form.Control
                 type="email"
@@ -138,8 +151,8 @@ const Signup = () => {
               <Form.Control.Feedback type="invalid">{errors.email}</Form.Control.Feedback>
             </Form.Group>
 
-            <Form.Group>
-              <Form.Label>Phone Number</Form.Label>
+            <Form.Group controlId="phone">
+              <Form.Label>Phone</Form.Label>
               <Form.Control
                 type="text"
                 name="phone"
@@ -150,17 +163,27 @@ const Signup = () => {
               <Form.Control.Feedback type="invalid">{errors.phone}</Form.Control.Feedback>
             </Form.Group>
 
-            <Form.Group>
+            <Form.Group controlId="dob">
               <Form.Label>Date of Birth</Form.Label>
-              <Form.Control type="date" name="dob" value={formData.dob} onChange={handleChange} />
+              <Form.Control
+                type="date"
+                name="dob"
+                value={formData.dob}
+                onChange={handleChange}
+              />
             </Form.Group>
 
-            <Form.Group>
+            <Form.Group controlId="address">
               <Form.Label>Address</Form.Label>
-              <Form.Control type="text" name="address" value={formData.address} onChange={handleChange} />
+              <Form.Control
+                type="text"
+                name="address"
+                value={formData.address}
+                onChange={handleChange}
+              />
             </Form.Group>
 
-            <Form.Group>
+            <Form.Group controlId="password">
               <Form.Label>Password</Form.Label>
               <Form.Control
                 type="password"
@@ -172,7 +195,7 @@ const Signup = () => {
               <Form.Control.Feedback type="invalid">{errors.password}</Form.Control.Feedback>
             </Form.Group>
 
-            <Form.Group>
+            <Form.Group controlId="confirmPassword">
               <Form.Label>Confirm Password</Form.Label>
               <Form.Control
                 type="password"
@@ -184,7 +207,7 @@ const Signup = () => {
               <Form.Control.Feedback type="invalid">{errors.confirmPassword}</Form.Control.Feedback>
             </Form.Group>
 
-            <Button variant="primary" type="submit" className="mt-3 w-100">
+            <Button variant="primary" type="submit" className="w-100 mt-3">
               Sign Up
             </Button>
           </Form>
@@ -198,15 +221,14 @@ const Signup = () => {
       </Row>
 
       {/* ✅ Password Reset Modal for Google Signup Users */}
-      <SetPasswordModal
-        isOpen={showPasswordModal}
-        onClose={() => {
-          console.log("Closing password modal. Redirecting to mainpage...");
-          setShowPasswordModal(false); // Ensure modal closes before navigation
-          setTimeout(() => navigate("/mainpage"), 500); // Delayed navigation
-        }}
-        userEmail={googleEmail}
-      />
+      {showPasswordModal && (
+        <ResetPasswordModal
+          isOpen={showPasswordModal}  // Use 'isOpen' instead of 'show'
+          userEmail={googleEmail}    // Pass the correct email prop
+          onClose={() => setShowPasswordModal(false)}
+          onSubmitPassword={handlePasswordReset} // Pass the function to reset password
+        />
+      )}
     </Container>
   );
 };

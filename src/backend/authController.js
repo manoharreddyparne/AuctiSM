@@ -87,62 +87,101 @@ const login = async (req, res) => {
 
 // ✅ Google Login
 const googleLogin = async (req, res) => {
-    try {
-        const { credential } = req.body;
-        if (!credential) {
-            return res.status(400).json({ message: "No credential provided" });
-        }
-
-        // Verify Google Token
-        const ticket = await client.verifyIdToken({
-            idToken: credential,
-            audience: process.env.GOOGLE_CLIENT_ID,
-        });
-
-        const payload = ticket.getPayload();
-        const { email, name, picture, sub } = payload;
-
-        if (!email) {
-            return res.status(400).json({ message: "Google login failed: No email received" });
-        }
-
-        let user = await User.findOne({ email });
-
-        if (!user) {
-            // If the user is new, create an account without a password
-            user = new User({
-                fullName: name,
-                email,
-                profilePicture: picture,
-                googleId: sub,
-                authProvider: "google",
-                needsPassword: true,  // ✅ Force password setup
-            });
-            await user.save();
-            console.log("✅ New Google user created:", email);
-        } else {
-            console.log("🔵 Existing Google user logged in:", email);
-        }
-
-        // Generate JWT Token
-        const token = generateToken(user);
-
-        res.json({
-            message: "Google login successful",
-            token,
-            user: {
-                id: user._id,
-                email: user.email,
-                name: user.fullName,
-                profilePicture: user.profilePicture,
-            },
-            needsPassword: user.needsPassword, // ✅ Inform frontend if password setup is required
-        });
-
-    } catch (error) {
-        console.error("🚨 Google login error:", error);
-        res.status(500).json({ message: "Internal server error during Google login" });
+  try {
+    const { credential } = req.body;
+    if (!credential) {
+      return res.status(400).json({ message: "No credential provided" });
     }
+
+    // Verify Google Token
+    const ticket = await client.verifyIdToken({
+      idToken: credential,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+
+    const payload = ticket.getPayload();
+    const { email, name, picture, sub } = payload;
+
+    if (!email) {
+      return res.status(400).json({ message: "Google login failed: No email received" });
+    }
+
+    let user = await User.findOne({ email });
+
+    if (!user) {
+      // If the user is new, create an account without a password
+      user = new User({
+        fullName: name,
+        email,
+        profilePicture: picture,
+        googleId: sub,
+        authProvider: "google",
+        needsPassword: true,  // ✅ Force password setup for Google users
+      });
+      await user.save();
+      console.log("✅ New Google user created:", email);
+    } else if (!user.password) {
+      // If user exists but doesn't have a password set, flag as needing a password
+      user.needsPassword = true;
+      await user.save();
+      console.log("🔵 Google user exists but needs a password:", email);
+    }
+
+    // Generate JWT Token
+    const token = generateToken(user);
+
+    res.json({
+      message: "Google login successful",
+      token,
+      user: {
+        id: user._id,
+        email: user.email,
+        name: user.fullName,
+        profilePicture: user.profilePicture,
+      },
+      needsPassword: user.needsPassword, // Ensure this is being sent correctly
+    });
+  } catch (error) {
+    console.error("🚨 Google login error:", error);
+    res.status(500).json({ message: "Internal server error during Google login" });
+  }
+};
+
+// ✅ Set Password (For Google Users to Set a Manual Password)
+const setPassword = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    console.log("🔵 Setting password for user:", email);
+
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(400).json({ message: "User not found" });
+    }
+
+    if (user.authProvider !== "google") {
+      return res.status(400).json({ message: "Only Google login users can set a password" });
+    }
+
+    // Validate password
+    if (!password || password.length < 6) {
+      console.warn("⚠️ Weak password attempt for:", email);
+      return res.status(400).json({ message: "Password must be at least 6 characters long." });
+    }
+
+    // Hash the new password
+    const hashedPassword = await bcrypt.hash(password, 10);
+    user.password = hashedPassword;
+    user.authProvider = "manual";  // Change the provider to manual once password is set
+    user.needsPassword = false;  // No longer need to reset password
+    await user.save();
+
+    console.log("✅ Password set successfully for:", email);
+    res.json({ message: "Password set successfully. You can now log in manually." });
+
+  } catch (error) {
+    console.error("🚨 Error setting password:", error);
+    res.status(500).json({ message: "Error setting password. Please try again." });
+  }
 };
 
 // ✅ Reset Password
@@ -164,8 +203,8 @@ const resetPassword = async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(newPassword, 10);
     user.password = hashedPassword;
-    user.authProvider = "manual";
-    user.needsPassword = false;  // ✅ Allow manual login now
+    user.authProvider = "manual";  // Ensure the user can now log in manually
+    user.needsPassword = false;  // User doesn't need to reset password anymore
     await user.save();
 
     console.log("✅ Password reset successful for:", email);
@@ -177,4 +216,4 @@ const resetPassword = async (req, res) => {
   }
 };
 
-module.exports = { register, login, googleLogin, resetPassword };
+module.exports = { register, login, googleLogin, setPassword, resetPassword };
