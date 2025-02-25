@@ -1,29 +1,29 @@
 import React, { useContext } from "react";
 import { Routes, Route } from "react-router-dom";
 import Navbar from "./shared_components/Navbar";
-import UserNavbar from "./users_dashboard/UserNavbar"; // ✅ Import UserNavbar
+import UserNavbar from "./users_dashboard/UserNavbar";
 import DashboardRoutes from "./routes/DashboardRoutes";
 import UserRoutes from "./routes/UserRoutes";
 import PrivateRoute from "./utils/PrivateRoute";
 import { AuthContext } from "./utils/AuthContext";
+import { GoogleOAuthProvider } from "@react-oauth/google";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./global.css";
 
 function App() {
-  const { user } = useContext(AuthContext); // ✅ Get user from context
+  const { user } = useContext(AuthContext);
 
   return (
-    <>
+    <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}>
       <div className="global-background"></div>
-
-      {/* ✅ Show UserNavbar after login, otherwise Navbar */}
+      {/* ✅ Fix: Conditional Rendering for Navbar */}
       {user ? <UserNavbar /> : <Navbar />}
 
       <Routes>
-        {/* ✅ Public routes (before login) */}
+        {/* ✅ Main Dashboard Routes */}
         <Route path="/*" element={<DashboardRoutes />} />
 
-        {/* ✅ Private routes (after login) */}
+        {/* ✅ User Routes (Protected) */}
         <Route
           path="/mainpage/*"
           element={
@@ -33,7 +33,7 @@ function App() {
           }
         />
       </Routes>
-    </>
+    </GoogleOAuthProvider>
   );
 }
 
