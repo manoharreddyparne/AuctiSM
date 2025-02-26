@@ -4,34 +4,32 @@ const config = require("./config/config");
 const verifyToken = (req, res, next) => {
   console.log("🔍 Verifying token...");
 
-  // Get token from cookies or authorization header
-  let token = req.cookies?.authToken || req.headers["authorization"];
+  // Try to get token from cookies first, then from Authorization header
+  let token = req.cookies && req.cookies.authToken ? req.cookies.authToken : req.headers["authorization"];
   console.log("Received token:", token);
 
-  // If no token found, deny access
   if (!token) {
     console.warn("⚠️ No token found. Access denied.");
     return res.status(401).json({ error: "Access denied. No token provided." });
   }
 
-  // Ensure token is in "Bearer ..." format
+  // If the token is in the Authorization header, it may include the "Bearer " prefix
   if (token.startsWith("Bearer ")) {
-    token = token.slice(7, token.length);
+    token = token.slice(7).trim();
     console.log("Token format verified as Bearer.");
   } else {
-    console.warn("⚠️ Token format is incorrect. Expected 'Bearer <token>' or from cookies.");
+    console.warn("⚠️ Token format is not 'Bearer <token>', proceeding with token as provided.");
   }
 
   try {
-    // Verify token using the JWT_SECRET
+    // Verify the token using the secret from your config
     const decoded = jwt.verify(token, config.JWT_SECRET);
     console.log("🟢 Token verified successfully:", decoded);
 
-    // Attach the decoded user info to the request object
-    req.user = decoded; // Attach the decoded user data to the request object
-    next(); // Move to the next middleware or route handler
+    // Attach the decoded user data to the request object for downstream use
+    req.user = decoded;
+    next();
   } catch (error) {
-    // If token verification fails, return an error response
     console.error("❌ Token verification failed:", error.message);
     return res.status(401).json({ error: "Invalid or expired token" });
   }

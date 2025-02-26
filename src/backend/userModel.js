@@ -1,32 +1,45 @@
-const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs');
+const mongoose = require("mongoose");
+const bcrypt = require("bcryptjs");
 
-const userSchema = new mongoose.Schema({
-  fullName: { type: String, required: true },
-  email: { type: String, required: true, unique: true },
-  phone: { type: String, default: "" },
-  dob: { type: Date, default: null },
-  address: { type: String, default: "" },
-  profilePicture: { type: String, default: "" },
-  password: { type: String }, // ✅ Made optional (Google users don't need it)
-  authProvider: { type: String, enum: ["manual", "google"], default: "manual" }, // ✅ Tracks user type
-  googleId: { type: String },  // Optional for Google auth
-  needsPassword: { type: Boolean, default: false }, // Tracks whether password is needed for Google users
-});
+const userSchema = new mongoose.Schema(
+  {
+    fullName: { type: String, required: true },
+    email: { type: String, required: true, unique: true },
+    phone: { type: String, default: "" },
+    dob: { type: Date, default: null },
+    address: { type: String, default: "" },
+    profilePicture: { type: String, default: "" },
+    // Password is optional for Google users and not returned by default
+    password: { type: String, select: false },
+    authProvider: { type: String, enum: ["manual", "google"], default: "manual" },
+    googleId: { type: String },
+    needsPassword: { type: Boolean, default: false },
+  },
+  { timestamps: true } // Automatically adds createdAt & updatedAt fields
+);
 
-// Hash password before saving (only if modified and not from Google auth)
-userSchema.pre('save', async function (next) {
-  // Hash the password only if it's being set and it's not a Google user
-  if (this.authProvider === "manual" && this.isModified('password')) {
-    // Hash the password only for manual users (not Google login users)
+// Pre-save hook: Hash the password if user is manual and the password field is modified
+userSchema.pre("save", async function (next) {
+  if (this.authProvider === "manual" && this.isModified("password")) {
     this.password = await bcrypt.hash(this.password, 10);
   }
   next();
 });
 
-// Compare stored password (manual login)
-userSchema.methods.comparePassword = function (password) {
-  return bcrypt.compare(password, this.password);
+// Instance method to compare an entered password with the stored hashed password
+userSchema.methods.comparePassword = async function (enteredPassword) {
+  if (!this.password) {
+    throw new Error("Password not set for this user");
+  }
+  return bcrypt.compare(enteredPassword, this.password);
 };
 
-module.exports = mongoose.model('User', userSchema);
+// Instance method to set a new password for a Google user (converting them to manual authentication)
+userSchema.methods.setPassword = async function (newPassword) {
+  this.password = await bcrypt.hash(newPassword, 10);
+  this.needsPassword = false;  // Mark that the password is now set
+  this.authProvider = "manual"; // Convert the user to manual authentication
+  await this.save();
+};
+
+module.exports = mongoose.model("User", userSchema);

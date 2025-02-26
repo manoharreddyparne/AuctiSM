@@ -1,63 +1,72 @@
 import React, { useState, useEffect } from "react";
-import { Modal, Button, Form } from "react-bootstrap";
-import axios from "axios";
+import { Modal, Button, Form, Alert, Spinner } from "react-bootstrap";
+import { useNavigate } from "react-router-dom";
 import "./ResetPasswordModal.css";
 
-const ResetPasswordModal = ({ isOpen, onClose, userEmail }) => {
+const ResetPasswordModal = ({ isOpen, onClose, userEmail, onSubmitPassword }) => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  
-  // Add debug logging to track component state
+  const navigate = useNavigate();
+
+  // Clear all fields and messages whenever the modal opens or userEmail changes
   useEffect(() => {
-    console.log("ResetPasswordModal isOpen:", isOpen);
-    console.log("User email:", userEmail);
+    console.log("🔹 ResetPasswordModal isOpen:", isOpen);
+    console.log("🔹 User email:", userEmail);
+    setError("");
+    setSuccess("");
+    setPassword("");
+    setConfirmPassword("");
   }, [isOpen, userEmail]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError("");
+    setSuccess("");
 
     if (password !== confirmPassword) {
-      setError("Passwords do not match");
+      setError("❌ Passwords do not match.");
       return;
     }
-
     if (password.length < 6) {
-      setError("Password must be at least 6 characters long");
+      setError("❌ Password must be at least 6 characters long.");
       return;
     }
 
     setIsLoading(true);
     try {
-      const response = await axios.post("http://localhost:5000/api/set-password", {
-        email: userEmail,
-        password,
-      });
-
-      console.log("Password set successfully:", response.data);
-      onClose(); // Close the modal after successful password set
-    } catch (error) {
-      console.error("Error setting password:", error);
+      // Call the callback passed via props; this function should update the password in MongoDB
+      await onSubmitPassword(password);
+      setSuccess("✅ Password set successfully! Redirecting...");
+      setTimeout(() => {
+        onClose();
+        navigate("/mainpage");
+      }, 2000);
+    } catch (err) {
+      console.error("❌ Error setting password:", err);
       setError("Failed to set password. Please try again.");
     } finally {
       setIsLoading(false);
     }
   };
 
+  // Allow user to skip resetting their password
+  const handleSkip = () => {
+    onClose();
+    navigate("/mainpage");
+  };
+
   return (
-    <Modal
-      show={isOpen}
-      onHide={onClose}
-      centered
-      backdrop="static" // Prevent modal from closing when clicking outside
-      style={{ pointerEvents: "none" }} // Prevent interaction with the background
-    >
-      <Modal.Dialog style={{ pointerEvents: "auto" }}>
+    <Modal show={isOpen} onHide={onClose} centered backdrop="static" keyboard={false}>
+      <Modal.Dialog>
         <Modal.Header closeButton>
           <Modal.Title>Set Your Password</Modal.Title>
         </Modal.Header>
         <Modal.Body>
+          {error && <Alert variant="danger" aria-live="assertive">{error}</Alert>}
+          {success && <Alert variant="success" aria-live="polite">{success}</Alert>}
           <Form onSubmit={handleSubmit}>
             <Form.Group>
               <Form.Label>New Password</Form.Label>
@@ -66,9 +75,9 @@ const ResetPasswordModal = ({ isOpen, onClose, userEmail }) => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
+                minLength="6"
               />
             </Form.Group>
-
             <Form.Group>
               <Form.Label>Confirm Password</Form.Label>
               <Form.Control
@@ -76,14 +85,17 @@ const ResetPasswordModal = ({ isOpen, onClose, userEmail }) => {
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required
+                minLength="6"
               />
             </Form.Group>
-
-            {error && <p className="text-danger">{error}</p>} {/* Display error message */}
-
-            <Button variant="primary" type="submit" className="mt-3" disabled={isLoading}>
-              {isLoading ? "Setting Password..." : "Set Password"}
-            </Button>
+            <div className="d-flex justify-content-between mt-3">
+              <Button variant="secondary" onClick={handleSkip} disabled={isLoading}>
+                Skip
+              </Button>
+              <Button variant="primary" type="submit" disabled={isLoading}>
+                {isLoading ? <Spinner animation="border" size="sm" /> : "Set Password"}
+              </Button>
+            </div>
           </Form>
         </Modal.Body>
       </Modal.Dialog>

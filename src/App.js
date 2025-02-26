@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import Navbar from "./shared_components/Navbar";
 import UserNavbar from "./users_dashboard/UserNavbar";
@@ -9,27 +9,17 @@ import { AuthContext } from "./utils/AuthContext";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./global.css";
-import ResetPasswordModal from "./shared_components/ResetPasswordModal"; // Ensure this is the correct path
+import ResetPasswordModal from "./shared_components/ResetPasswordModal";
 
 function App() {
-  const { user, loading, needsPassword } = useContext(AuthContext); // Access context for user and needsPassword
-  const [showResetPasswordModal, setShowResetPasswordModal] = useState(false);
+  const { user, loading, needsPassword } = useContext(AuthContext);
 
   useEffect(() => {
-    console.log("🔍 Checking App.js render...");
+    console.log("App.js render:");
     console.log("User:", user);
     console.log("Needs Password:", needsPassword);
-    console.log("Show Reset Password Modal:", showResetPasswordModal);
-    
-    if (user && needsPassword) {
-      setShowResetPasswordModal(true);
-    } else {
-      setShowResetPasswordModal(false);
-    }
-  }, [user, needsPassword, showResetPasswordModal]);
-  
+  }, [user, needsPassword]);
 
-  // Loading state handling
   if (loading) {
     return <div className="text-center mt-5">🔄 Loading...</div>;
   }
@@ -38,12 +28,14 @@ function App() {
     <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}>
       <div className="global-background"></div>
 
-      {/* Navbar based on user login */}
+      {/* Render Navbar based on authentication status */}
       {user ? <UserNavbar /> : <Navbar />}
 
-      {/* Main Routes */}
       <Routes>
+        {/* Public Dashboard Routes */}
         <Route path="/*" element={<DashboardRoutes />} />
+
+        {/* Protected Routes */}
         <Route
           path="/mainpage/*"
           element={
@@ -52,25 +44,24 @@ function App() {
             </PrivateRoute>
           }
         />
+
+        {/* Password Reset Route */}
         <Route
           path="/reset-password"
           element={
             user && needsPassword ? (
-              <ResetPasswordModal /> // Only show modal if the user needs to reset password
+              <ResetPasswordModal />
             ) : (
-              <Navigate to="/mainpage" /> // Redirect to main page if no reset is needed
+              <Navigate to="/mainpage" replace />
             )
           }
         />
-      </Routes>
 
-      {/* Show reset password modal if required */}
-      {showResetPasswordModal && (
-        <ResetPasswordModal /> // Ensure this modal is only shown when needed
-      )}
+        {/* Fallback Route */}
+        <Route path="*" element={<Navigate to={user ? "/mainpage" : "/"} replace />} />
+      </Routes>
     </GoogleOAuthProvider>
   );
 }
 
 export default App;
-// ✅ Check Password Reset Modal
