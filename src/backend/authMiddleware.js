@@ -2,30 +2,27 @@ const jwt = require('jsonwebtoken');
 const { JWT_SECRET } = require('./config/config');
 
 const authenticate = (req, res, next) => {
-  let token = req.headers.authorization; // Try getting token from Authorization header
-
-  if (!token) {
-    // If no token in Authorization header, try cookies
-    token = req.cookies.authToken; 
-  }
+  // Try to get the token from the Authorization header first
+  let token = req.headers.authorization || (req.cookies && req.cookies.authToken);
 
   if (!token) {
     console.error("❌ No token provided");
-    return res.status(401).send({ message: "No token provided" });
+    return res.status(401).json({ message: "No token provided" });
   }
 
-  // Ensure the token starts with "Bearer " if it's in Authorization header
+  // Remove 'Bearer ' prefix if present
   if (token.startsWith('Bearer ')) {
-    token = token.slice(7, token.length);
+    token = token.slice(7).trim();
   }
 
   try {
+    // Verify the token using the JWT_SECRET
     const decoded = jwt.verify(token, JWT_SECRET);
-    req.userId = decoded.userId; // Set the decoded user ID to the request
-    next(); // Proceed to the next middleware or route handler
+    req.userId = decoded.userId; // Attach the decoded user ID to the request object
+    next(); // Token is valid—proceed to the next middleware/route handler
   } catch (error) {
     console.error("❌ Token verification failed:", error.message);
-    return res.status(401).send({ message: "Invalid or expired token" });
+    return res.status(401).json({ message: "Invalid or expired token" });
   }
 };
 
