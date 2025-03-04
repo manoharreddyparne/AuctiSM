@@ -39,7 +39,16 @@ app.use((req, res, next) => {
 });
 
 // ------------------
-// Routes
+// AWS Routes Section
+// ------------------
+// This section is dedicated to AWS S3 integration for generating pre-signed URLs.
+// It does not affect your existing routes.
+const awsRoutes = require("./awsRoutes");
+app.use("/api/aws", awsRoutes);
+// Now, the endpoint for pre-signed URL generation is available at: /api/aws/s3/sign
+
+// ------------------
+// Existing Routes
 // ------------------
 
 // Mount API routes
@@ -49,7 +58,10 @@ app.use("/api", routes);
 app.use(
   "/api/profile",
   (req, res, next) => {
-    res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
+    res.setHeader(
+      "Cache-Control",
+      "no-store, no-cache, must-revalidate, proxy-revalidate"
+    );
     res.setHeader("Pragma", "no-cache");
     res.setHeader("Expires", "0");
     next();
@@ -65,12 +77,13 @@ app.get("/", (req, res) => {
 // ------------------
 // Password Reset Route (Authenticated)
 // This route is for users who already have a valid token and need to reset their password manually.
-// It uses the userId from the decoded token.
 app.post("/api/reset-password", authenticate, async (req, res) => {
   try {
     const { newPassword } = req.body;
     if (!newPassword || newPassword.length < 6) {
-      return res.status(400).json({ message: "Password must be at least 6 characters long" });
+      return res
+        .status(400)
+        .json({ message: "Password must be at least 6 characters long" });
     }
 
     // Find the user based on the authenticated user ID
@@ -107,7 +120,9 @@ app.post("/api/set-password", authenticate, async (req, res) => {
   try {
     const { email, password } = req.body;
     if (!email || !password || password.length < 6) {
-      return res.status(400).json({ message: "Invalid email or weak password (min 6 chars)" });
+      return res
+        .status(400)
+        .json({ message: "Invalid email or weak password (min 6 chars)" });
     }
 
     // Find the user by email
@@ -118,7 +133,9 @@ app.post("/api/set-password", authenticate, async (req, res) => {
 
     // Only allow setting password if the user was created via Google
     if (user.authProvider !== "google") {
-      return res.status(400).json({ message: "Only Google login users can set a password" });
+      return res
+        .status(400)
+        .json({ message: "Only Google login users can set a password" });
     }
 
     // Hash the new password, update the authProvider, and clear the needsPassword flag

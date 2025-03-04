@@ -1,5 +1,5 @@
 import React, { createContext, useState, useEffect, useCallback } from "react";
-import { jwtDecode } from "jwt-decode"; // Use named import instead of default
+import { jwtDecode } from "jwt-decode";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
@@ -10,35 +10,6 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [needsPassword, setNeedsPassword] = useState(false);
   const navigate = useNavigate();
-
-  // Login function – called after successful login (manual or Google)
-  const login = (token, userData) => {
-    console.log("🔵 Storing auth token and user data...");
-    localStorage.setItem("authToken", token);
-    localStorage.setItem("user", JSON.stringify(userData));
-    setUser(userData);
-
-    // Fetch the complete user profile from backend (which is the source of truth)
-    axios
-      .get("/api/profile", {
-        headers: { Authorization: `Bearer ${token}` },
-      })
-      .then((response) => {
-        const { needsPassword } = response.data;
-        setNeedsPassword(needsPassword);
-        if (needsPassword) {
-          console.warn("🔴 User needs to set a password. Redirecting to reset page.");
-          navigate("/reset-password", { replace: true });
-        } else {
-          navigate("/mainpage", { replace: true });
-        }
-      })
-      .catch((error) => {
-        console.error("❌ Error fetching profile:", error);
-      });
-
-    console.log("🟢 User logged in:", userData);
-  };
 
   // Logout function
   const logout = useCallback(() => {
@@ -52,6 +23,46 @@ export const AuthProvider = ({ children }) => {
     navigate("/login", { replace: true });
   }, [navigate]);
 
+  // Login function – called after successful login (manual or Google)
+  // We now check if userData has a 'needsPassword' flag and act accordingly.
+  const login = (token, userData) => {
+    console.log("🔵 Storing auth token and user data...");
+    localStorage.setItem("authToken", token);
+    localStorage.setItem("user", JSON.stringify(userData));
+    setUser(userData);
+
+    // Check if the user data indicates a password reset is needed.
+    if (userData && userData.needsPassword) {
+      console.warn("🔴 User needs to set a password. Redirecting to reset page.");
+      localStorage.setItem("needsPassword", "true");
+      navigate("/reset-password", { replace: true });
+    } else {
+      // Optionally, you can still fetch the latest profile:
+      axios
+        .get("/api/profile", {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+        .then((response) => {
+          const { needsPassword: profileNeedsPassword } = response.data;
+          setNeedsPassword(profileNeedsPassword);
+          if (profileNeedsPassword) {
+            console.warn("🔴 (Profile) User needs to set a password. Redirecting to reset page.");
+            localStorage.setItem("needsPassword", "true");
+            navigate("/reset-password", { replace: true });
+          } else {
+            navigate("/mainpage", { replace: true });
+          }
+        })
+        .catch((error) => {
+          console.error("❌ Error fetching profile:", error);
+          // If error, fallback to mainpage
+          navigate("/mainpage", { replace: true });
+        });
+    }
+
+    console.log("🟢 User logged in:", userData);
+  };
+
   // Check authentication on component mount
   useEffect(() => {
     console.log("🔍 Checking authentication status...");
@@ -60,35 +71,20 @@ export const AuthProvider = ({ children }) => {
       try {
         const decoded = jwtDecode(token);
         console.log("🟢 Decoded token:", decoded);
-
-        // Check token expiration
         if (decoded.exp * 1000 < Date.now()) {
           console.warn("⚠️ Token expired. Logging out...");
           logout();
           return;
         }
-
-        // Retrieve stored user data
-        const storedUser = JSON.parse(localStorage.getItem("user"));
-        console.log("🟢 Retrieved user data from localStorage:", storedUser);
-        setUser({ id: decoded.userId, email: decoded.email, ...storedUser });
-
-        // Fetch profile to get the up-to-date needsPassword flag
-        axios
-          .get("/api/profile", {
-            headers: { Authorization: `Bearer ${token}` },
-          })
-          .then((response) => {
-            const { needsPassword } = response.data;
-            setNeedsPassword(needsPassword);
-            if (needsPassword) {
-              console.warn("🔴 User needs to set a password. Redirecting to reset page.");
-              navigate("/reset-password", { replace: true });
-            }
-          })
-          .catch((error) => {
-            console.error("❌ Error fetching profile:", error);
-          });
+        const storedUser = localStorage.getItem("user");
+        let userData = storedUser ? JSON.parse(storedUser) : { id: decoded.userId, email: decoded.email };
+        // If the userData contains a needsPassword flag, update state accordingly.
+        if (userData.needsPassword) {
+          setNeedsPassword(true);
+          console.warn("🔴 Stored user needs to set a password.");
+          navigate("/reset-password", { replace: true });
+        }
+        setUser({ id: decoded.userId, email: decoded.email, ...userData });
       } catch (error) {
         console.error("❌ Invalid token:", error);
         logout();
@@ -101,9 +97,7 @@ export const AuthProvider = ({ children }) => {
   }, [logout, navigate]);
 
   return (
-    <AuthContext.Provider
-      value={{ user, loading, logout, login, needsPassword, setNeedsPassword }}
-    >
+    <AuthContext.Provider value={{ user, loading, logout, login, needsPassword, setNeedsPassword }}>
       {children}
     </AuthContext.Provider>
   );

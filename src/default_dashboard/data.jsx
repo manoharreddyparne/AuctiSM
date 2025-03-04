@@ -6,7 +6,7 @@ const auctionData = [
     basePrice: 150,
     endDate: "2025-02-20",
     status: "ongoing",
-    image: "",
+    image: "https://my-auction-images-2025.s3.us-east-1.amazonaws.com/1st.jpeg",
     bid: 170000,
   },
   {
@@ -15,7 +15,7 @@ const auctionData = [
     basePrice: 800,
     endDate: "2025-02-27",
     status: "ongoing",
-    image: "",
+    image: "https://my-auction-images-2025.s3.us-east-1.amazonaws.com/2nd.jpeg",
     bid: 900,
   },
   {
@@ -24,7 +24,7 @@ const auctionData = [
     basePrice: 2000,
     endDate: "2025-02-25",
     status: "ongoing",
-    image: "",
+    image: "https://my-auction-images-2025.s3.us-east-1.amazonaws.com/3rd.jpeg",
     bid: 2100,
   },
 
