@@ -4,6 +4,7 @@ const authenticate = require("./authMiddleware");
 const User = require("./userModel");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const { createAuction } = require("./auctionController"); // Import auction controller
 
 const router = express.Router();
 
@@ -97,5 +98,8 @@ router.post("/login", async (req, res) => {
     res.status(500).send("Internal server error");
   }
 });
+
+// ✅ Auction Route
+router.post("/auctions/create", authenticate, createAuction);
 
 module.exports = router;

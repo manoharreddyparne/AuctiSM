@@ -14,6 +14,8 @@ const profileRoute = require("./profileRoute");
 const User = require("./userModel");
 const authenticate = require("./authMiddleware"); // Authentication middleware
 const authController = require("./authController"); // Auth controller for Google login, etc.
+const auctionRoutes = require("./auctionRoutes");
+const awsRoutes = require("./awsRoutes");
 
 const app = express();
 
@@ -23,6 +25,8 @@ const app = express();
 app.use(morgan("dev")); // Logs requests for debugging
 app.use(cookieParser());
 app.use(express.json());
+
+// Place CORS middleware here so it affects all routes.
 app.use(
   cors({
     origin: "http://localhost:3000", // Adjust based on your frontend URL
@@ -30,28 +34,22 @@ app.use(
   })
 );
 
-// Debugging: log incoming request headers and body
-app.use((req, res, next) => {
-  console.log("🔵 Incoming Request:", req.method, req.url);
-  console.log("🔹 Headers:", req.headers);
-  console.log("🔹 Body:", req.body);
-  next();
-});
-
 // ------------------
 // AWS Routes Section
 // ------------------
 // This section is dedicated to AWS S3 integration for generating pre-signed URLs.
 // It does not affect your existing routes.
-const awsRoutes = require("./awsRoutes");
 app.use("/api/aws", awsRoutes);
 // Now, the endpoint for pre-signed URL generation is available at: /api/aws/s3/sign
 
 // ------------------
+// Auction Routes
+// ------------------
+app.use("/api/auctions", auctionRoutes);
+
+// ------------------
 // Existing Routes
 // ------------------
-
-// Mount API routes
 app.use("/api", routes);
 
 // Protected Profile Route
@@ -76,7 +74,7 @@ app.get("/", (req, res) => {
 
 // ------------------
 // Password Reset Route (Authenticated)
-// This route is for users who already have a valid token and need to reset their password manually.
+// ------------------
 app.post("/api/reset-password", authenticate, async (req, res) => {
   try {
     const { newPassword } = req.body;
@@ -109,13 +107,12 @@ app.post("/api/reset-password", authenticate, async (req, res) => {
 
 // ------------------
 // Google Login Route
-// This route uses the authController's googleLogin function.
+// ------------------
 app.post("/api/google-login", authController.googleLogin);
 
 // ------------------
 // Set Password Route for Google Users
-// This route allows a Google user (who has not set a manual password) to set one.
-// It is protected by the authentication middleware.
+// ------------------
 app.post("/api/set-password", authenticate, async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -153,6 +150,16 @@ app.post("/api/set-password", authenticate, async (req, res) => {
     console.error("❌ Error setting password:", error);
     res.status(500).json({ message: "Server error" });
   }
+});
+
+// ------------------
+// Debug Middleware: Log incoming request headers and body
+// ------------------
+app.use((req, res, next) => {
+  console.log("🔵 Incoming Request:", req.method, req.url);
+  console.log("🔹 Headers:", req.headers);
+  console.log("🔹 Body:", req.body);
+  next();
 });
 
 // ------------------

@@ -1,9 +1,9 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
-// import App from "./App";
+import App from "./App";
 import { AuthProvider } from "./utils/AuthContext"; // ✅ Ensure Auth Context is wrapped
-import App from "./seller/App"; // ✅ Import Seller App
+// import App from "./seller/App"; // ✅ Import Seller App
 const root = ReactDOM.createRoot(document.getElementById("root"));
 
 root.render(

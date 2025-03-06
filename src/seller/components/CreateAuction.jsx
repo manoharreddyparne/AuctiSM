@@ -1,10 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import "./CreateAuction.css";
 
-// Debug logs to check environment variables
-console.log("Bucket:", process.env.REACT_APP_AWS_BUCKET_NAME);
-console.log("Region:", process.env.REACT_APP_AWS_REGION);
-
 const CreateAuction = () => {
   const initialState = {
     productName: "",
@@ -35,7 +31,6 @@ const CreateAuction = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    // For basePrice, keep it as string so the field can be cleared
     setFormData((prev) => ({ ...prev, [name]: value }));
     if (name === "category") {
       setIsOther(value === "Other");
@@ -79,7 +74,7 @@ const CreateAuction = () => {
     }));
   };
 
-  // Increment and decrement for base price (treat empty string as 0)
+  // Increment and decrement for base price
   const incrementPrice = () => {
     const currentPrice = formData.basePrice === "" ? 0 : parseInt(formData.basePrice, 10);
     setFormData((prev) => ({ ...prev, basePrice: (currentPrice + 100).toString() }));
@@ -96,7 +91,6 @@ const CreateAuction = () => {
     const uploadedImageUrls = [];
     for (let i = 0; i < images.length; i++) {
       const file = images[i];
-      // Request pre-signed URL from the backend (adjust URL for production as needed)
       const response = await fetch("http://localhost:5000/api/aws/s3/sign", {
         method: "POST",
         headers: {
@@ -111,13 +105,11 @@ const CreateAuction = () => {
         console.error("Failed to get pre-signed URL for:", file.name);
         continue;
       }
-      // Destructure both uploadURL and fileKey from the response
       const { uploadURL, fileKey } = await response.json();
       if (!uploadURL || !fileKey) {
         console.error("Invalid response for:", file.name);
         continue;
-      }
-      // Upload file directly to S3 using the pre-signed URL
+      };
       const uploadResponse = await fetch(uploadURL, {
         method: "PUT",
         headers: {
@@ -126,8 +118,9 @@ const CreateAuction = () => {
         body: file
       });
       if (uploadResponse.ok) {
-        // Construct the S3 file URL using fileKey (not the original file name)
+        // Construct the S3 file URL using fileKey and the REACT_APP_ variables
         const s3Url = `https://${process.env.REACT_APP_AWS_BUCKET_NAME}.s3.${process.env.REACT_APP_AWS_REGION}.amazonaws.com/${fileKey}`;
+
         uploadedImageUrls.push(s3Url);
       } else {
         console.error("Error uploading image to S3:", file.name);
@@ -136,7 +129,8 @@ const CreateAuction = () => {
     return uploadedImageUrls;
   };
 
-  // Modified handleSubmit to upload images after auction creation
+
+  // Modified handleSubmit to include saving auction data (including image URLs)
   const handleSubmit = async (e) => {
     e.preventDefault();
     let tempErrors = {};
@@ -144,7 +138,7 @@ const CreateAuction = () => {
     const start = new Date(formData.startDateTime);
     const end = new Date(formData.endDateTime);
 
-    if (start.getTime() - now.getTime() < 60000) {
+    if (start.getTime() - now.getTime() < 600) {
       tempErrors.startDateTime =
         "Start date/time must be at least 1 minute before creating the auction";
     }
@@ -165,19 +159,35 @@ const CreateAuction = () => {
       basePrice: parseInt(formData.basePrice, 10) || 0
     };
 
-    console.log("Auction Data:", auctionData);
+    // console.log("Auction Data before image upload:", auctionData);
 
     // Upload images to S3 and retrieve their URLs
     const uploadedImageUrls = await uploadImagesToS3(formData.images);
-    console.log("Uploaded Image URLs:", uploadedImageUrls);
 
-    // Optionally, you can now include these URLs in your auctionData object
-    // or send them to your backend to update your auction record.
+    // Add the uploaded image URLs to the auction data object
+    auctionData.imageUrls = uploadedImageUrls;
 
-    // Show success message
+    try {
+      const response = await fetch("http://localhost:5000/api/auctions/create", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+          // Add authorization headers if required
+        },
+        body: JSON.stringify(auctionData)
+      });
+      if (!response.ok) {
+        console.error("Failed to save auction data, response status:", response.status);
+        throw new Error("Failed to save auction data");
+      }
+      // const savedAuction = await response.json();
+      // console.log("Saved Auction:", savedAuction);
+    } catch (error) {
+      console.error("Error saving auction data:", error);
+    }
+
+    // Show success message and clear form
     setSubmissionSuccess(true);
-
-    // Clear the form
     setFormData(initialState);
     setIsOther(false);
     setErrors({});
