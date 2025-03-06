@@ -1,19 +1,42 @@
-import React, { useEffect, useState, useContext } from "react";
+import React, { useEffect, useState, useContext, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { AuthContext } from "../utils/AuthContext"; // ✅ Import AuthContext
 
 const Profile = () => {
   const [profileData, setProfileData] = useState(null);
-  const { logout } = useContext(AuthContext); // ✅ Get logout from AuthContext
+  const { logout } = useContext(AuthContext); // ✅ Get logout function from AuthContext
   const navigate = useNavigate();
+
+  // ✅ Function to Clear Everything on Logout (Memoized)
+  const clearStorageAndCookies = useCallback(() => {
+    try {
+      // ✅ Clear Local Storage & Session Storage
+      localStorage.clear();
+      sessionStorage.clear();
+
+      // ✅ Delete All Cookies
+      document.cookie.split(";").forEach((cookie) => {
+        document.cookie = cookie
+          .replace(/^ +/, "") // Trim spaces
+          .replace(/=.*/, "=;expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/"); // Expire cookie
+      });
+
+      // ✅ Call logout function from AuthContext to reset auth state
+      logout();
+
+      console.log("✅ All session data cleared.");
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
+  }, [logout]); // ✅ Dependency on 'logout' only
 
   useEffect(() => {
     const fetchUserData = async () => {
       const token = localStorage.getItem("authToken");
 
       if (!token) {
-        console.log("No token found, redirecting to login...");
+        console.log("❌ No token found, redirecting to login...");
         navigate("/login");
         return;
       }
@@ -21,24 +44,29 @@ const Profile = () => {
       try {
         const response = await axios.get("http://localhost:5000/api/profile", {
           headers: { Authorization: `Bearer ${token}` },
-          withCredentials: true,
         });
 
-        console.log("Profile data received:", response.data);
+        console.log("✅ Profile data received:", response.data);
         setProfileData(response.data);
       } catch (error) {
-        console.error("Error fetching profile:", error);
-        navigate("/login");
+        console.error("❌ Error fetching profile:", error);
+
+        // ✅ Clear invalid token and redirect to prevent infinite loop
+        if (error.response && error.response.status === 401) {
+          console.log("🚨 Unauthorized: Clearing token and redirecting...");
+          clearStorageAndCookies();
+          navigate("/login");
+        }
       }
     };
 
     fetchUserData();
-  }, [navigate]);
+  }, [navigate, clearStorageAndCookies]); // ✅ Include clearStorageAndCookies
 
-  // ✅ Use AuthContext logout function
+  // ✅ Logout Button Handler
   const handleLogout = () => {
-    logout(); // Clears tokens & cookies + updates state
-    navigate("/"); // Redirects to home
+    clearStorageAndCookies();
+    navigate("/login"); // Redirect after clearing storage
   };
 
   if (!profileData) return <div>Loading...</div>;

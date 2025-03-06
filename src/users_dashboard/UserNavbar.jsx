@@ -54,20 +54,26 @@ const UserNavbar = ({ searchQuery, setSearchQuery }) => {
           {/* Navigation Links */}
           <Nav className="me-auto">
             {[
-              { path: "/mainpage", label: "HOME" },
+              { path: "/mainpage", label: "HOME", exact: true },
               { path: "/mainpage/auctions", label: "Auctions" },
               { path: "/mainpage/profile", label: "Profile" },
               { path: "/mainpage/guidance", label: "Guidance" },
               { path: "/mainpage/help", label: "Help" },
               { path: "/mainpage/contact", label: "Contact" },
+              { path: "/mainpage/my-auctions", label: "My Auctions" },
+               // New "My Auctions" button
             ].map(({ path, label }, index) => (
               <NavLink
                 key={index}
                 to={path}
-                className={({ isActive }) => (isActive ? "nav-link active" : "nav-link")}
+                end={path === "/mainpage"} // Ensures only exact match applies for HOME
+                className={({ isActive }) =>
+                  `nav-link ${isActive ? "active" : ""}`
+                }
               >
                 {label}
               </NavLink>
+
             ))}
           </Nav>
 

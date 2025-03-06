@@ -25,18 +25,26 @@ router.post("/reset-password", resetPassword); // For manual password reset
 router.get("/profile", authenticate, async (req, res) => {
   try {
     console.log("🟢 Fetching profile for user ID:", req.userId);
+
+    if (!req.userId) {
+      console.log("❌ No userId found in token.");
+      return res.status(401).json({ message: "Unauthorized: Invalid token" });
+    }
+
     const user = await User.findById(req.userId).select("-password -__v");
     if (!user) {
       console.log("❌ User not found:", req.userId);
       return res.status(404).json({ message: "User not found" });
     }
-    console.log("✅ Profile data fetched successfully");
+
+    console.log("✅ Profile data fetched successfully:", user);
     res.status(200).json(user);
   } catch (error) {
     console.error("❌ Error fetching profile:", error);
     res.status(500).json({ message: "Server error" });
   }
 });
+
 
 // ✅ Set Password for Google Users (or users without a manual password)
 // This route allows a Google user (with no manual password) to set one

@@ -11,10 +11,10 @@ export const AuthProvider = ({ children }) => {
   const [needsPassword, setNeedsPassword] = useState(false);
   const navigate = useNavigate();
 
-  // Logout function
+  // 🔴 Logout function - Clears stored tokens and user data
   const logout = useCallback(() => {
     console.log("🔴 Logging out user...");
-    localStorage.removeItem("authToken");
+    localStorage.removeItem("authToken");  // Ensure token removal
     localStorage.removeItem("user");
     localStorage.removeItem("needsPassword");
     document.cookie = "authToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
@@ -23,67 +23,73 @@ export const AuthProvider = ({ children }) => {
     navigate("/login", { replace: true });
   }, [navigate]);
 
-  // Login function – called after successful login (manual or Google)
-  // We now check if userData has a 'needsPassword' flag and act accordingly.
-  const login = (token, userData) => {
+  // 🟢 Login function - Stores token correctly
+  const login = async (token, userData) => {
     console.log("🔵 Storing auth token and user data...");
+
+    // Ensure token is stored correctly
     localStorage.setItem("authToken", token);
     localStorage.setItem("user", JSON.stringify(userData));
     setUser(userData);
 
-    // Check if the user data indicates a password reset is needed.
-    if (userData && userData.needsPassword) {
+    // 🔍 Check if user needs to set a password
+    if (userData?.needsPassword) {
       console.warn("🔴 User needs to set a password. Redirecting to reset page.");
       localStorage.setItem("needsPassword", "true");
       navigate("/reset-password", { replace: true });
-    } else {
-      // Optionally, you can still fetch the latest profile:
-      axios
-        .get("/api/profile", {
-          headers: { Authorization: `Bearer ${token}` },
-        })
-        .then((response) => {
-          const { needsPassword: profileNeedsPassword } = response.data;
-          setNeedsPassword(profileNeedsPassword);
-          if (profileNeedsPassword) {
-            console.warn("🔴 (Profile) User needs to set a password. Redirecting to reset page.");
-            localStorage.setItem("needsPassword", "true");
-            navigate("/reset-password", { replace: true });
-          } else {
-            navigate("/mainpage", { replace: true });
-          }
-        })
-        .catch((error) => {
-          console.error("❌ Error fetching profile:", error);
-          // If error, fallback to mainpage
-          navigate("/mainpage", { replace: true });
-        });
+      return;
     }
 
-    console.log("🟢 User logged in:", userData);
+    try {
+      // ✅ Fetch updated profile
+      const response = await axios.get("/api/profile", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      const profile = response.data;
+      console.log("🟢 Profile fetched:", profile);
+
+      // Update needsPassword based on profile data
+      setNeedsPassword(profile.needsPassword);
+      if (profile.needsPassword) {
+        console.warn("🔴 Profile indicates password reset needed.");
+        localStorage.setItem("needsPassword", "true");
+        navigate("/reset-password", { replace: true });
+      } else {
+        navigate("/mainpage", { replace: true });
+      }
+    } catch (error) {
+      console.error("❌ Error fetching profile:", error.response?.data || error.message);
+      navigate("/mainpage", { replace: true });
+    }
   };
 
-  // Check authentication on component mount
+  // 🔍 Check authentication when app starts
   useEffect(() => {
     console.log("🔍 Checking authentication status...");
     const token = localStorage.getItem("authToken");
+
     if (token) {
       try {
         const decoded = jwtDecode(token);
         console.log("🟢 Decoded token:", decoded);
+
         if (decoded.exp * 1000 < Date.now()) {
           console.warn("⚠️ Token expired. Logging out...");
           logout();
           return;
         }
+
         const storedUser = localStorage.getItem("user");
         let userData = storedUser ? JSON.parse(storedUser) : { id: decoded.userId, email: decoded.email };
-        // If the userData contains a needsPassword flag, update state accordingly.
+
+        // 🔍 If user needs a password reset, redirect
         if (userData.needsPassword) {
-          setNeedsPassword(true);
           console.warn("🔴 Stored user needs to set a password.");
+          setNeedsPassword(true);
           navigate("/reset-password", { replace: true });
         }
+
         setUser({ id: decoded.userId, email: decoded.email, ...userData });
       } catch (error) {
         console.error("❌ Invalid token:", error);
@@ -93,6 +99,7 @@ export const AuthProvider = ({ children }) => {
       console.warn("⚠️ No token found. User is not logged in.");
       setUser(null);
     }
+
     setLoading(false);
   }, [logout, navigate]);
 

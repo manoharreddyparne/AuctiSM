@@ -1,12 +1,12 @@
-import React from "react";
-import SellerDashboard from "./components/SellerDashboard";
+// import React from "react";
+// import SellerDashboard from "./components/SellerDashboard";
 
-const App = () => {
-  return (
-    <div>
-      <SellerDashboard />
-    </div>
-  );
-};
+// const App = () => {
+//   return (
+//     <div>
+//       <SellerDashboard />
+//     </div>
+//   );
+// };
 
-export default App;
+// export default App;

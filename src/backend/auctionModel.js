@@ -9,8 +9,8 @@ const auctionSchema = new mongoose.Schema(
     basePrice: { type: Number, required: true },
     startDateTime: { type: Date, required: true },
     endDateTime: { type: Date, required: true },
-    imageUrls: [{ type: String }], // Array of S3 image URLs
-    createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true }
+    imageUrls: { type: [String], default: [] }, // Ensure it defaults to an array
+    sellerId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true }, // 🔥 Changed from `createdBy` to `sellerId`
   },
   { timestamps: true }
 );
