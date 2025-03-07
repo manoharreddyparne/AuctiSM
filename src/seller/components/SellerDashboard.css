@@ -20,7 +20,7 @@
   height: 350px;             /* Uniform fixed height for all cards */
   border: 1px solid #ddd;
   border-radius: 8px;
-  background: #fff;
+  background: rgba(255, 255, 255, 0.85);
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -28,9 +28,18 @@
   cursor: pointer;
   padding: 20px;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-  transition: background-color 0.3s ease, transform 0.3s ease;
+  transition: background-color 0.3s ease, transform 0.3s ease, color 0.3s ease;
 }
 
+/* Dark mode for cards */
+.auction-card.dark,
+.create-auction-card.dark {
+  background: rgba(0, 0, 0, 0.7) !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+  color: #fff !important;
+}
+
+/* Create Auction Card specific styling */
 .create-auction-card {
   border: 2px dashed #007bff;
 }

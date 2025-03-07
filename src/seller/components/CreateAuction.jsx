@@ -27,7 +27,16 @@ const CreateAuction = () => {
   const fileInputRef = useRef(null);
   const navigate = useNavigate();
 
-  // Set minimum datetime for auction start as current datetime
+  // Poll dark mode from localStorage instantly (0ms interval)
+  const [darkMode, setDarkMode] = useState(localStorage.getItem("darkMode") === "enabled");
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const currentDark = localStorage.getItem("darkMode") === "enabled";
+      setDarkMode(currentDark);
+    }, 0);
+    return () => clearInterval(interval);
+  }, []);
+
   useEffect(() => {
     const now = new Date();
     const isoString = now.toISOString().slice(0, 16);
@@ -42,7 +51,6 @@ const CreateAuction = () => {
     }
   };
 
-  // Filter out duplicate images based on name and size.
   const addUniqueFiles = (files) => {
     const uniqueFiles = files.filter((file) => {
       return !formData.images.some(
@@ -52,14 +60,12 @@ const CreateAuction = () => {
     return uniqueFiles;
   };
 
-  // Handle image selection from file dialog
   const handleImageSelect = (e) => {
     const files = Array.from(e.target.files);
     const uniqueFiles = addUniqueFiles(files);
     setFormData((prev) => ({ ...prev, images: [...prev.images, ...uniqueFiles] }));
   };
 
-  // Handle drag and drop for images
   const handleDragOver = (e) => {
     e.preventDefault();
   };
@@ -71,7 +77,6 @@ const CreateAuction = () => {
     setFormData((prev) => ({ ...prev, images: [...prev.images, ...uniqueFiles] }));
   };
 
-  // Remove selected image by index
   const removeImage = (indexToRemove) => {
     setFormData((prev) => ({
       ...prev,
@@ -79,7 +84,6 @@ const CreateAuction = () => {
     }));
   };
 
-  // Increment and decrement for base price
   const incrementPrice = () => {
     const currentPrice = formData.basePrice === "" ? 0 : parseInt(formData.basePrice, 10);
     setFormData((prev) => ({ ...prev, basePrice: (currentPrice + 100).toString() }));
@@ -91,7 +95,6 @@ const CreateAuction = () => {
     setFormData((prev) => ({ ...prev, basePrice: newPrice.toString() }));
   };
 
-  // Submission handler that validates and uploads images before sending auction data to backend
   const handleSubmit = async (e) => {
     e.preventDefault();
     let tempErrors = {};
@@ -99,25 +102,21 @@ const CreateAuction = () => {
     const start = new Date(formData.startDateTime);
     const end = new Date(formData.endDateTime);
 
-    // Validate Start Date & Time
     if (start - now < 60000) {
       tempErrors.startDateTime = "Start date/time must be at least 1 minute from now.";
     }
-    // Validate End Date & Time
     if (end <= start) {
       tempErrors.endDateTime = "End date/time must be after the start date/time.";
     }
-    // Validate Image Count
     if (formData.images.length < 3) {
       tempErrors.images = "Please select at least 3 images.";
     }
-    // If any validation errors exist, stop form submission
     if (Object.keys(tempErrors).length > 0) {
       setErrors(tempErrors);
       return;
     }
 
-    setIsCreating(true); // Show loading overlay
+    setIsCreating(true);
 
     try {
       const authToken = localStorage.getItem("authToken");
@@ -127,7 +126,6 @@ const CreateAuction = () => {
         return;
       }
 
-      // Decode JWT securely to extract user ID
       let userId;
       try {
         const decodedToken = jwtDecode(authToken);
@@ -143,7 +141,6 @@ const CreateAuction = () => {
         return;
       }
 
-      // Upload images to S3 using the utility function
       const uploadedImageUrls = await uploadImagesToS3(formData.images);
       if (uploadedImageUrls.length < 3) {
         console.error("Image upload failed or insufficient images.");
@@ -151,7 +148,6 @@ const CreateAuction = () => {
         return;
       }
 
-      // Prepare auction data
       const auctionData = {
         sellerId: userId,
         productName: formData.productName,
@@ -179,12 +175,11 @@ const CreateAuction = () => {
       }
 
       const createdAuction = await response.json();
-      // Redirect to the auction detail page after creation
       navigate(`/mainpage/my-auctions/${createdAuction._id}`, { replace: true });
     } catch (error) {
       console.error("Error saving auction data:", error);
     } finally {
-      setIsCreating(false); // Hide loading overlay
+      setIsCreating(false);
     }
   };
 
@@ -193,12 +188,10 @@ const CreateAuction = () => {
   }
 
   return (
-    <div className="create-auction-container">
-      {/* Back Arrow Button */}
+    <div className={`create-auction-container ${darkMode ? "dark" : "light"}`}>
       <button className="back-arrow" onClick={() => navigate("/mainpage/my-auctions")}>
         &#8592; Back to My Auctions
       </button>
-      {/* AuctionForm should contain the title if needed */}
       <AuctionForm
         formData={formData}
         handleChange={handleChange}

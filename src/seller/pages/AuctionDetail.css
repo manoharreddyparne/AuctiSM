@@ -36,18 +36,21 @@
 }
 
 .back-arrow:hover {
-  background: #007bff;
-  color: #fff;
+  background: rgba(83, 6, 236, 0.7);
+  color: black;
 }
 
 .auction-detail.dark .back-arrow {
-  background: rgba(0, 0, 0, 0.7);
-  border: 1px solid #555;
+  background: rgba(83, 6, 236, 0.7);
+
   color: #eee;
+  
+  
 }
 
+
 .product-name-container {
-  margin-top: 40px; /* Space to ensure product name doesn't overlap with the back arrow */
+  margin-top: 40px;
 }
 
 .auction-detail h1 {

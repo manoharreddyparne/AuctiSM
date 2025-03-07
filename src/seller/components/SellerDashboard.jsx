@@ -12,14 +12,14 @@ const SellerDashboard = () => {
   const authToken = localStorage.getItem("authToken");
   const navigate = useNavigate();
 
-  // Use state for dark mode and update it by polling localStorage every 500ms
+  // Poll dark mode from localStorage instantly (0ms interval)
   const [darkMode, setDarkMode] = useState(localStorage.getItem("darkMode") === "enabled");
 
   useEffect(() => {
     const interval = setInterval(() => {
       const currentDark = localStorage.getItem("darkMode") === "enabled";
       setDarkMode(currentDark);
-    }, );
+    }, 0);
     return () => clearInterval(interval);
   }, []);
 
@@ -54,7 +54,10 @@ const SellerDashboard = () => {
       ) : (
         <div className="auction-list">
           {/* Plus card to navigate to CreateAuction page */}
-          <div className="create-auction-card" onClick={handleCreateAuction}>
+          <div
+            className={`create-auction-card ${darkMode ? "dark" : ""}`}
+            onClick={handleCreateAuction}
+          >
             <span className="plus-symbol">+</span>
             <p>Create Auction</p>
           </div>

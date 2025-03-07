@@ -7,20 +7,20 @@ import ConfirmDeleteModal from "../../shared_components/ConfirmDeleteModal";
 import LoadingOverlay from "../../shared_components/LoadingOverlay";
 import AuctionImages from "./AuctionImages";
 import AuctionForm from "./AuctionForm";
+import BidUpdates from "../components/BidUpdates"; // Now used
 
 const AuctionDetail = () => {
   const { auctionId } = useParams();
   const navigate = useNavigate();
   const authToken = localStorage.getItem("authToken");
 
-  // Use state for dark mode and update it by polling localStorage every 500ms
+  // Dark mode state polling (0ms interval for instant updates)
   const [darkMode, setDarkMode] = useState(localStorage.getItem("darkMode") === "enabled");
-
   useEffect(() => {
     const interval = setInterval(() => {
       const currentDark = localStorage.getItem("darkMode") === "enabled";
       setDarkMode(currentDark);
-    });
+    }, 0);
     return () => clearInterval(interval);
   }, []);
 
@@ -56,7 +56,7 @@ const AuctionDetail = () => {
         if (response.ok) {
           const data = await response.json();
           setAuction(data);
-          setEditedAuction(data); // initialize edit fields
+          setEditedAuction(data);
         } else {
           console.error("Error fetching auction", response.status);
         }
@@ -231,6 +231,8 @@ const AuctionDetail = () => {
       <div className="countdown">
         <strong>Auction Status: </strong> {countdown}
       </div>
+      {/* Render the bid updates */}
+      <BidUpdates auctionId={auctionId} authToken={authToken} />
       <AuctionImages 
           auction={auction}
           currentImageIndex={currentImageIndex}

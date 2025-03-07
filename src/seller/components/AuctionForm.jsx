@@ -1,6 +1,6 @@
 // src/seller/components/AuctionForm.jsx
 import React from "react";
-import "./CreateAuction.css";
+import "./CreateAuction.css";  
 
 const AuctionForm = ({
   formData,
@@ -21,34 +21,38 @@ const AuctionForm = ({
 
   return (
     <div className="create-auction-container">
-      <h2>Create Auction</h2>
+      <h2 className="text-center mb-4">Create Auction</h2>
       <form onSubmit={handleSubmit}>
-        <div className="form-group">
-          <label>Product Name:</label>
+        <div className="form-group mb-3">
+          <label className="form-label">Product Name:</label>
           <input
             type="text"
             name="productName"
             value={formData.productName}
             onChange={handleChange}
             required
+            className="form-control"
           />
         </div>
-        <div className="form-group">
-          <label>Product Description:</label>
+        <div className="form-group mb-3">
+          <label className="form-label">Product Description:</label>
           <textarea
             name="description"
             value={formData.description}
             onChange={handleChange}
             required
+            className="form-control"
+            rows="3"
           />
         </div>
-        <div className="form-group">
-          <label>Category:</label>
+        <div className="form-group mb-3">
+          <label className="form-label">Category:</label>
           <select
             name="category"
             value={formData.category}
             onChange={handleChange}
             required
+            className="form-select"
           >
             <option value="">Select a category</option>
             {categories.map((cat, idx) => (
@@ -59,27 +63,28 @@ const AuctionForm = ({
           </select>
         </div>
         {isOther && (
-          <div className="form-group">
-            <label>Specify New Category:</label>
+          <div className="form-group mb-3">
+            <label className="form-label">Specify New Category:</label>
             <input
               type="text"
               name="newCategory"
               value={formData.newCategory}
               onChange={handleChange}
               required
+              className="form-control"
             />
           </div>
         )}
-        <div className="form-group">
-          <label>Product Images:</label>
+        <div className="form-group mb-3">
+          <label className="form-label">Product Images:</label>
           <div
-            className="image-dropzone"
+            className="image-dropzone mb-2 p-3"
             onDragOver={handleDragOver}
             onDrop={handleDrop}
             onClick={() => fileInputRef.current.click()}
           >
             <span className="plus-sign">+</span>
-            <p>Drag & drop images here or click to select</p>
+            <p className="mb-0">Drag & drop images here or click to select</p>
             <input
               type="file"
               ref={fileInputRef}
@@ -91,13 +96,16 @@ const AuctionForm = ({
             />
           </div>
           {errors.images && <p className="error">{errors.images}</p>}
-          <div className="selected-images">
+          <div className="selected-images d-flex flex-wrap gap-2 mt-2">
             {formData.images.map((file, index) => (
-              <div key={index} className="image-preview">
-                <img src={URL.createObjectURL(file)} alt={`Preview ${index}`} />
+              <div key={index} className="image-preview position-relative">
+                <img
+                  src={URL.createObjectURL(file)}
+                  alt={`Preview ${index}`}
+                />
                 <button
                   type="button"
-                  className="remove-image-btn"
+                  className="remove-image-btn btn btn-danger btn-sm position-absolute top-0 end-0"
                   onClick={() => removeImage(index)}
                 >
                   Remove
@@ -106,10 +114,14 @@ const AuctionForm = ({
             ))}
           </div>
         </div>
-        <div className="form-group">
-          <label>Base Price:</label>
-          <div className="base-price-container">
-            <button type="button" onClick={decrementPrice}>
+        <div className="form-group mb-3">
+          <label className="form-label">Base Price:</label>
+          <div className="base-price-container d-flex align-items-center gap-2">
+            <button
+              type="button"
+              onClick={decrementPrice}
+              className="btn btn-outline-secondary"
+            >
               -
             </button>
             <input
@@ -118,14 +130,19 @@ const AuctionForm = ({
               value={formData.basePrice}
               onChange={handleChange}
               required
+              className="form-control"
             />
-            <button type="button" onClick={incrementPrice}>
+            <button
+              type="button"
+              onClick={incrementPrice}
+              className="btn btn-outline-secondary"
+            >
               +
             </button>
           </div>
         </div>
-        <div className="form-group">
-          <label>Auction Start Date & Time:</label>
+        <div className="form-group mb-3">
+          <label className="form-label">Auction Start Date & Time:</label>
           <input
             type="datetime-local"
             name="startDateTime"
@@ -133,13 +150,14 @@ const AuctionForm = ({
             onChange={handleChange}
             min={minStartDateTime}
             required
+            className="form-control"
           />
           {errors.startDateTime && (
             <p className="error">{errors.startDateTime}</p>
           )}
         </div>
-        <div className="form-group">
-          <label>Auction End Date & Time:</label>
+        <div className="form-group mb-3">
+          <label className="form-label">Auction End Date & Time:</label>
           <input
             type="datetime-local"
             name="endDateTime"
@@ -147,12 +165,15 @@ const AuctionForm = ({
             onChange={handleChange}
             min={formData.startDateTime || minStartDateTime}
             required
+            className="form-control"
           />
           {errors.endDateTime && (
             <p className="error">{errors.endDateTime}</p>
           )}
         </div>
-        <button type="submit">Create Auction</button>
+        <button type="submit" className="btn btn-primary w-100">
+          Create Auction
+        </button>
       </form>
     </div>
   );

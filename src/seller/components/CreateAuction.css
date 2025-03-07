@@ -3,14 +3,53 @@
   max-width: 600px;
   margin: 2rem auto;
   padding: 1.5rem;
-  border: 1px solid #ddd;
+  border: 1px solid rgba(0, 0, 0, 0.1);
   border-radius: 8px;
-  background-color: #fff;
+  background-color: rgba(255, 255, 255, 0.95); /* Light mode: slightly transparent white */
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   position: relative;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* Back arrow button styling */
+/* Dark mode for container */
+.create-auction-container.dark {
+  background-color: rgba(0, 0, 0, 0.85) !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+  color: black !important;
+}
+.create-auction-container.dark button{
+  background-color: #333;
+  color: #eee;
+}
+
+/* Ensure all text elements inherit the container's color */
+.create-auction-container h2,
+.selected-images p,
+.error {
+  color: inherit;
+}
+
+/* Form input dark mode styling */
+.create-auction-container.dark input[type="text"],
+.create-auction-container.dark input[type="number"],
+.create-auction-container.dark input[type="datetime-local"],
+.create-auction-container.dark textarea,
+.create-auction-container.dark select {
+  background-color: #333;
+  border-color: #555;
+  color: #eee;
+}
+
+.create-auction-container.dark input[type="text"]:focus,
+.create-auction-container.dark input[type="number"]:focus,
+.create-auction-container.dark input[type="datetime-local"]:focus,
+.create-auction-container.dark textarea:focus,
+.create-auction-container.dark select:focus {
+  border-color: #007bff;
+  outline: none;
+}
+
+/* Back arrow styling */
 .back-arrow {
   position: absolute;
   top: 10px;
@@ -18,20 +57,20 @@
   background: none;
   border: none;
   font-size: 1.5rem;
-  color: #007bff;
+  color: inherit;
   cursor: pointer;
   transition: color 0.3s ease;
 }
 
 .back-arrow:hover {
-  color: #0056b3;
+  color: #007bff;
 }
+
 
 .create-auction-container h2 {
   text-align: center;
   margin-bottom: 1.5rem;
   font-size: 1.75rem;
-  color: #333;
 }
 
 .form-group {
@@ -42,7 +81,7 @@
   display: block;
   font-weight: bold;
   margin-bottom: 0.5rem;
-  color: #555;
+  color: inherit;
 }
 
 .form-group input[type="text"],
@@ -55,6 +94,8 @@
   border: 1px solid #ccc;
   border-radius: 4px;
   transition: border-color 0.3s ease;
+  color: inherit;
+  background-color: inherit;
 }
 
 .form-group input[type="text"]:focus,
@@ -154,4 +195,9 @@
   color: #d9534f;
   font-size: 0.9rem;
   margin-top: 0.5rem;
+}
+
+/* Force all form labels to always remain black regardless of dark mode */
+.create-auction-container .form-group label {
+  color: #000 !important;
 }
