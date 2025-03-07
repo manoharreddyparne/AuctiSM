@@ -37,4 +37,23 @@ const getPresignedUrl = async (req, res) => {
   }
 };
 
-module.exports = { getPresignedUrl };
+const deleteImage = async (req, res) => {
+  try {
+    const { fileKey } = req.body;
+    if (!fileKey) {
+      return res.status(400).json({ error: "Missing fileKey" });
+    }
+    const params = {
+      Bucket: process.env.REACT_APP_AWS_BUCKET_NAME,
+      Key: fileKey,
+    };
+
+    await s3.deleteObject(params).promise();
+    res.status(200).json({ message: "Image deleted successfully" });
+  } catch (error) {
+    console.error("❌ Error deleting image from S3:", error);
+    res.status(500).json({ error: "Failed to delete image", details: error.message });
+  }
+};
+
+module.exports = { getPresignedUrl, deleteImage };

@@ -16,7 +16,6 @@ router.post("/create", authMiddleware, async (req, res) => {
     }
 
     const userId = req.userId; // Extracted from authMiddleware
-
     const { productName, description, category, newCategory, basePrice, startDateTime, endDateTime, imageUrls } = req.body;
 
     // 🔍 Check required fields
@@ -62,5 +61,53 @@ router.post("/create", authMiddleware, async (req, res) => {
     res.status(500).json({ error: "Failed to save auction", details: error.message });
   }
 });
+
+// GET auctions for the logged-in seller
+router.get("/myAuctions", authMiddleware, async (req, res) => {
+  try {
+    // req.userId is provided by your authMiddleware after verifying the token
+    const sellerId = req.userId;
+    // Find auctions where sellerId matches the logged-in user's ID
+    const auctions = await Auction.find({ sellerId: sellerId });
+    res.json(auctions);
+  } catch (error) {
+    console.error("Error fetching auctions:", error);
+    res.status(500).json({ error: "Failed to fetch auctions." });
+  }
+});
+
+// GET single auction by ID (for AuctionDetail page)
+router.get("/:auctionId", authMiddleware, async (req, res) => {
+  try {
+    const auction = await Auction.findById(req.params.auctionId);
+    if (!auction) {
+      return res.status(404).json({ error: "Auction not found" });
+    }
+    res.json(auction);
+  } catch (error) {
+    console.error("Error fetching auction:", error);
+    res.status(500).json({ error: "Failed to fetch auction." });
+  }
+});
+// PUT route to update an auction
+router.put("/:auctionId", authMiddleware, async (req, res) => {
+  try {
+    const { auctionId } = req.params;
+    const updatedData = req.body;
+    const auction = await Auction.findByIdAndUpdate(
+      auctionId,
+      updatedData,
+      { new: true, runValidators: true }
+    );
+    if (!auction) {
+      return res.status(404).json({ error: "Auction not found" });
+    }
+    res.json(auction);
+  } catch (error) {
+    console.error("Error updating auction:", error);
+    res.status(500).json({ error: "Failed to update auction." });
+  }
+});
+
 
 module.exports = router;
