@@ -1,0 +1,55 @@
+/* src/seller/components/SellerDashboard.css */
+.seller-dashboard {
+  max-width: 1200px;
+  margin: 20px auto;
+  padding: 20px;
+  font-family: Arial, sans-serif;
+  background: transparent; /* Global background will show */
+}
+
+.auction-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 10px;  /* Reduced gap */
+  margin-top: 20px;
+}
+
+/* Shared styling for all cards */
+.auction-card,
+.create-auction-card {
+  height: 350px;             /* Uniform fixed height for all cards */
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  padding: 20px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.create-auction-card {
+  border: 2px dashed #007bff;
+}
+
+.auction-card:hover,
+.create-auction-card:hover {
+  background-color: rgba(240, 248, 255, 0.8);
+  transform: scale(1.02);
+}
+
+.plus-symbol {
+  font-size: 3rem;
+  color: #007bff;
+  margin-bottom: 10px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .auction-list {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  }
+}

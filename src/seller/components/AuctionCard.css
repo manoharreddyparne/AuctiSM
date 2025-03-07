@@ -1,95 +1,128 @@
+/* src/seller/components/AuctionCard.css */
 .auction-card {
-    width: 300px;
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    overflow: hidden;
-    margin: 16px;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-    font-family: Arial, sans-serif;
-  }
-  
-  .auction-image img {
-    width: 100%;
-    height: auto;
-    cursor: pointer;
-    display: block;
-  }
-  
-  .auction-details {
-    padding: 12px;
-  }
-  
-  .auction-details h3 {
-    margin: 0 0 8px;
-    font-size: 1.2rem;
-  }
-  
-  .auction-details p {
-    margin: 4px 0;
-    color: #555;
-  }
-  
-  .price {
-    font-weight: bold;
-    margin-top: 8px;
-  }
-  
-  /* Modal styles */
-  .modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.7);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-  }
-  
-  .modal-content {
-    position: relative;
-    max-width: 90%;
-    max-height: 90%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  
-  .modal-image {
+  width: 100%;              /* Fill the grid cell */
+  max-width: 300px;         /* Cap the width */
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  font-family: Arial, sans-serif;
+  /* Light mode: slightly transparent white background and dark text */
+  background-color: rgba(255, 255, 255, 0.85);
+  color: #333;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Dark mode: slightly transparent black background and light text */
+.auction-card.dark {
+  background-color: rgba(0, 0, 0, 0.7) !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+  color: #fff !important;
+}
+
+/* Ensure text inside details inherits the card color */
+.auction-card .auction-details h3,
+.auction-card .auction-details p,
+.auction-card .price {
+  color: inherit;
+}
+
+.auction-image {
+  width: 100%;
+  height: 200px; /* Fixed height for uniformity */
+  overflow: hidden;
+}
+
+.auction-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Ensures the image fills the container uniformly */
+  display: block;
+}
+
+.auction-details {
+  padding: 12px;
+}
+
+.auction-details h3 {
+  margin: 0 0 8px;
+  font-size: 1.2rem;
+  color: inherit;
+}
+
+.auction-details p {
+  margin: 4px 0;
+  color: inherit;
+}
+
+.price {
+  font-weight: bold;
+  margin-top: 8px;
+  color: inherit;
+}
+
+/* Modal styles remain unchanged */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  position: relative;
+  max-width: 90%;
+  max-height: 90%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-image {
+  max-width: 100%;
+  max-height: 100%;
+  border-radius: 6px;
+}
+
+.close-btn,
+.prev-btn,
+.next-btn {
+  position: absolute;
+  background: rgba(0, 0, 0, 0.5);
+  border: none;
+  color: #fff;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: 1.5rem;
+  border-radius: 50%;
+}
+
+.close-btn {
+  top: 10px;
+  right: 10px;
+}
+
+.prev-btn {
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.next-btn {
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .auction-card {
     max-width: 100%;
-    max-height: 100%;
-    border-radius: 6px;
   }
-  
-  .close-btn,
-  .prev-btn,
-  .next-btn {
-    position: absolute;
-    background: rgba(0, 0, 0, 0.5);
-    border: none;
-    color: #fff;
-    padding: 8px 12px;
-    cursor: pointer;
-    font-size: 1.5rem;
-    border-radius: 50%;
-  }
-  
-  .close-btn {
-    top: 10px;
-    right: 10px;
-  }
-  
-  .prev-btn {
-    left: 10px;
-    top: 50%;
-    transform: translateY(-50%);
-  }
-  
-  .next-btn {
-    right: 10px;
-    top: 50%;
-    transform: translateY(-50%);
-  }
-  
+}

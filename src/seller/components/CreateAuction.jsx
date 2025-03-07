@@ -4,6 +4,8 @@ import "./CreateAuction.css";
 import { jwtDecode } from "jwt-decode";
 import AuctionForm from "./AuctionForm";
 import { uploadImagesToS3 } from "../../utils/uploadS3";
+import LoadingOverlay from "../../shared_components/LoadingOverlay";
+import { useNavigate } from "react-router-dom";
 
 const CreateAuction = () => {
   const initialState = {
@@ -21,8 +23,9 @@ const CreateAuction = () => {
   const [isOther, setIsOther] = useState(false);
   const [errors, setErrors] = useState({});
   const [minStartDateTime, setMinStartDateTime] = useState("");
-  const [submissionSuccess, setSubmissionSuccess] = useState(false);
+  const [isCreating, setIsCreating] = useState(false);
   const fileInputRef = useRef(null);
+  const navigate = useNavigate();
 
   // Set minimum datetime for auction start as current datetime
   useEffect(() => {
@@ -114,11 +117,13 @@ const CreateAuction = () => {
       return;
     }
 
+    setIsCreating(true); // Show loading overlay
+
     try {
       const authToken = localStorage.getItem("authToken");
-      console.log("Auth Token Retrieved:", authToken);
       if (!authToken) {
         console.error("User is not authenticated.");
+        setIsCreating(false);
         return;
       }
 
@@ -129,18 +134,20 @@ const CreateAuction = () => {
         userId = decodedToken.userId;
       } catch (error) {
         console.error("Invalid JWT token:", error);
+        setIsCreating(false);
         return;
       }
       if (!userId) {
         console.error("User ID missing in token.");
+        setIsCreating(false);
         return;
       }
-      console.log("Logged-in User ID:", userId);
 
       // Upload images to S3 using the utility function
       const uploadedImageUrls = await uploadImagesToS3(formData.images);
       if (uploadedImageUrls.length < 3) {
         console.error("Image upload failed or insufficient images.");
+        setIsCreating(false);
         return;
       }
 
@@ -156,7 +163,6 @@ const CreateAuction = () => {
         imageUrls: uploadedImageUrls
       };
 
-      console.log("Sending auction data:", auctionData);
       const response = await fetch("http://localhost:5000/api/auctions/create", {
         method: "POST",
         headers: {
@@ -166,62 +172,49 @@ const CreateAuction = () => {
         body: JSON.stringify(auctionData)
       });
 
-      console.log("Response Status:", response.status);
       if (!response.ok) {
         const errorDetails = await response.json();
         console.error("Failed to save auction data. Server Response:", errorDetails);
         throw new Error("Failed to save auction data.");
       }
-      console.log("Auction successfully created!");
 
-      // Show success message & reset form
-      setSubmissionSuccess(true);
-      setFormData(initialState);
-      setIsOther(false);
-      setErrors({});
-      if (fileInputRef.current) {
-        fileInputRef.current.value = null;
-      }
+      const createdAuction = await response.json();
+      // Redirect to the auction detail page after creation
+      navigate(`/mainpage/my-auctions/${createdAuction._id}`, { replace: true });
     } catch (error) {
       console.error("Error saving auction data:", error);
+    } finally {
+      setIsCreating(false); // Hide loading overlay
     }
   };
 
-  // Redirect (or simply reset) after submission success
-  useEffect(() => {
-    if (submissionSuccess) {
-      const timer = setTimeout(() => {
-        setSubmissionSuccess(false);
-      }, 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [submissionSuccess]);
-
-  if (submissionSuccess) {
-    return (
-      <div className="create-auction-container">
-        <h2>Auction Submitted Successfully!</h2>
-        <p>You will be redirected to create a new auction shortly...</p>
-      </div>
-    );
+  if (isCreating) {
+    return <LoadingOverlay message="Creating auction, please wait..." />;
   }
 
   return (
-    <AuctionForm
-      formData={formData}
-      handleChange={handleChange}
-      handleSubmit={handleSubmit}
-      handleImageSelect={handleImageSelect}
-      handleDragOver={handleDragOver}
-      handleDrop={handleDrop}
-      removeImage={removeImage}
-      incrementPrice={incrementPrice}
-      decrementPrice={decrementPrice}
-      errors={errors}
-      minStartDateTime={minStartDateTime}
-      fileInputRef={fileInputRef}
-      isOther={isOther}
-    />
+    <div className="create-auction-container">
+      {/* Back Arrow Button */}
+      <button className="back-arrow" onClick={() => navigate("/mainpage/my-auctions")}>
+        &#8592; Back to My Auctions
+      </button>
+      {/* AuctionForm should contain the title if needed */}
+      <AuctionForm
+        formData={formData}
+        handleChange={handleChange}
+        handleSubmit={handleSubmit}
+        handleImageSelect={handleImageSelect}
+        handleDragOver={handleDragOver}
+        handleDrop={handleDrop}
+        removeImage={removeImage}
+        incrementPrice={incrementPrice}
+        decrementPrice={decrementPrice}
+        errors={errors}
+        minStartDateTime={minStartDateTime}
+        fileInputRef={fileInputRef}
+        isOther={isOther}
+      />
+    </div>
   );
 };
 

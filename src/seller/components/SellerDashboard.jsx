@@ -1,15 +1,27 @@
 // src/seller/components/SellerDashboard.jsx
 import React, { useEffect, useState } from "react";
-import CreateAuction from "./CreateAuction";
 import AuctionCard from "./AuctionCard";
 import { fetchSellerAuctions } from "../services/auctionService";
 import { jwtDecode } from "jwt-decode";
-// import "./SellerDashboard.css"; // Optional: your dashboard-specific styles
+import { useNavigate } from "react-router-dom";
+import "./SellerDashboard.css";
 
 const SellerDashboard = () => {
   const [auctions, setAuctions] = useState([]);
   const [loading, setLoading] = useState(true);
   const authToken = localStorage.getItem("authToken");
+  const navigate = useNavigate();
+
+  // Use state for dark mode and update it by polling localStorage every 500ms
+  const [darkMode, setDarkMode] = useState(localStorage.getItem("darkMode") === "enabled");
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const currentDark = localStorage.getItem("darkMode") === "enabled";
+      setDarkMode(currentDark);
+    }, );
+    return () => clearInterval(interval);
+  }, []);
 
   let userId;
   try {
@@ -23,7 +35,6 @@ const SellerDashboard = () => {
     const fetchData = async () => {
       if (authToken && userId) {
         const data = await fetchSellerAuctions(authToken);
-        // Ensure your backend returns auctions filtered by sellerId.
         setAuctions(data);
       }
       setLoading(false);
@@ -31,20 +42,25 @@ const SellerDashboard = () => {
     fetchData();
   }, [authToken, userId]);
 
+  const handleCreateAuction = () => {
+    navigate("/create-auction");
+  };
+
   return (
     <div className="seller-dashboard">
-      <h1>Seller Dashboard</h1>
-      {/* Create Auction form */}
-      <CreateAuction />
-
-      <h2>My Auctions</h2>
+      <h1>My Auctions</h1>
       {loading ? (
         <p>Loading auctions...</p>
       ) : (
         <div className="auction-list">
+          {/* Plus card to navigate to CreateAuction page */}
+          <div className="create-auction-card" onClick={handleCreateAuction}>
+            <span className="plus-symbol">+</span>
+            <p>Create Auction</p>
+          </div>
           {auctions.length > 0 ? (
             auctions.map((auction) => (
-              <AuctionCard key={auction._id} auction={auction} />
+              <AuctionCard key={auction._id} auction={auction} darkMode={darkMode} />
             ))
           ) : (
             <p>No auctions found.</p>

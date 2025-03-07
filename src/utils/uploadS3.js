@@ -1,63 +1,64 @@
 // src/utils/uploadS3.js
+
+const AWS_BUCKET_NAME = process.env.REACT_APP_AWS_BUCKET_NAME;
+const AWS_REGION = process.env.REACT_APP_AWS_REGION;
+const BASE_S3_URL = `https://${AWS_BUCKET_NAME}.s3.${AWS_REGION}.amazonaws.com/`;
+
 export const uploadImagesToS3 = async (images) => {
-  const uploadedImageUrls = [];
-  for (let i = 0; i < images.length; i++) {
-    const file = images[i];
-    const response = await fetch("http://localhost:5000/api/aws/s3/sign", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        fileName: file.name,
-        fileType: file.type
-      })
+  try {
+    const uploadPromises = images.map(async (file) => {
+      try {
+        // Get pre-signed URL
+        const response = await fetch("http://localhost:5000/api/aws/s3/sign", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ fileName: file.name, fileType: file.type }),
+        });
+
+        if (!response.ok) throw new Error(`Failed to get pre-signed URL for: ${file.name}`);
+
+        const { uploadURL, fileKey } = await response.json();
+        if (!uploadURL || !fileKey) throw new Error(`Invalid response for: ${file.name}`);
+
+        // Upload file to S3
+        const uploadResponse = await fetch(uploadURL, {
+          method: "PUT",
+          headers: { "Content-Type": file.type },
+          body: file,
+        });
+
+        if (!uploadResponse.ok) throw new Error(`Error uploading ${file.name} to S3`);
+
+        return `${BASE_S3_URL}${fileKey}`; // Construct and return uploaded image URL
+      } catch (error) {
+        console.error(error.message);
+        return null; // Return null for failed uploads
+      }
     });
-    if (!response.ok) {
-      console.error("Failed to get pre-signed URL for:", file.name);
-      continue;
-    }
-    const { uploadURL, fileKey } = await response.json();
-    if (!uploadURL || !fileKey) {
-      console.error("Invalid response for:", file.name);
-      continue;
-    }
-    const uploadResponse = await fetch(uploadURL, {
-      method: "PUT",
-      headers: {
-        "Content-Type": file.type
-      },
-      body: file
-    });
-    if (uploadResponse.ok) {
-      // Construct the S3 file URL using fileKey and the REACT_APP_ variables
-      const s3Url = `https://${process.env.REACT_APP_AWS_BUCKET_NAME}.s3.${process.env.REACT_APP_AWS_REGION}.amazonaws.com/${fileKey}`;
-      uploadedImageUrls.push(s3Url);
-    } else {
-      console.error("Error uploading image to S3:", file.name);
-    }
+
+    const uploadedImageUrls = await Promise.all(uploadPromises);
+    return uploadedImageUrls.filter((url) => url !== null); // Filter out failed uploads
+  } catch (error) {
+    console.error("Error in uploadImagesToS3:", error);
+    return [];
   }
-  return uploadedImageUrls;
 };
 
 export const deleteImageFromS3 = async (url) => {
-  // Construct the base URL of your S3 bucket
-  const baseUrl = `https://${process.env.REACT_APP_AWS_BUCKET_NAME}.s3.${process.env.REACT_APP_AWS_REGION}.amazonaws.com/`;
-  // Remove the baseUrl from the given URL to get the full fileKey (including folder paths)
-  const fileKey = url.replace(baseUrl, "");
   try {
+    if (!url.startsWith(BASE_S3_URL)) throw new Error("Invalid S3 URL format");
+
+    const fileKey = url.replace(BASE_S3_URL, ""); // Extract fileKey from the URL
+
     const response = await fetch("http://localhost:5000/api/aws/s3/delete", {
       method: "DELETE",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ fileKey })
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ fileKey }),
     });
-    if (!response.ok) {
-      console.error("Failed to delete image from S3, status:", response.status);
-      throw new Error("Failed to delete image from S3");
-    }
-    return await response.json();
+
+    if (!response.ok) throw new Error(`Failed to delete image from S3, status: ${response.status}`);
+
+    return await response.json(); // Return success response
   } catch (error) {
     console.error("Error deleting image from S3:", error);
     throw error;

@@ -10,6 +10,9 @@ import { GoogleOAuthProvider } from "@react-oauth/google";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./global.css";
 import ResetPasswordModal from "./shared_components/ResetPasswordModal";
+import SellerDashboard from "./seller/components/SellerDashboard";
+import CreateAuction from "./seller/components/CreateAuction";
+import AuctionDetail from "./seller/pages/AuctionDetail";
 
 function App() {
   const { user, loading, needsPassword } = useContext(AuthContext);
@@ -27,8 +30,6 @@ function App() {
   return (
     <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}>
       <div className="global-background"></div>
-
-      {/* Render Navbar based on authentication status */}
       {user ? <UserNavbar /> : <Navbar />}
 
       <Routes>
@@ -41,6 +42,32 @@ function App() {
           element={
             <PrivateRoute>
               <UserRoutes />
+            </PrivateRoute>
+          }
+        />
+
+        {/* Seller Routes */}
+        <Route
+          path="/mainpage/my-auctions"
+          element={
+            <PrivateRoute>
+              <SellerDashboard />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/mainpage/my-auctions/:auctionId"
+          element={
+            <PrivateRoute>
+              <AuctionDetail />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/create-auction"
+          element={
+            <PrivateRoute>
+              <CreateAuction />
             </PrivateRoute>
           }
         />

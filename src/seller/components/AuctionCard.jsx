@@ -3,11 +3,10 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import "./AuctionCard.css";
 
-const AuctionCard = ({ auction }) => {
+const AuctionCard = ({ auction, darkMode }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
-  // Modal functionality remains unchanged (optional if you want a preview modal)
   const openModal = (index = 0) => {
     setCurrentImageIndex(index);
     setIsModalOpen(true);
@@ -25,9 +24,8 @@ const AuctionCard = ({ auction }) => {
   };
 
   return (
-    // Wrap the card in a Link that navigates to the detail page.
     <Link to={`/mainpage/my-auctions/${auction._id}`} className="auction-card-link">
-      <div className="auction-card">
+      <div className={`auction-card ${darkMode ? "dark" : ""}`}>
         <div className="auction-image" onClick={() => openModal(0)}>
           <img
             src={auction.imageUrls[0]}
