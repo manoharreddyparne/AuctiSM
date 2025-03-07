@@ -88,7 +88,7 @@ router.post("/login", async (req, res) => {
         return res.status(400).send("Invalid Google ID");
       }
       // Generate JWT token
-      const token = jwt.sign({ userId: user._id, email: user.email }, process.env.JWT_SECRET, { expiresIn: "1h" });
+      const token = jwt.sign({ userId: user._id, email: user.email }, process.env.JWT_SECRET, { expiresIn: "24h" });
       return res.status(200).json({ token, needsPassword: user.needsPassword });
     }
 

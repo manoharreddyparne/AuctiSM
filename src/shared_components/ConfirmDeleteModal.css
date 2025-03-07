@@ -1,0 +1,120 @@
+/* Modal Overlay */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    animation: fadeIn 0.3s ease-in-out;
+  }
+  
+  /* Modal Container */
+  .modal-container {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    max-width: 400px;
+    width: 90%;
+    text-align: center;
+    animation: slideUp 0.3s ease-in-out;
+  }
+  
+  /* Modal Title */
+  .modal-title {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #333;
+  }
+  
+  /* Modal Message */
+  .modal-message {
+    margin: 15px 0;
+    font-size: 1rem;
+    color: #666;
+  }
+  
+  /* Button Container */
+  .modal-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+  }
+  
+  /* Cancel Button */
+  .cancel-button {
+    background: #ccc;
+    color: #333;
+    padding: 10px 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.2s ease-in-out;
+  }
+  
+  .cancel-button:hover {
+    background: #b3b3b3;
+  }
+  
+  /* Delete Button */
+  .delete-button {
+    background: #e60000;
+    color: white;
+    padding: 10px 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.2s ease-in-out;
+  }
+  
+  .delete-button:hover {
+    background: #cc0000;
+  }
+  
+  /* Animations */
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  
+  @keyframes slideUp {
+    from {
+      transform: translateY(20px);
+    }
+    to {
+      transform: translateY(0);
+    }
+  }
+  
+  /* Responsive Design */
+  @media (max-width: 500px) {
+    .modal-container {
+      width: 95%;
+      padding: 15px;
+    }
+  
+    .modal-title {
+      font-size: 1.3rem;
+    }
+  
+    .modal-message {
+      font-size: 0.9rem;
+    }
+  
+    .modal-buttons {
+      flex-direction: column;
+    }
+  
+    .cancel-button,
+    .delete-button {
+      width: 100%;
+      margin-top: 10px;
+    }
+  }
+  

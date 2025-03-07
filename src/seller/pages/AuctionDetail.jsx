@@ -3,6 +3,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { uploadImagesToS3, deleteImageFromS3 } from "../../utils/uploadS3"; // Make sure deleteImageFromS3 is implemented or stubbed
 import "./AuctionDetail.css";
+import ConfirmDeleteModal from "../../shared_components/ConfirmDeleteModal";
 
 const AuctionDetail = () => {
   const { auctionId } = useParams();
@@ -295,25 +296,35 @@ const AuctionDetail = () => {
   };
 
   // Handle delete
-  const handleDelete = async () => {
-    try {
-      const res = await fetch(`http://localhost:5000/api/auctions/${auctionId}`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${authToken}`,
-        },
-      });
-      if (res.ok) {
-        alert("Auction deleted successfully");
-        navigate("/mainpage/my-auctions");
-      } else {
-        console.error("Error deleting auction");
-      }
-    } catch (error) {
-      console.error("Error deleting auction", error);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+
+const handleDelete = async () => {
+  setIsDeleteModalOpen(true); // Open the confirmation modal
+};
+
+const confirmDelete = async () => {
+  try {
+    const res = await fetch(`http://localhost:5000/api/auctions/${auctionId}`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${authToken}`,
+      },
+    });
+
+    if (res.ok) {
+      alert("Auction deleted successfully");
+      navigate("/mainpage/my-auctions");
+    } else {
+      console.error("Error deleting auction");
     }
-  };
+  } catch (error) {
+    console.error("Error deleting auction", error);
+  } finally {
+    setIsDeleteModalOpen(false); // Close the modal after deletion attempt
+  }
+};
+
 
   if (loading) return <p>Loading...</p>;
   if (!auction) return <p>Auction not found.</p>;
@@ -484,24 +495,32 @@ const AuctionDetail = () => {
       </div>
       {/* Auction Actions */}
       <div className="auction-actions">
-        {isEditing ? (
-          <>
-            <button onClick={handleSave}>Save Changes</button>
-            <button onClick={toggleEdit}>Cancel</button>
-          </>
-        ) : (
-          <>
-            {auctionStatus === "upcoming" ? (
-              <>
-                <button onClick={toggleEdit}>Edit Auction</button>
-                <button onClick={handleDelete}>Delete Auction</button>
-              </>
-            ) : (
-              <button onClick={toggleEdit}>Extend Auction End Time</button>
-            )}
-          </>
-        )}
-      </div>
+  {isEditing ? (
+    <>
+      <button onClick={handleSave}>Save Changes</button>
+      <button onClick={toggleEdit}>Cancel</button>
+    </>
+  ) : (
+    <>
+      {auctionStatus === "upcoming" ? (
+        <>
+          <button onClick={toggleEdit}>Edit Auction</button>
+          <button onClick={handleDelete}>Delete Auction</button>
+        </>
+      ) : (
+        <button onClick={toggleEdit}>Extend Auction End Time</button>
+      )}
+    </>
+  )}
+
+  {/* Confirm Delete Modal */}
+  <ConfirmDeleteModal
+    isOpen={isDeleteModalOpen}
+    onClose={() => setIsDeleteModalOpen(false)}
+    onConfirm={confirmDelete}
+  />
+</div>
+
     </div>
   );
 };

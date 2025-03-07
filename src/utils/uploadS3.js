@@ -41,11 +41,10 @@ export const uploadImagesToS3 = async (images) => {
 };
 
 export const deleteImageFromS3 = async (url) => {
-  // Extract the fileKey from the URL.
-  // Assuming URL format: https://{bucket}.s3.{region}.amazonaws.com/{fileKey}
-  const parts = url.split("/");
-  const fileKey = parts[parts.length - 1];
-
+  // Construct the base URL of your S3 bucket
+  const baseUrl = `https://${process.env.REACT_APP_AWS_BUCKET_NAME}.s3.${process.env.REACT_APP_AWS_REGION}.amazonaws.com/`;
+  // Remove the baseUrl from the given URL to get the full fileKey (including folder paths)
+  const fileKey = url.replace(baseUrl, "");
   try {
     const response = await fetch("http://localhost:5000/api/aws/s3/delete", {
       method: "DELETE",
