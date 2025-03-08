@@ -32,7 +32,8 @@ app.use(express.json());
 
 app.use(
   cors({
-    origin: process.env.REACT_APP_CLIENT,
+    origin: "https://auctism-1.onrender.com",
+    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
     credentials: true,
   })
 );
