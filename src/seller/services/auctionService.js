@@ -7,7 +7,7 @@
  */
 export const fetchSellerAuctions = async (authToken) => {
     try {
-      const response = await fetch("http://localhost:5000/api/auctions/myAuctions", {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/auctions/myAuctions`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",

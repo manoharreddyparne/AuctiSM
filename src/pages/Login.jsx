@@ -34,7 +34,7 @@ const Login = () => {
     console.log("🔵 Attempting manual login with:", { email, password });
 
     try {
-      const response = await fetch("http://localhost:5000/api/login", {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
@@ -93,7 +93,7 @@ const Login = () => {
     console.log("🔵 Google login received:", googleResponse);
 
     try {
-      const response = await fetch("http://localhost:5000/api/google-login", {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/google-login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ credential: googleResponse.credential }),
@@ -151,7 +151,7 @@ const Login = () => {
         return;
       }
 
-      const response = await fetch("http://localhost:5000/api/reset-password", {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/reset-password`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: storedEmail, password: newPassword }),

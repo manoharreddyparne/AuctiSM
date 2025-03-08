@@ -1,0 +1,12 @@
+/* TermsAndConditions.css */
+.terms-content {
+    padding: 20px;
+    font-size: 16px;
+    line-height: 1.6;
+  }
+  
+  .terms-content h1 {
+    margin-top: 0;
+    text-align: center;
+  }
+  

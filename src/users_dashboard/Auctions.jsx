@@ -23,7 +23,7 @@ function Auctions() {
         }
         console.log("🟢 Using token:", token);
         const config = { headers: { Authorization: `Bearer ${token}` } };
-        const response = await axios.get("http://localhost:5000/api/auctions/all", config);
+        const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/auctions/all`, config);
         console.log("✅ Auctions fetched:", response.data);
         setAuctions(response.data);
       } catch (error) {

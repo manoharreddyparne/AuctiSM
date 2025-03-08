@@ -9,7 +9,7 @@ export const uploadImagesToS3 = async (images) => {
     const uploadPromises = images.map(async (file) => {
       try {
         // Get pre-signed URL
-        const response = await fetch("http://localhost:5000/api/aws/s3/sign", {
+        const response = await fetch(`${process.env.REACT_APP_API_URL}/api/aws/s3/sign`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ fileName: file.name, fileType: file.type }),
@@ -50,7 +50,7 @@ export const deleteImageFromS3 = async (url) => {
 
     const fileKey = url.replace(BASE_S3_URL, ""); // Extract fileKey from the URL
 
-    const response = await fetch("http://localhost:5000/api/aws/s3/delete", {
+    const response = await fetch(`${process.env.REACT_APP_API_URL}/api/aws/s3/delete`, {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ fileKey }),

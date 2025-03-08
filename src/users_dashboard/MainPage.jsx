@@ -21,7 +21,7 @@ function MainPage() {
           return;
         }
 
-        const response = await axios.get("http://localhost:5000/api/profile", {  // ✅ Ensure correct endpoint
+        const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/profile`, {  // ✅ Ensure correct endpoint
           headers: { Authorization: `Bearer ${token}` },
           withCredentials: true,
         });

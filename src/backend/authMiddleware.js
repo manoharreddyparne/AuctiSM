@@ -1,35 +1,36 @@
 const jwt = require("jsonwebtoken");
-const { JWT_SECRET } = require("./config/config");
+const User = require("./userModel");
+require("dotenv").config(); // Ensure environment variables are loaded
 
-const authenticate = (req, res, next) => {
+const authenticate = async (req, res, next) => {
   try {
-    let token = req.headers.authorization?.toString(); // Normalize header handling
-    console.log("🔍 Received Token:", token);
+    const token = req.header("Authorization")?.split(" ")[1]; // Extract token from header
 
     if (!token) {
       console.error("❌ No token provided");
-      return res.status(401).json({ message: "Access denied. No token provided." });
+      return res.status(401).json({ error: "Unauthorized: No token provided" });
     }
 
-    if (token.startsWith("Bearer ")) {
-      token = token.slice(7).trim();
+    if (!process.env.JWT_SECRET) {
+      console.error("❌ JWT_SECRET is missing in environment variables!");
+      return res.status(500).json({ error: "Internal server error: Missing JWT secret" });
     }
 
-    console.log("🛠️ Token after trimming:", token);
-
-    if (!JWT_SECRET) {
-      console.error("❌ JWT_SECRET is missing in config!");
-      return res.status(500).json({ message: "Internal server error: Missing JWT secret" });
-    }
-
-    const decoded = jwt.verify(token, JWT_SECRET);
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
     console.log("✅ Token Decoded:", decoded);
 
     const userId = decoded.userId || decoded._id; // Ensure compatibility with different JWT structures
 
     if (!userId) {
       console.error("❌ No userId found in token payload.");
-      return res.status(401).json({ message: "Unauthorized: Invalid token data" });
+      return res.status(401).json({ error: "Unauthorized: Invalid token data" });
+    }
+
+    // 🔍 Ensure user exists in the database
+    const user = await User.findById(userId);
+    if (!user) {
+      console.error("❌ User not found for token userId:", userId);
+      return res.status(401).json({ error: "Unauthorized: Invalid user" });
     }
 
     req.userId = userId.toString(); // Ensure userId is a string
@@ -38,7 +39,7 @@ const authenticate = (req, res, next) => {
     next();
   } catch (error) {
     console.error("❌ Token verification failed:", error.message);
-    return res.status(401).json({ message: "Invalid or expired token. Please log in again." });
+    return res.status(401).json({ error: "Unauthorized: Invalid or expired token" });
   }
 };
 

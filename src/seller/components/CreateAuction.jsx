@@ -159,7 +159,7 @@ const CreateAuction = () => {
         imageUrls: uploadedImageUrls
       };
 
-      const response = await fetch("http://localhost:5000/api/auctions/create", {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/auctions/create`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

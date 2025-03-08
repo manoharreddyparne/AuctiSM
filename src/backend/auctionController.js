@@ -1,17 +1,16 @@
 const mongoose = require("mongoose");
 const Auction = require("./auctionModel");
 
-// Create Auction Controller
+// ✅ Create Auction
 exports.createAuction = async (req, res) => {
   try {
     console.log("🔵 Creating auction:", req.body);
 
-    // Ensure the user is authenticated
     if (!req.userId) {
       return res.status(401).json({ message: "Unauthorized: No user ID found" });
     }
 
-    const userId = new mongoose.Types.ObjectId(req.userId); // Ensure proper ObjectId conversion
+    const userId = new mongoose.Types.ObjectId(req.userId);
 
     const { productName, description, category, newCategory, basePrice, startDateTime, endDateTime, imageUrls } = req.body;
 
@@ -30,6 +29,7 @@ exports.createAuction = async (req, res) => {
       endDateTime: new Date(endDateTime),
       imageUrls: Array.isArray(imageUrls) ? imageUrls : [],
       sellerId: userId,
+      participants: [], 
     });
 
     await auction.save();
@@ -41,28 +41,71 @@ exports.createAuction = async (req, res) => {
   }
 };
 
-// 🛠 FIXED: Fetch all auctions, excluding the logged-in user's auctions
+// ✅ Fetch all auctions (excluding the logged-in user's auctions)
 exports.getAllAuctions = async (req, res) => {
   try {
-    console.log("🔍 Fetching auctions for user:", req.userId);
-
     if (!req.userId) {
       return res.status(401).json({ message: "Unauthorized: No user ID found" });
     }
 
     const userId = new mongoose.Types.ObjectId(req.userId);
-
-    // Exclude auctions where the sellerId is the logged-in user
     const auctions = await Auction.find({ sellerId: { $ne: userId } });
 
     if (!auctions.length) {
       return res.status(404).json({ message: "No auctions available." });
     }
 
-    console.log("✅ Auctions fetched successfully:", auctions.length);
     res.json({ auctions });
   } catch (error) {
     console.error("❌ Error fetching auctions:", error.message);
-    res.status(500).json({ message: "Failed to fetch auction.", details: error.message });
+    res.status(500).json({ message: "Failed to fetch auctions", details: error.message });
+  }
+};
+
+// ✅ Register a user for an auction
+exports.registerForAuction = async (req, res) => {
+  try {
+    if (!req.userId) {
+      return res.status(401).json({ message: "Unauthorized: No user ID found" });
+    }
+
+    const auctionId = req.params.auctionId;
+    const userId = new mongoose.Types.ObjectId(req.userId);
+
+    const auction = await Auction.findById(auctionId);
+    if (!auction) {
+      return res.status(404).json({ message: "Auction not found" });
+    }
+
+    if (auction.participants.includes(userId)) {
+      return res.status(400).json({ message: "User is already registered for this auction" });
+    }
+
+    auction.participants.push(userId);
+    await auction.save();
+
+    res.status(200).json({ message: "Successfully registered for the auction" });
+
+  } catch (error) {
+    console.error("❌ Error registering for auction:", error.message);
+    res.status(500).json({ message: "Failed to register for the auction", details: error.message });
+  }
+};
+
+// ✅ Get all participants of a specific auction
+exports.getAuctionParticipants = async (req, res) => {
+  try {
+    const auctionId = req.params.auctionId;
+    const auction = await Auction.findById(auctionId).populate("participants", "fullName email");
+
+    if (!auction) {
+      return res.status(404).json({ message: "Auction not found" });
+    }
+
+    res.status(200).json({ participants: auction.participants });
+
+  } catch (error) {
+    console.error("❌ Error fetching participants:", error.message);
+    res.status(500).json({ message: "Failed to fetch participants", details: error.message });
   }
 };

@@ -1,0 +1,153 @@
+/* AuctionRegister.css */
+.auction-register-container {
+  max-width: 500px;
+  margin: 20px auto;
+  padding: 20px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.auction-register-container h2 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.auction-register-container form {
+  display: flex;
+  flex-direction: column;
+}
+
+.auction-register-container label {
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+.auction-register-container input,
+.auction-register-container textarea {
+  margin-bottom: 15px;
+  padding: 10px;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  font-size: 16px;
+}
+
+.auction-register-container textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.terms-container {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.terms-container input[type="checkbox"] {
+  margin-right: 8px;
+}
+
+.terms-link {
+  color: #007bff;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.button-group {
+  display: flex;
+  justify-content: space-between;
+}
+
+.button-group button {
+  flex: 1;
+  margin: 0 5px;
+  padding: 10px;
+  font-size: 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.button-group button:first-child {
+  background-color: #28a745;
+  color: white;
+}
+
+.button-group button:last-child {
+  background-color: #dc3545;
+  color: white;
+}
+
+.error-message {
+  color: #dc3545;
+  margin-top: 10px;
+  text-align: center;
+}
+
+.success-message {
+  color: #28a745;
+  margin-top: 10px;
+  text-align: center;
+}
+
+/* Modal overlay styling */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+/* Modal content styling */
+.modal-content {
+  background: #fff;
+  padding: 30px;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 600px;
+  max-height: 80%;
+  overflow-y: auto;
+  position: relative;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  animation: slideDown 0.3s ease-in-out;
+}
+
+/* Updated close button: small box in top right */
+.modal-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 24px;
+  height: 24px;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  font-size: 18px;
+  color: #333;
+  text-align: center;
+  line-height: 24px;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.modal-close:hover {
+  background-color: #f0f0f0;
+  color: #007bff;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideDown {
+  from { transform: translateY(-20px); }
+  to { transform: translateY(0); }
+}

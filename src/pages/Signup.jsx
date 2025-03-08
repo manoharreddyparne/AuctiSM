@@ -54,7 +54,7 @@ const Signup = () => {
     if (!validateForm()) return;
     try {
       console.log("Sending signup request...", formData);
-      const response = await axios.post("http://localhost:5000/api/signup", formData);
+      const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/signup`, formData);
       console.log("Signup successful:", response.data);
       localStorage.setItem("authToken", response.data.token);
       localStorage.setItem("user", JSON.stringify(response.data.user));
@@ -73,7 +73,7 @@ const Signup = () => {
   const handleGoogleSuccess = async (response) => {
     console.log("Google authentication success:", response);
     try {
-      const res = await axios.post("http://localhost:5000/api/google-login", {
+      const res = await axios.post(`${process.env.REACT_APP_API_URL}/api/google-login`, {
         credential: response.credential,
       });
       console.log("Server response:", res.data);
@@ -98,7 +98,7 @@ const Signup = () => {
   // Callback for password reset from the modal
   const handlePasswordReset = async (newPassword) => {
     try {
-      const res = await axios.post("http://localhost:5000/api/reset-password", {
+      const res = await axios.post(`${process.env.REACT_APP_API_URL}/api/reset-password`, {
         email: googleEmail,
         newPassword,
       });

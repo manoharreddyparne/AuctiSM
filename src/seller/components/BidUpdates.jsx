@@ -8,8 +8,7 @@ const BidUpdates = ({ auctionId, authToken }) => {
   useEffect(() => {
     const fetchBids = async () => {
       try {
-        const response = await fetch(
-          `http://localhost:5000/api/auctions/${auctionId}/bids`,
+        const response = await fetch(`${process.env.REACT_APP_API_URL}/api/auctions/${auctionId}/bids`,
           {
             method: "GET",
             headers: {

@@ -46,7 +46,7 @@ const AuctionDetail = () => {
   useEffect(() => {
     const fetchAuction = async () => {
       try {
-        const response = await fetch(`http://localhost:5000/api/auctions/${auctionId}`, {
+        const response = await fetch(`${process.env.REACT_APP_API_URL}/api/auctions/${auctionId}`, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
@@ -148,7 +148,7 @@ const AuctionDetail = () => {
   const confirmDelete = async () => {
     setIsDeleting(true);
     try {
-      const res = await fetch(`http://localhost:5000/api/auctions/${auctionId}`, {
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/api/auctions/${auctionId}`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
@@ -190,7 +190,7 @@ const AuctionDetail = () => {
     const finalImageUrls = [...editedAuction.imageUrls, ...newImageUrls];
     const updatedAuctionData = { ...editedAuction, imageUrls: finalImageUrls };
     try {
-      const res = await fetch(`http://localhost:5000/api/auctions/${auctionId}`, {
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/api/auctions/${auctionId}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
