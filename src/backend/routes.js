@@ -5,6 +5,7 @@ const User = require("./userModel");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { createAuction } = require("./auctionController"); // Import auction controller
+require("dotenv").config();
 
 const router = express.Router();
 

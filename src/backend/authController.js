@@ -1,6 +1,8 @@
 const User = require('./userModel');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
+require("dotenv").config();
+
 const { OAuth2Client } = require('google-auth-library');
 const { JWT_SECRET, JWT_REFRESH_SECRET } = require('./config/config.js');
 
