@@ -167,7 +167,7 @@ const AuctionDetail = () => {
       setIsDeleteModalOpen(false);
     }
   };
-
+  
   // Save auction changes handler
   const handleSaveChanges = async () => {
     const now = new Date();

@@ -12,7 +12,10 @@ import "./global.css";
 import ResetPasswordModal from "./shared_components/ResetPasswordModal";
 import SellerDashboard from "./seller/components/SellerDashboard";
 import CreateAuction from "./seller/components/CreateAuction";
+// Seller's AuctionDetail (for editing/deleting)
 import AuctionDetail from "./seller/pages/AuctionDetail";
+// Participant's AuctionDetail (for viewing/registration)
+import AuctionDetailParticipant from "./users_dashboard/AuctionDetailParticipant";
 
 function App() {
   const { user, loading, needsPassword } = useContext(AuthContext);
@@ -68,6 +71,16 @@ function App() {
           element={
             <PrivateRoute>
               <CreateAuction />
+            </PrivateRoute>
+          }
+        />
+
+        {/* Participant Auction Detail Route */}
+        <Route
+          path="/auction-detail/:auctionId"
+          element={
+            <PrivateRoute>
+              <AuctionDetailParticipant />
             </PrivateRoute>
           }
         />
