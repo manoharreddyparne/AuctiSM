@@ -30,14 +30,23 @@ app.use(morgan("dev")); // Request logging for debugging
 app.use(cookieParser());
 app.use(express.json());
 
+const allowedOrigins = [
+  "http://localhost:3000", // Allow local development
+  "https://auctism-frontend.onrender.com", // Allow deployed frontend
+];
+
 app.use(
   cors({
-    origin: "https://auctism-1.onrender.com",
-    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true,
   })
 );
-
 // ------------------
 // Socket.IO Setup
 // ------------------
