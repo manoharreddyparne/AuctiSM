@@ -1,4 +1,4 @@
-/* Modal Overlay */
+
 .modal-overlay {
     position: fixed;
     inset: 0;
@@ -9,8 +9,7 @@
     z-index: 1000;
     animation: fadeIn 0.3s ease-in-out;
   }
-  
-  /* Modal Container */
+
   .modal-container {
     background: white;
     padding: 20px;
@@ -22,28 +21,27 @@
     animation: slideUp 0.3s ease-in-out;
   }
   
-  /* Modal Title */
+
   .modal-title {
     font-size: 1.5rem;
     font-weight: bold;
     color: #333;
   }
   
-  /* Modal Message */
+
   .modal-message {
     margin: 15px 0;
     font-size: 1rem;
     color: #666;
   }
   
-  /* Button Container */
+
   .modal-buttons {
     display: flex;
     justify-content: space-between;
     margin-top: 20px;
   }
-  
-  /* Cancel Button */
+
   .cancel-button {
     background: #ccc;
     color: #333;
@@ -58,7 +56,7 @@
     background: #b3b3b3;
   }
   
-  /* Delete Button */
+
   .delete-button {
     background: #e60000;
     color: white;
@@ -91,8 +89,7 @@
       transform: translateY(0);
     }
   }
-  
-  /* Responsive Design */
+
   @media (max-width: 500px) {
     .modal-container {
       width: 95%;

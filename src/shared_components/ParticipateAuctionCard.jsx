@@ -1,7 +1,7 @@
-// src/shared_components/ParticipateAuctionCard.jsx
+
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import "../shared_components/ParticipateAuctionCard.css"; // Import the new CSS file
+import "../shared_components/ParticipateAuctionCard.css"; 
 
 const ParticipateAuctionCard = ({ auction }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);

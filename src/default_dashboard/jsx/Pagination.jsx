@@ -18,3 +18,4 @@ const Pagination = ({ visibleItems, totalItems, onLoadMore }) => {
 };
 
 export default Pagination;
+

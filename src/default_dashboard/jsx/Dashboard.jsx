@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import "../css/dashboard.css"; // Import the CSS file
+import "../css/dashboard.css"; 
 import Navbar from "../../shared_components/Navbar.jsx";
 import AuctionCard from "./AuctionCard.jsx";
 import auctionData from "./data";
@@ -11,14 +11,13 @@ function Dashboard() {
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
 
-  // Fetch user data (authentication)
   useEffect(() => {
     const fetchUserProfile = async () => {
       const authToken = localStorage.getItem("authToken");
 
       if (!authToken) {
         console.error("No auth token found, redirecting to login...");
-        navigate("/login"); // Redirect if not logged in
+        navigate("/login"); 
         return;
       }
 
@@ -29,14 +28,14 @@ function Dashboard() {
         setUser(response.data);
       } catch (error) {
         console.error("Error fetching user profile:", error);
-        navigate("/login"); // Redirect if token is invalid
+        navigate("/login"); 
       }
     };
 
     fetchUserProfile();
   }, [navigate]);
 
-  // Fetch auction data
+
   useEffect(() => {
     if (auctionData && auctionData.length > 0) {
       setData(auctionData);

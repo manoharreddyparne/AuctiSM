@@ -13,11 +13,11 @@ const Login = () => {
   const { login } = useContext(AuthContext);
   const navigate = useNavigate();
 
-  // State for Password Reset Modal
+  // State for password reset modal
   const [showModal, setShowModal] = useState(false);
   const [newPassword, setNewPassword] = useState("");
 
-  // On mount, check if a flag indicates the user needs to reset password
+  // Check if user needs to set a password
   useEffect(() => {
     const needsPassword = localStorage.getItem("needsPassword") === "true";
     if (needsPassword) {

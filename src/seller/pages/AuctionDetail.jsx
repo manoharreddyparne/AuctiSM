@@ -30,15 +30,15 @@ const AuctionDetail = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [editedAuction, setEditedAuction] = useState(null);
   const [countdown, setCountdown] = useState("");
-  // New state for image editing
+
   const [newImages, setNewImages] = useState([]);
   const [removedImages, setRemovedImages] = useState([]);
-  // For delete modal and saving overlay
+
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  // Refs for swipe/drag support
+
   const dragStartXRef = useRef(null);
   const isDraggingRef = useRef(false);
 
@@ -69,7 +69,7 @@ const AuctionDetail = () => {
     fetchAuction();
   }, [auctionId, authToken]);
 
-  // Determine auction status
+
   const getAuctionStatus = () => {
     if (!auction) return "";
     const now = new Date();

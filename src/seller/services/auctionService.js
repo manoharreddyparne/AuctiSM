@@ -1,9 +1,9 @@
-// src/seller/services/auctionService.js
+
 
 /**
  * Fetch auctions for the logged-in seller.
  * @param {string} authToken - JWT authentication token
- * @returns {Array} List of auction objects or an empty array if error occurs.
+ * @returns {Array} - Array of auctions
  */
 export const fetchSellerAuctions = async (authToken) => {
     try {

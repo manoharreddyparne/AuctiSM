@@ -1,10 +1,10 @@
 import React, { useEffect } from "react";
-import "./ConfirmDeleteModal.css"; // Import the CSS file
+import "./ConfirmDeleteModal.css"; 
 
 const ConfirmDeleteModal = ({ isOpen, onClose, onConfirm }) => {
-  // Handle Esc key to close modal
+
   useEffect(() => {
-    if (!isOpen) return; // Only add event listener when modal is open
+    if (!isOpen) return; 
 
     const handleKeyDown = (event) => {
       if (event.key === "Escape") {
@@ -16,7 +16,7 @@ const ConfirmDeleteModal = ({ isOpen, onClose, onConfirm }) => {
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [isOpen, onClose]);
 
-  if (!isOpen) return null; // Ensure modal is not rendered if closed
+  if (!isOpen) return null; 
 
   return (
     <div className="modal-overlay">

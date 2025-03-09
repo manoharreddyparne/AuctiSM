@@ -1,4 +1,4 @@
-// src/seller/components/AuctionForm.jsx
+
 import React from "react";
 import "./CreateAuction.css";  
 

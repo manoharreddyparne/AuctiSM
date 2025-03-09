@@ -1,8 +1,8 @@
-// shared_components/Navbar.jsx
+
 import React, { useState, useEffect } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { Navbar, Nav, Container, Form, Button } from "react-bootstrap";
-import { FaSearch, FaMoon, FaSun } from "react-icons/fa"; // Icons for dark mode toggle
+import { FaSearch, FaMoon, FaSun } from "react-icons/fa";
 import logo from "../assets/images/logo.png";
 import "./Navbar.css";
 
@@ -15,7 +15,6 @@ const CustomNavbar = ({ searchQuery, setSearchQuery }) => {
     localStorage.getItem("darkMode") === "enabled"
   );
 
-  // Toggle Dark Mode
   const toggleDarkMode = () => {
     const newMode = !darkMode;
     setDarkMode(newMode);

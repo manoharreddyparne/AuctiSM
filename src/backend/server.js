@@ -1,6 +1,6 @@
 const express = require("express");
-const http = require("http"); // Required for Socket.IO
-const { Server } = require("socket.io"); // WebSocket server
+const http = require("http"); 
+const { Server } = require("socket.io"); 
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 const cors = require("cors");
@@ -18,21 +18,21 @@ const authenticate = require("./authMiddleware");
 const authController = require("./authController");
 const auctionRoutes = require("./auctionRoutes");
 const awsRoutes = require("./awsRoutes");
-const Auction = require("./auctionModel"); // Used in Socket.IO events
+const Auction = require("./auctionModel");
 
 const app = express();
-const server = http.createServer(app); // Create HTTP server for Socket.IO
+// Create an HTTP server
+const server = http.createServer(app);
 
-// ------------------
 // Middleware Setup
-// ------------------
+
 app.use(morgan("dev")); // Request logging for debugging
 app.use(cookieParser());
 app.use(express.json());
 
 const allowedOrigins = [
-  "http://localhost:3000", // Allow local development
-  "https://auctism-frontend.onrender.com", // Allow deployed frontend
+  "http://localhost:3000" || process.env.REACT_APP_CLIENT,
+
 ];
 
 app.use(
@@ -47,9 +47,8 @@ app.use(
     credentials: true,
   })
 );
-// ------------------
+
 // Socket.IO Setup
-// ------------------
 const io = new Server(server, {
   cors: {
     origin: process.env.REACT_APP_CLIENT,
@@ -57,17 +56,16 @@ const io = new Server(server, {
   },
 });
 
-// WebSocket connection handler
+
 io.on("connection", (socket) => {
   console.log("🔵 User connected:", socket.id);
 
-  // Allow clients to join an auction room for real-time updates
+// Handle joining an auction room
   socket.on("joinAuction", (auctionId) => {
     socket.join(auctionId);
     console.log(`Socket ${socket.id} joined auction ${auctionId}`);
   });
-
-  // Handle bid placement from a client
+// Handle leaving an auction room
   socket.on("placeBid", async (data) => {
     try {
       const { auctionId, userId, bidAmount } = data;
@@ -76,8 +74,7 @@ io.on("connection", (socket) => {
       if (!auction) {
         return socket.emit("bidError", { message: "Auction not found" });
       }
-      // (Additional validations like auction status and minimum bid amount can be added here)
-      // Append new bid to auction bids array (assuming auction.bids exists in your model)
+
       auction.bids = auction.bids || [];
       auction.bids.push({ bidderId: userId, bidAmount, bidTime: new Date() });
       await auction.save();
@@ -133,7 +130,7 @@ app.post("/api/reset-password", authenticate, async (req, res) => {
     user.authProvider = "manual";
     user.needsPassword = false;
     await user.save();
-    console.log("✅ Password reset successful for:", user.email);
+    console.log("  Password reset successful for:", user.email);
     res.status(200).json({ message: "Password updated successfully" });
   } catch (error) {
     console.error("❌ Error resetting password:", error);
@@ -159,7 +156,7 @@ app.post("/api/set-password", authenticate, async (req, res) => {
     user.authProvider = "manual";
     user.needsPassword = false;
     await user.save();
-    console.log("✅ Password set successfully for Google user:", user.email);
+    console.log("  Password set successfully for Google user:", user.email);
     res.status(200).json({ message: "Password set successfully. You can now log in manually." });
   } catch (error) {
     console.error("❌ Error setting password:", error);
@@ -171,7 +168,7 @@ app.post("/api/set-password", authenticate, async (req, res) => {
 // Test Route
 // ------------------
 app.get("/", (req, res) => {
-  res.send("✅ AuctiSM Backend is running");
+  res.send(" AuctiSM Backend is running");
 });
 
 // ------------------
@@ -190,7 +187,7 @@ app.use((req, res, next) => {
 mongoose
   .connect(config.MONGO_URI)
   .then(() => {
-    console.log("✅ Connected to MongoDB");
+    console.log("  Connected to MongoDB");
 
     const PORT = process.env.PORT || 5000;
     server.listen(PORT, () => {

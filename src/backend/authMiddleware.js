@@ -1,10 +1,10 @@
 const jwt = require("jsonwebtoken");
 const User = require("./userModel");
-require("dotenv").config(); // Ensure environment variables are loaded
+require("dotenv").config(); 
 
 const authenticate = async (req, res, next) => {
   try {
-    const token = req.header("Authorization")?.split(" ")[1]; // Extract token from header
+    const token = req.header("Authorization")?.split(" ")[1]; 
 
     if (!token) {
       console.error("❌ No token provided");
@@ -19,21 +19,21 @@ const authenticate = async (req, res, next) => {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     console.log("✅ Token Decoded:", decoded);
 
-    const userId = decoded.userId || decoded._id; // Ensure compatibility with different JWT structures
+    const userId = decoded.userId || decoded._id; 
 
     if (!userId) {
       console.error("❌ No userId found in token payload.");
       return res.status(401).json({ error: "Unauthorized: Invalid token data" });
     }
 
-    // 🔍 Ensure user exists in the database
+
     const user = await User.findById(userId);
     if (!user) {
       console.error("❌ User not found for token userId:", userId);
       return res.status(401).json({ error: "Unauthorized: Invalid user" });
     }
 
-    req.userId = userId.toString(); // Ensure userId is a string
+    req.userId = userId.toString();
     console.log("🟢 Middleware Authenticated User ID:", req.userId);
 
     next();

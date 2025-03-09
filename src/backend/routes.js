@@ -4,25 +4,24 @@ const authenticate = require("./authMiddleware");
 const User = require("./userModel");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const { createAuction } = require("./auctionController"); // Import auction controller
+const { createAuction } = require("./auctionController");
 require("dotenv").config();
 
 const router = express.Router();
 
-// ✅ Debugging Middleware (Logs Requests)
 router.use((req, res, next) => {
   console.log("🔵 Incoming Request:", req.method, req.url);
   console.log("🔹 Headers:", req.headers);
   next();
 });
 
-// ✅ Public Routes
+// Public Routes
 router.post("/signup", register);
 router.post("/login", login);
 router.post("/google-login", googleLogin);
 router.post("/reset-password", resetPassword); // For manual password reset
 
-// ✅ Protected Route: Fetch User Profile
+//  Protected Route: Fetch User Profile
 router.get("/profile", authenticate, async (req, res) => {
   try {
     console.log("🟢 Fetching profile for user ID:", req.userId);
@@ -47,8 +46,7 @@ router.get("/profile", authenticate, async (req, res) => {
 });
 
 
-// ✅ Set Password for Google Users (or users without a manual password)
-// This route allows a Google user (with no manual password) to set one
+// Set Password Route (for manual password reset)
 router.post("/set-password", async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -69,7 +67,7 @@ router.post("/set-password", async (req, res) => {
     user.needsPassword = false;
     await user.save();
 
-    console.log(`✅ Password set successfully for user: ${email}`);
+    console.log(` Password set successfully for user: ${email}`);
     res.status(200).json({ message: "Password set successfully" });
   } catch (error) {
     console.error("❌ Error setting password:", error);
@@ -77,7 +75,7 @@ router.post("/set-password", async (req, res) => {
   }
 });
 
-// ✅ Login Route (handles both Google and manual login)
+// Login Route (for manual login)
 router.post("/login", async (req, res) => {
   const { email, authProvider, googleId, password } = req.body;
   try {
@@ -108,7 +106,7 @@ router.post("/login", async (req, res) => {
   }
 });
 
-// ✅ Auction Route
+// Protected Route: Create Auction
 router.post("/auctions/create", authenticate, createAuction);
 
 module.exports = router;

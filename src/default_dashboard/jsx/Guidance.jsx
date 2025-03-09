@@ -1,6 +1,6 @@
 import React from "react";
 import { Container, Row, Col, Button } from "react-bootstrap";
-import "../css/Guidance.css"; // You can now add Bootstrap classes in the CSS for custom styles
+import "../css/Guidance.css"; 
 
 const Guidance = () => {
   return (

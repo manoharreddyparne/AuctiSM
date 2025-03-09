@@ -1,17 +1,17 @@
-/* src/seller/components/CreateAuction.css */
+
 .create-auction-container {
   max-width: 600px;
   margin: 2rem auto;
   padding: 1.5rem;
   border: 1px solid rgba(0, 0, 0, 0.1);
   border-radius: 8px;
-  background-color: rgba(255, 255, 255, 0.95); /* Light mode: slightly transparent white */
+  background-color: rgba(255, 255, 255, 0.95); 
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   position: relative;
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* Dark mode for container */
+
 .create-auction-container.dark {
   background-color: rgba(0, 0, 0, 0.85) !important;
   border-color: rgba(255, 255, 255, 0.2) !important;
@@ -22,14 +22,14 @@
   color: #eee;
 }
 
-/* Ensure all text elements inherit the container's color */
+
 .create-auction-container h2,
 .selected-images p,
 .error {
   color: inherit;
 }
 
-/* Form input dark mode styling */
+
 .create-auction-container.dark input[type="text"],
 .create-auction-container.dark input[type="number"],
 .create-auction-container.dark input[type="datetime-local"],
@@ -49,7 +49,7 @@
   outline: none;
 }
 
-/* Back arrow styling */
+
 .back-arrow {
   position: absolute;
   top: 10px;
@@ -197,7 +197,6 @@
   margin-top: 0.5rem;
 }
 
-/* Force all form labels to always remain black regardless of dark mode */
 .create-auction-container .form-group label {
   color: #000 !important;
 }

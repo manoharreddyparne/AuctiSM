@@ -1,4 +1,4 @@
-/* src/seller/pages/AuctionDetail.css */
+
 .auction-detail {
   position: relative;
   max-width: 1200px;
@@ -60,7 +60,7 @@
 }
 
 
-/* Rest of your CSS remains unchanged */
+
 .countdown {
   font-size: 1.2rem;
   margin-bottom: 20px;
@@ -187,7 +187,7 @@
   background-color: #0056b3;
 }
 
-/* New styles for editing images */
+
 .edit-images {
   margin-top: 20px;
   border: 1px solid #ddd;

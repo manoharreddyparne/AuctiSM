@@ -1,4 +1,4 @@
-/* AuctionRegister.css */
+
 .auction-register-container {
   max-width: 500px;
   margin: 20px auto;
@@ -90,7 +90,6 @@
   text-align: center;
 }
 
-/* Modal overlay styling */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -105,7 +104,7 @@
   animation: fadeIn 0.3s ease-in-out;
 }
 
-/* Modal content styling */
+
 .modal-content {
   background: #fff;
   padding: 30px;
@@ -119,7 +118,7 @@
   animation: slideDown 0.3s ease-in-out;
 }
 
-/* Updated close button: small box in top right */
+
 .modal-close {
   position: absolute;
   top: 10px;
@@ -141,7 +140,7 @@
   color: #007bff;
 }
 
-/* Animations */
+
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }

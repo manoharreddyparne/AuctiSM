@@ -1,4 +1,4 @@
-// src/seller/components/BidUpdates.jsx
+
 import React, { useState, useEffect } from "react";
 
 const BidUpdates = ({ auctionId, authToken }) => {

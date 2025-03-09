@@ -1,4 +1,4 @@
-// src/seller/components/SellerDashboard.jsx
+
 import React, { useEffect, useState } from "react";
 import AuctionCard from "./AuctionCard";
 import { fetchSellerAuctions } from "../services/auctionService";
@@ -12,7 +12,7 @@ const SellerDashboard = () => {
   const authToken = localStorage.getItem("authToken");
   const navigate = useNavigate();
 
-  // Poll dark mode from localStorage instantly (0ms interval)
+
   const [darkMode, setDarkMode] = useState(localStorage.getItem("darkMode") === "enabled");
 
   useEffect(() => {

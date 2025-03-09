@@ -12,13 +12,12 @@ if (!JWT_SECRET || !JWT_REFRESH_SECRET) {
   console.error("❌ JWT_SECRET or JWT_REFRESH_SECRET is missing! Check your config.");
   process.exit(1);
 }
-
-// Helper Function to Generate Access & Refresh Tokens
+//refresh token
 const generateTokens = (user) => {
   const accessToken = jwt.sign(
     { userId: user._id, email: user.email },
     JWT_SECRET,
-    { expiresIn: "1h" }
+    { expiresIn: "24h" }
   );
   const refreshToken = jwt.sign(
     { userId: user._id, email: user.email },
@@ -28,7 +27,7 @@ const generateTokens = (user) => {
   return { accessToken, refreshToken };
 };
 
-// Register New User (Manual Signup)
+//manual register
 const register = async (req, res) => {
   try {
     const { fullName, email, phone, dob, address, password } = req.body;
@@ -66,8 +65,7 @@ const register = async (req, res) => {
     res.status(500).json({ message: 'Error creating user. Please try again.' });
   }
 };
-
-// Login (Manual Login)
+//manual login
 const login = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -122,10 +120,11 @@ const googleLogin = async (req, res) => {
       return res.status(400).json({ message: "Google login failed: No email received" });
     }
 
-    // Include the password field so we can check if it exists.
+// Check if user exists in the database
     let user = await User.findOne({ email }).select("+password");
     if (!user) {
-      // New Google user: create account and force password reset.
+
+      // New Google user: create a new account and password
       user = new User({
         fullName: name,
         email,
@@ -183,7 +182,7 @@ const setPassword = async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
     user.password = hashedPassword;
-    user.authProvider = "manual"; // Convert to manual login
+    user.authProvider = "manual"; 
     user.needsPassword = false;
     await user.save();
 

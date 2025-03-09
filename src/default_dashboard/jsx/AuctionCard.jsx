@@ -1,8 +1,8 @@
 import React from "react";
-import "../css/AuctionCard.css"; // Import the CSS file
+import "../css/AuctionCard.css"; 
 
 function AuctionCard({ auction }) {
-  // Check if auction data exists and has the expected properties
+
   if (!auction || !auction.image || !auction.title || !auction.basePrice) {
     return <div className="auction-card-error">No preview found</div>;
   }

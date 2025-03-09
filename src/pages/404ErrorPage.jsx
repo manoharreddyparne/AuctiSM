@@ -1,12 +1,12 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Button, Container, Row, Col } from "react-bootstrap";
-import queryString from "query-string"; // Import query-string to parse the query params
+import queryString from "query-string"; 
 
 const Error404Page = () => {
   const location = useLocation();
-  const queryParams = queryString.parse(location.search); // Parse the query parameters from the URL
-  const searchQuery = queryParams.search; // Extract the search parameter
+  const queryParams = queryString.parse(location.search); // Parse the query string
+  const searchQuery = queryParams.search; // Get the search query from the query string
 
   return (
     <Container className="d-flex justify-content-center align-items-center" style={{ minHeight: "100vh" }}>

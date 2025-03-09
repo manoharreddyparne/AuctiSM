@@ -34,11 +34,11 @@ userSchema.methods.comparePassword = async function (enteredPassword) {
   return bcrypt.compare(enteredPassword, this.password);
 };
 
-// Instance method to set a new password for a Google user (converting them to manual authentication)
+// Instance method to set a new password
 userSchema.methods.setPassword = async function (newPassword) {
   this.password = await bcrypt.hash(newPassword, 10);
-  this.needsPassword = false;  // Mark that the password is now set
-  this.authProvider = "manual"; // Convert the user to manual authentication
+  this.needsPassword = false;  
+  this.authProvider = "manual"; 
   await this.save();
 };
 

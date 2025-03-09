@@ -1,35 +1,34 @@
 import React, { useEffect, useState, useContext, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { AuthContext } from "../utils/AuthContext"; // ✅ Import AuthContext
+import { AuthContext } from "../utils/AuthContext"; 
 
 const Profile = () => {
   const [profileData, setProfileData] = useState(null);
-  const { logout } = useContext(AuthContext); // ✅ Get logout function from AuthContext
+  const { logout } = useContext(AuthContext); 
   const navigate = useNavigate();
 
-  // ✅ Function to Clear Everything on Logout (Memoized)
+
   const clearStorageAndCookies = useCallback(() => {
     try {
-      // ✅ Clear Local Storage & Session Storage
+//  Clear Local Storage and Session Storage
       localStorage.clear();
       sessionStorage.clear();
-
-      // ✅ Delete All Cookies
+//  Clear Cookies
       document.cookie.split(";").forEach((cookie) => {
         document.cookie = cookie
-          .replace(/^ +/, "") // Trim spaces
-          .replace(/=.*/, "=;expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/"); // Expire cookie
+          .replace(/^ +/, "") 
+          .replace(/=.*/, "=;expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/"); 
       });
 
-      // ✅ Call logout function from AuthContext to reset auth state
+ //  Logout from AuthContext
       logout();
 
       console.log("✅ All session data cleared.");
     } catch (error) {
       console.error("Logout error:", error);
     }
-  }, [logout]); // ✅ Dependency on 'logout' only
+  }, [logout]); //  logout in dependencies
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -51,7 +50,7 @@ const Profile = () => {
       } catch (error) {
         console.error("❌ Error fetching profile:", error);
 
-        // ✅ Clear invalid token and redirect to prevent infinite loop
+//  Unauthorized error handling
         if (error.response && error.response.status === 401) {
           console.log("🚨 Unauthorized: Clearing token and redirecting...");
           clearStorageAndCookies();
@@ -61,12 +60,12 @@ const Profile = () => {
     };
 
     fetchUserData();
-  }, [navigate, clearStorageAndCookies]); // ✅ Include clearStorageAndCookies
+  }, [navigate, clearStorageAndCookies]); //  navigate and clearStorageAndCookies in dependencies
 
-  // ✅ Logout Button Handler
+//  Logout function
   const handleLogout = () => {
     clearStorageAndCookies();
-    navigate("/login"); // Redirect after clearing storage
+    navigate("/login");
   };
 
   if (!profileData) return <div>Loading...</div>;
@@ -80,7 +79,7 @@ const Profile = () => {
       <p>Date of Birth: {new Date(profileData.dob).toLocaleDateString()}</p>
       <p>Address: {profileData.address}</p>
 
-      {/* ✅ Logout Button */}
+{/*  Logout button */}
       <button onClick={handleLogout} style={{ marginTop: "20px", padding: "10px 15px", cursor: "pointer" }}>
         Logout
       </button>

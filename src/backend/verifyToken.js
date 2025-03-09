@@ -11,17 +11,17 @@ const verifyToken = (req, res, next) => {
     return res.status(401).json({ error: "Access denied. No token provided." });
   }
 
-  // Extract token from "Bearer <token>" format
+// Extract token from the header
   const token = tokenHeader.startsWith("Bearer ") ? tokenHeader.slice(7).trim() : tokenHeader;
   console.log("🔹 Extracted Token:", token);
 
   try {
     // Verify the token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    console.log("🟢 Token verified successfully:", decoded);
+    console.log(" Token verified successfully:", decoded);
 
     req.user = decoded;
-    req.userId = decoded.userId || decoded.id; // Ensure correct userId extraction
+    req.userId = decoded.userId || decoded.id;
 
     if (!req.userId) {
       console.error("❌ Token missing userId.");

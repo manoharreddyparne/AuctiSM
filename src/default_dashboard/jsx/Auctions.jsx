@@ -22,7 +22,7 @@ const Auctions = () => {
 
       <section className="auctions-section py-5">
         <Container>
-          {/* Top Auctions */}
+
           <h2 className="text-center mb-4">Top Auctions</h2>
           <Row>
             {ongoingAuctions.slice(0, visibleTop).map((auction) => (
@@ -37,7 +37,6 @@ const Auctions = () => {
             onLoadMore={setVisibleTop}
           />
 
-          {/* Recent Auctions */}
           <h2 className="text-center mb-4">Recent Auctions</h2>
           <Row>
             {recentAuctions.slice(0, visibleRecent).map((auction) => (
@@ -67,7 +66,7 @@ const Auctions = () => {
             onLoadMore={setVisibleTopBid}
           />
 
-          {/* Winner's List */}
+
           <h2 className="text-center mb-4">Winner's List Last Month</h2>
           <Table striped bordered hover className="text-white">
             <thead>

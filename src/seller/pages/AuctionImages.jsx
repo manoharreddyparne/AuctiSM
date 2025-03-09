@@ -1,4 +1,4 @@
-// src/seller/pages/AuctionImages.jsx
+
 import React from "react";
 
 const AuctionImages = ({
@@ -62,7 +62,7 @@ const AuctionImages = ({
           ))}
         </div>
       </div>
-      {/* Edit Images Section (visible in edit mode) */}
+   
       {isEditing && (
         <div className="edit-images">
           <h3>Existing Images</h3>

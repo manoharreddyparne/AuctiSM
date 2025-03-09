@@ -1,26 +1,25 @@
-/* src/seller/components/AuctionCard.css */
+
 .auction-card {
-  width: 100%;              /* Fill the grid cell */
-  max-width: 300px;         /* Cap the width */
+  width: 100%;              
+  max-width: 300px;         
   border: 1px solid rgba(0, 0, 0, 0.1);
   border-radius: 6px;
   overflow: hidden;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
   font-family: Arial, sans-serif;
-  /* Light mode: slightly transparent white background and dark text */
+
   background-color: rgba(255, 255, 255, 0.85);
   color: #333;
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* Dark mode: slightly transparent black background and light text */
+
 .auction-card.dark {
   background-color: rgba(0, 0, 0, 0.7) !important;
   border-color: rgba(255, 255, 255, 0.2) !important;
   color: #fff !important;
 }
 
-/* Ensure text inside details inherits the card color */
 .auction-card .auction-details h3,
 .auction-card .auction-details p,
 .auction-card .price {
@@ -29,14 +28,14 @@
 
 .auction-image {
   width: 100%;
-  height: 200px; /* Fixed height for uniformity */
+  height: 200px;
   overflow: hidden;
 }
 
 .auction-image img {
   width: 100%;
   height: 100%;
-  object-fit: cover; /* Ensures the image fills the container uniformly */
+  object-fit: cover; 
   display: block;
 }
 
@@ -61,7 +60,7 @@
   color: inherit;
 }
 
-/* Modal styles remain unchanged */
+
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -120,7 +119,6 @@
   transform: translateY(-50%);
 }
 
-/* Responsive */
 @media (max-width: 768px) {
   .auction-card {
     max-width: 100%;

@@ -5,7 +5,7 @@ const Auction = require("./auctionModel");
 const authMiddleware = require("./authMiddleware");
 const { deleteImageFromS3 } = require("../utils/uploadS3");
 
-// Middleware to validate ObjectId format
+//function checking the vaildity of the object id
 const isValidObjectId = (id) => mongoose.Types.ObjectId.isValid(id);
 
 // ✅ Create Auction (Authenticated Users Only)
@@ -54,7 +54,7 @@ router.post("/create", authMiddleware, async (req, res) => {
   }
 });
 
-// ✅ Get Auctions Created by Logged-in Seller
+// actions created by the user
 router.get("/myAuctions", authMiddleware, async (req, res) => {
   try {
     if (!req.userId) {
@@ -69,7 +69,7 @@ router.get("/myAuctions", authMiddleware, async (req, res) => {
   }
 });
 
-// ✅ Get All Auctions Except Those Created by the Logged-in User
+//all auctions in the database other than the logged in user created
 router.get("/all", authMiddleware, async (req, res) => {
   try {
     if (!req.userId) {
@@ -83,8 +83,7 @@ router.get("/all", authMiddleware, async (req, res) => {
     res.status(500).json({ error: "Failed to fetch auctions.", details: error.message });
   }
 });
-
-// ✅ Get Auction by ID
+//finding auction by id
 router.get("/:auctionId", authMiddleware, async (req, res) => {
   try {
     const { auctionId } = req.params;
@@ -103,8 +102,7 @@ router.get("/:auctionId", authMiddleware, async (req, res) => {
     res.status(500).json({ error: "Failed to fetch auction.", details: error.message });
   }
 });
-
-// ✅ New: Get Registration Status for an Auction
+//status of the registration.
 router.get("/:auctionId/registration-status", authMiddleware, async (req, res) => {
   try {
     const { auctionId } = req.params;
@@ -126,8 +124,7 @@ router.get("/:auctionId/registration-status", authMiddleware, async (req, res) =
   }
 });
 
-// ✅ Register User for an Auction (Prevents Duplicate Registration)
-// ✅ Register User for an Auction (Prevents Duplicate Registration)
+//preventing the duplicate registration
 router.post("/:auctionId/register", authMiddleware, async (req, res) => {
   try {
     const { auctionId } = req.params;
@@ -150,19 +147,15 @@ router.post("/:auctionId/register", authMiddleware, async (req, res) => {
     if (!auction) {
       return res.status(404).json({ error: "Auction not found" });
     }
-
-    // Check if user is already registered
     const isAlreadyRegistered = auction.registeredUsers.some(
       (user) => user.userId.toString() === userId
     );
     if (isAlreadyRegistered) {
       return res.status(400).json({ error: "You are already registered for this auction." });
     }
-
-    // Add registration details to registeredUsers
+//pushing the user details to the registered users array
     auction.registeredUsers.push({ userId, fullName, email, mobileNumber, paymentDetails, additionalInfo });
 
-    // Also add the userId to participants array if not already present
     if (!auction.participants.some((id) => id.toString() === userId)) {
       auction.participants.push(userId);
     }
@@ -177,8 +170,7 @@ router.post("/:auctionId/register", authMiddleware, async (req, res) => {
 });
 
 
-
-// ✅ Update Auction by ID
+// updating the auction
 router.put("/:auctionId", authMiddleware, async (req, res) => {
   try {
     const { auctionId } = req.params;
@@ -204,7 +196,7 @@ router.put("/:auctionId", authMiddleware, async (req, res) => {
   }
 });
 
-// ✅ Delete Auction & Remove Images from S3
+//deleting the auction
 router.delete("/:auctionId", authMiddleware, async (req, res) => {
   try {
     const { auctionId } = req.params;
@@ -217,8 +209,7 @@ router.delete("/:auctionId", authMiddleware, async (req, res) => {
     if (!auction) {
       return res.status(404).json({ error: "Auction not found" });
     }
-
-    // Delete images from S3 if available
+//deleting the images from the s3 bucket
     if (auction.imageUrls?.length > 0) {
       await Promise.all(
         auction.imageUrls.map(async (imageUrl) => {

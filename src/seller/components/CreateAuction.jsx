@@ -1,4 +1,4 @@
-// src/seller/components/CreateAuction.jsx
+
 import React, { useState, useRef, useEffect } from "react";
 import "./CreateAuction.css";
 import { jwtDecode } from "jwt-decode";

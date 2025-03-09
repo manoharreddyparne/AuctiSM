@@ -21,12 +21,12 @@ function MainPage() {
           return;
         }
 
-        const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/profile`, {  // ✅ Ensure correct endpoint
+        const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/profile`, {  
           headers: { Authorization: `Bearer ${token}` },
           withCredentials: true,
         });
 
-        setUser(response.data.user); // ✅ Access 'user' field in response
+        setUser(response.data.user); 
       } catch (error) {
         console.error("Failed to fetch profile:", error);
         navigate("/login");

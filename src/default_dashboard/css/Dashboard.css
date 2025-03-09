@@ -14,7 +14,7 @@
   gap: 20px;
 }
 
-/* Make the grid responsive */
+
 @media (max-width: 1200px) {
   .auction-list {
     grid-template-columns: repeat(2, 1fr);
@@ -27,7 +27,7 @@
   }
 }
 
-/* Optional styling for individual auction cards */
+
 .auction-card {
   border: 1px solid #ddd;
   border-radius: 8px;

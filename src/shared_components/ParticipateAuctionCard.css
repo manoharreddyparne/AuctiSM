@@ -1,7 +1,7 @@
-/* src/shared_components/ParticipateAuctionCard.css */
+
 .auction-card {
-    width: 100%;              /* Fill the grid cell */
-    max-width: 300px;         /* Cap the width */
+    width: 100%;            
+    max-width: 300px;        
     border: 1px solid rgba(0, 0, 0, 0.1);
     border-radius: 6px;
     overflow: hidden;

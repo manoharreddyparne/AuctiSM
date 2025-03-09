@@ -1,15 +1,15 @@
 import React, { useState } from "react";
 import { Container, Row, Col } from "react-bootstrap";
 import AuctionCard from "../jsx/AuctionCard";
-import auctionData from "../data"; // Auction data import
+import auctionData from "../data"; 
 
 const AuctionsList = ({ type }) => {
   const filteredAuctions = auctionData.filter(auction => auction.status === type);
-  const [visibleAuctions, setVisibleAuctions] = useState(7); // Initial items per page
+  const [visibleAuctions, setVisibleAuctions] = useState(7); 
 
-  // Handle load more auctions
+
   const loadMore = () => {
-    setVisibleAuctions(prev => prev + 7); // Load 7 more items on click
+    setVisibleAuctions(prev => prev + 7); 
   };
 
   return (

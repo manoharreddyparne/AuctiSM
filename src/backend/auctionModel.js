@@ -30,7 +30,6 @@ const auctionSchema = new mongoose.Schema(
     ],
     participants: [{ type: mongoose.Schema.Types.ObjectId, ref: "User", default: [] }],
 
-    // New bids array to store bid history
     bids: [bidSchema],
   },
   { timestamps: true }

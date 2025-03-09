@@ -1,4 +1,4 @@
-// src/seller/pages/AuctionForm.jsx
+
 import React from "react";
 
 const AuctionForm = ({
@@ -16,7 +16,7 @@ const AuctionForm = ({
 }) => {
   return (
     <>
-      {/* Auction Information / Edit Form */}
+
       <div className="auction-info">
         {isEditing ? (
           <>
@@ -109,7 +109,7 @@ const AuctionForm = ({
           </>
         )}
       </div>
-      {/* Auction Actions */}
+
       <div className="auction-actions">
         {isEditing ? (
           <>

@@ -1,4 +1,4 @@
-/* General Navbar Styling */
+
 .user-navbar {
   background: rgba(0, 51, 102, 0.85);
   backdrop-filter: blur(5px);
@@ -10,7 +10,6 @@
   height: auto;
 }
 
-/* Navigation Links */
 .navbar-nav .nav-link {
   color: #fff;
   transition: color 0.3s ease, background-color 0.3s ease;
@@ -23,7 +22,6 @@
   border-radius: 5px;
 }
 
-/* Search Bar */
 .search-form {
   display: flex;
   align-items: center;
@@ -63,7 +61,7 @@
   font-style: italic;
 }
 
-/* Dark Mode Toggle */
+
 .dark-mode-toggle {
   display: flex;
   align-items: center;
@@ -85,7 +83,7 @@
   color: #ffd700;
 }
 
-/* Buttons */
+
 .auth-buttons .btn-custom {
   border-radius: 20px;
   padding: 6px 15px;
@@ -98,7 +96,6 @@
   color: #fff;
 }
 
-/* Dark Mode Styles */
 .dark-mode {
   background-color: #121212;
   color: #e0e0e0;

@@ -1,8 +1,8 @@
-// users_dashboard/UserNavbar.jsx
+
 import React, { useState, useEffect } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { Navbar, Nav, Container, Form, Button } from "react-bootstrap";
-import { FaSearch, FaMoon, FaSun } from "react-icons/fa"; // Icons for dark mode toggle
+import { FaSearch, FaMoon, FaSun } from "react-icons/fa"; 
 import logo from "../assets/images/logo.png";
 import "./UserNavbar.css";
 
@@ -14,7 +14,6 @@ const UserNavbar = ({ searchQuery, setSearchQuery }) => {
     localStorage.getItem("darkMode") === "enabled"
   );
 
-  // Toggle Dark Mode
   const toggleDarkMode = () => {
     const newMode = !darkMode;
     setDarkMode(newMode);
@@ -22,7 +21,7 @@ const UserNavbar = ({ searchQuery, setSearchQuery }) => {
     document.body.classList.toggle("dark-mode", newMode);
   };
 
-  // Apply dark mode on page load
+
   useEffect(() => {
     if (darkMode) {
       document.body.classList.add("dark-mode");
@@ -66,7 +65,7 @@ const UserNavbar = ({ searchQuery, setSearchQuery }) => {
               <NavLink
                 key={index}
                 to={path}
-                end={path === "/mainpage"} // Ensures only exact match applies for HOME
+                end={path === "/mainpage"} // Only active on exact path match
                 className={({ isActive }) =>
                   `nav-link ${isActive ? "active" : ""}`
                 }

@@ -12,9 +12,9 @@ import "./global.css";
 import ResetPasswordModal from "./shared_components/ResetPasswordModal";
 import SellerDashboard from "./seller/components/SellerDashboard";
 import CreateAuction from "./seller/components/CreateAuction";
-import AuctionDetail from "./seller/pages/AuctionDetail"; // Seller's AuctionDetail (for editing/deleting)
-import AuctionDetailParticipant from "./users_dashboard/AuctionDetailParticipant"; // Participant's AuctionDetail (for viewing/registration)
-import AuctionRegister from "./seller/pages/AuctionRegister"; // Auction Registration Page
+import AuctionDetail from "./seller/pages/AuctionDetail"; 
+import AuctionDetailParticipant from "./users_dashboard/AuctionDetailParticipant"; 
+import AuctionRegister from "./seller/pages/AuctionRegister"; 
 
 function App() {
   const { user, loading, needsPassword } = useContext(AuthContext);

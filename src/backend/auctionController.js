@@ -1,10 +1,9 @@
 const mongoose = require("mongoose");
 const Auction = require("./auctionModel");
-
-// ✅ Create Auction
+//auction is created below
 exports.createAuction = async (req, res) => {
   try {
-    console.log("🔵 Creating auction:", req.body);
+    console.log("🔵 Creating auction:" );//, req.body);
 
     if (!req.userId) {
       return res.status(401).json({ message: "Unauthorized: No user ID found" });
@@ -41,7 +40,7 @@ exports.createAuction = async (req, res) => {
   }
 };
 
-// ✅ Fetch all auctions (excluding the logged-in user's auctions)
+//fetching all auctions
 exports.getAllAuctions = async (req, res) => {
   try {
     if (!req.userId) {
@@ -62,7 +61,7 @@ exports.getAllAuctions = async (req, res) => {
   }
 };
 
-// ✅ Register a user for an auction
+//registering for auction
 exports.registerForAuction = async (req, res) => {
   try {
     if (!req.userId) {
@@ -92,7 +91,7 @@ exports.registerForAuction = async (req, res) => {
   }
 };
 
-// ✅ Get all participants of a specific auction
+//getting all participants
 exports.getAuctionParticipants = async (req, res) => {
   try {
     const auctionId = req.params.auctionId;

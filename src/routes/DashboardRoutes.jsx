@@ -1,8 +1,8 @@
-// src/routes/DashboardRoutes.jsx
+
 import React, { useContext } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
-import { AuthContext } from "../utils/AuthContext"; // Import AuthContext
-import Home from "../default_dashboard/jsx/Home"; // Home page for non-logged-in users
+import { AuthContext } from "../utils/AuthContext"; 
+import Home from "../default_dashboard/jsx/Home"; 
 import Contact from "../pages/Contact";
 import GetStarted from "../pages/GetStarted";
 import Help from "../pages/Help";
@@ -13,11 +13,11 @@ import Auctions from "../default_dashboard/jsx/Auctions";
 import Guidance from "../default_dashboard/jsx/Guidance";
 
 function DashboardRoutes() {
-  const { user } = useContext(AuthContext); // Get user state
+  const { user } = useContext(AuthContext); 
 
   return (
     <Routes>
-      {/* If user is logged in, "/" should redirect to /mainpage */}
+
       <Route path="/" element={user ? <Navigate to="/mainpage" /> : <Home />} />
       <Route path="/home" element={user ? <Navigate to="/mainpage" /> : <Home />} />
 
