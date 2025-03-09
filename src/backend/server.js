@@ -32,6 +32,7 @@ app.use(express.json());
 
 const allowedOrigins = [
   "http://localhost:3000" || process.env.REACT_APP_CLIENT,
+  "https://auctism-frontend.onrender.com", 
 
 ];
 
