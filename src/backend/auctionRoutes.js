@@ -4,19 +4,18 @@ const mongoose = require("mongoose");
 const Auction = require("./auctionModel");
 const authMiddleware = require("./authMiddleware");
 const { deleteImageFromS3 } = require("../utils/uploadS3");
+const auctionController = require("./auctionController"); // Import updated controller
 
-//function checking the vaildity of the object id
+// Utility: Check if ObjectId is valid
 const isValidObjectId = (id) => mongoose.Types.ObjectId.isValid(id);
 
 // ✅ Create Auction (Authenticated Users Only)
 router.post("/create", authMiddleware, async (req, res) => {
   try {
     console.log("🔥 Incoming Request Body:", req.body);
-
     if (!req.userId) {
       return res.status(401).json({ error: "Unauthorized: No user ID found" });
     }
-
     const {
       productName,
       description,
@@ -27,13 +26,10 @@ router.post("/create", authMiddleware, async (req, res) => {
       endDateTime,
       imageUrls,
     } = req.body;
-
     if (!productName || !description || !category || !basePrice || !startDateTime || !endDateTime) {
       return res.status(400).json({ error: "Missing required fields" });
     }
-
     const finalCategory = category === "Other" ? newCategory : category;
-
     const newAuction = new Auction({
       sellerId: req.userId,
       productName,
@@ -43,9 +39,8 @@ router.post("/create", authMiddleware, async (req, res) => {
       startDateTime: new Date(startDateTime),
       endDateTime: new Date(endDateTime),
       imageUrls: Array.isArray(imageUrls) ? imageUrls : [],
-      registeredUsers: [],
+      registeredUsers: [],  // Stores registration details
     });
-
     const savedAuction = await newAuction.save();
     res.status(201).json(savedAuction);
   } catch (error) {
@@ -54,13 +49,12 @@ router.post("/create", authMiddleware, async (req, res) => {
   }
 });
 
-// actions created by the user
+// Actions created by the user (My Auctions)
 router.get("/myAuctions", authMiddleware, async (req, res) => {
   try {
     if (!req.userId) {
       return res.status(401).json({ error: "Unauthorized: No user ID found" });
     }
-
     const auctions = await Auction.find({ sellerId: req.userId });
     res.json(auctions);
   } catch (error) {
@@ -69,13 +63,12 @@ router.get("/myAuctions", authMiddleware, async (req, res) => {
   }
 });
 
-//all auctions in the database other than the logged in user created
+// All auctions in the database (other than the logged-in user's)
 router.get("/all", authMiddleware, async (req, res) => {
   try {
     if (!req.userId) {
       return res.status(401).json({ error: "Unauthorized: No user ID found" });
     }
-
     const auctions = await Auction.find({ sellerId: { $ne: req.userId } });
     res.json(auctions);
   } catch (error) {
@@ -83,15 +76,14 @@ router.get("/all", authMiddleware, async (req, res) => {
     res.status(500).json({ error: "Failed to fetch auctions.", details: error.message });
   }
 });
-//finding auction by id
+
+// Find auction by id
 router.get("/:auctionId", authMiddleware, async (req, res) => {
   try {
     const { auctionId } = req.params;
-
     if (!isValidObjectId(auctionId)) {
       return res.status(400).json({ error: "Invalid auction ID format" });
     }
-
     const auction = await Auction.findById(auctionId);
     if (!auction) {
       return res.status(404).json({ error: "Auction not found" });
@@ -102,8 +94,9 @@ router.get("/:auctionId", authMiddleware, async (req, res) => {
     res.status(500).json({ error: "Failed to fetch auction.", details: error.message });
   }
 });
-//status of the registration.
-router.get("/:auctionId/registration-status", authMiddleware, async (req, res) => {
+
+// ★ New Route: Get bid details for a specific auction ★
+router.get("/:auctionId/bids", authMiddleware, async (req, res) => {
   try {
     const { auctionId } = req.params;
     if (!isValidObjectId(auctionId)) {
@@ -113,9 +106,29 @@ router.get("/:auctionId/registration-status", authMiddleware, async (req, res) =
     if (!auction) {
       return res.status(404).json({ error: "Auction not found" });
     }
-    const userId = req.userId;
+    // Calculate current highest bid; if no bids, use basePrice.
+    let currentBid = auction.basePrice;
+    if (auction.bids && auction.bids.length > 0) {
+      currentBid = Math.max(...auction.bids.map(bid => bid.bidAmount));
+    }
+    res.status(200).json({ currentBid, bids: auction.bids });
+  } catch (error) {
+    console.error("Error fetching bids:", error);
+    res.status(500).json({ error: "Server error", details: error.message });
+  }
+});
+
+// Get registration status for an auction using registeredUsers array
+router.get("/:auctionId/registration-status", authMiddleware, async (req, res) => {
+  try {
+    const { auctionId } = req.params;
+    if (!isValidObjectId(auctionId)) {
+      return res.status(400).json({ error: "Invalid auction ID format" });
+    }
+    const auction = await Auction.findById(auctionId);
+    if (!auction) return res.status(404).json({ error: "Auction not found" });
     const isRegistered = auction.registeredUsers.some(
-      (user) => user.userId.toString() === userId
+      (reg) => reg.userId.toString() === req.userId.toString()
     );
     res.json({ isRegistered });
   } catch (error) {
@@ -124,71 +137,27 @@ router.get("/:auctionId/registration-status", authMiddleware, async (req, res) =
   }
 });
 
-//preventing the duplicate registration
-router.post("/:auctionId/register", authMiddleware, async (req, res) => {
-  try {
-    const { auctionId } = req.params;
-    const { fullName, email, mobileNumber, paymentDetails, additionalInfo } = req.body;
-    const userId = req.userId;
+// Register for Auction (Delegate to auctionController.registerForAuction)
+router.post("/:auctionId/register", authMiddleware, auctionController.registerForAuction);
 
-    if (!userId) {
-      return res.status(401).json({ error: "Unauthorized: No user ID found" });
-    }
+// Place a Bid on an Auction (Delegate to auctionController.placeBid)
+router.post("/:auctionId/bid", authMiddleware, auctionController.placeBid);
 
-    if (!fullName || !email || !mobileNumber || !paymentDetails) {
-      return res.status(400).json({ error: "All fields are required." });
-    }
-
-    if (!mongoose.Types.ObjectId.isValid(auctionId)) {
-      return res.status(400).json({ error: "Invalid auction ID format" });
-    }
-
-    const auction = await Auction.findById(auctionId);
-    if (!auction) {
-      return res.status(404).json({ error: "Auction not found" });
-    }
-    const isAlreadyRegistered = auction.registeredUsers.some(
-      (user) => user.userId.toString() === userId
-    );
-    if (isAlreadyRegistered) {
-      return res.status(400).json({ error: "You are already registered for this auction." });
-    }
-//pushing the user details to the registered users array
-    auction.registeredUsers.push({ userId, fullName, email, mobileNumber, paymentDetails, additionalInfo });
-
-    if (!auction.participants.some((id) => id.toString() === userId)) {
-      auction.participants.push(userId);
-    }
-
-    await auction.save();
-
-    res.json({ message: "Successfully registered for the auction!" });
-  } catch (error) {
-    console.error("Error registering for auction:", error);
-    res.status(500).json({ error: "Failed to register for the auction", details: error.message });
-  }
-});
-
-
-// updating the auction
+// Updating the Auction
 router.put("/:auctionId", authMiddleware, async (req, res) => {
   try {
     const { auctionId } = req.params;
     const updatedData = req.body;
-
     if (!isValidObjectId(auctionId)) {
       return res.status(400).json({ error: "Invalid auction ID format" });
     }
-
     if (Object.keys(updatedData).length === 0) {
       return res.status(400).json({ error: "No data provided for update" });
     }
-
     const auction = await Auction.findByIdAndUpdate(auctionId, updatedData, { new: true, runValidators: true });
     if (!auction) {
       return res.status(404).json({ error: "Auction not found" });
     }
-
     res.json(auction);
   } catch (error) {
     console.error("Error updating auction:", error);
@@ -196,20 +165,18 @@ router.put("/:auctionId", authMiddleware, async (req, res) => {
   }
 });
 
-//deleting the auction
+// Deleting the Auction
 router.delete("/:auctionId", authMiddleware, async (req, res) => {
   try {
     const { auctionId } = req.params;
-
     if (!isValidObjectId(auctionId)) {
       return res.status(400).json({ error: "Invalid auction ID format" });
     }
-
     const auction = await Auction.findById(auctionId);
     if (!auction) {
       return res.status(404).json({ error: "Auction not found" });
     }
-//deleting the images from the s3 bucket
+    // Delete images from the S3 bucket if any
     if (auction.imageUrls?.length > 0) {
       await Promise.all(
         auction.imageUrls.map(async (imageUrl) => {
@@ -221,7 +188,6 @@ router.delete("/:auctionId", authMiddleware, async (req, res) => {
         })
       );
     }
-
     await Auction.findByIdAndDelete(auctionId);
     res.json({ message: "Auction deleted successfully" });
   } catch (error) {
@@ -229,6 +195,5 @@ router.delete("/:auctionId", authMiddleware, async (req, res) => {
     res.status(500).json({ error: "Failed to delete auction", details: error.message });
   }
 });
-
 
 module.exports = router;

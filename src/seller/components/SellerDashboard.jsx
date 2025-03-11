@@ -1,8 +1,7 @@
-
 import React, { useEffect, useState } from "react";
 import AuctionCard from "./AuctionCard";
 import { fetchSellerAuctions } from "../services/auctionService";
-import { jwtDecode } from "jwt-decode";
+import {jwtDecode} from "jwt-decode";
 import { useNavigate } from "react-router-dom";
 import "./SellerDashboard.css";
 
@@ -12,9 +11,9 @@ const SellerDashboard = () => {
   const authToken = localStorage.getItem("authToken");
   const navigate = useNavigate();
 
-
   const [darkMode, setDarkMode] = useState(localStorage.getItem("darkMode") === "enabled");
 
+  // Poll for dark mode changes (you might consider a more efficient solution later)
   useEffect(() => {
     const interval = setInterval(() => {
       const currentDark = localStorage.getItem("darkMode") === "enabled";
@@ -63,7 +62,12 @@ const SellerDashboard = () => {
           </div>
           {auctions.length > 0 ? (
             auctions.map((auction) => (
-              <AuctionCard key={auction._id} auction={auction} darkMode={darkMode} />
+              <AuctionCard 
+                key={auction._id} 
+                auction={auction} 
+                darkMode={darkMode} 
+                authToken={authToken} 
+              />
             ))
           ) : (
             <p>No auctions found.</p>

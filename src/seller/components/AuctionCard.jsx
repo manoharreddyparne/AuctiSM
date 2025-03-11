@@ -1,9 +1,9 @@
-
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import BidUpdates from "./BidUpdates"; // Adjust the path if needed
 import "./AuctionCard.css";
 
-const AuctionCard = ({ auction, darkMode }) => {
+const AuctionCard = ({ auction, darkMode, authToken }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
@@ -11,11 +11,14 @@ const AuctionCard = ({ auction, darkMode }) => {
     setCurrentImageIndex(index);
     setIsModalOpen(true);
   };
+
   const closeModal = () => setIsModalOpen(false);
+
   const nextImage = (e) => {
     e.stopPropagation();
     setCurrentImageIndex((prev) => (prev + 1) % auction.imageUrls.length);
   };
+
   const prevImage = (e) => {
     e.stopPropagation();
     setCurrentImageIndex((prev) =>
@@ -36,6 +39,8 @@ const AuctionCard = ({ auction, darkMode }) => {
           <h3>{auction.productName}</h3>
           <p>{auction.description.substring(0, 100)}...</p>
           <p className="price">Base Price: ₹{auction.basePrice}</p>
+          {/* Embed the BidUpdates component to show live bid info */}
+          <BidUpdates auctionId={auction._id} authToken={authToken} />
         </div>
 
         {isModalOpen && (

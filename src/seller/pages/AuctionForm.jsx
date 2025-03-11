@@ -1,4 +1,3 @@
-
 import React from "react";
 
 const AuctionForm = ({
@@ -16,7 +15,6 @@ const AuctionForm = ({
 }) => {
   return (
     <>
-
       <div className="auction-info">
         {isEditing ? (
           <>
@@ -48,7 +46,9 @@ const AuctionForm = ({
                   >
                     <option value="">Select a category</option>
                     {["Electronics", "Fashion", "Home", "Books", "Other"].map((cat) => (
-                      <option key={cat} value={cat}>{cat}</option>
+                      <option key={cat} value={cat}>
+                        {cat}
+                      </option>
                     ))}
                   </select>
                   {editedAuction.category === "Other" && (
@@ -64,7 +64,9 @@ const AuctionForm = ({
                 <label>
                   Base Price:
                   <div className="price-adjust">
-                    <button type="button" onClick={decrementPrice}>-</button>
+                    <button type="button" onClick={decrementPrice}>
+                      -
+                    </button>
                     <input
                       type="number"
                       name="basePrice"
@@ -72,29 +74,33 @@ const AuctionForm = ({
                       onChange={handleInputChange}
                       style={{ width: "80px" }}
                     />
-                    <button type="button" onClick={incrementPrice}>+</button>
+                    <button type="button" onClick={incrementPrice}>
+                      +
+                    </button>
                   </div>
+                </label>
+                <label>
+                  Start Date & Time:
+                  <input
+                    type="datetime-local"
+                    name="startDateTime"
+                    value={editedAuction.startDateTime}
+                    onChange={handleInputChange}
+                    disabled={auctionStatus !== "upcoming"}
+                  />
                 </label>
               </>
             ) : (
-              <p><em>You can only extend the auction end time.</em></p>
+              <p>
+                <em>You can only extend the auction end time.</em>
+              </p>
             )}
-            <label>
-              Start Date & Time:
-              <input
-                type="datetime-local"
-                name="startDateTime"
-                value={new Date(editedAuction.startDateTime).toISOString().slice(0,16)}
-                onChange={handleInputChange}
-                disabled={auctionStatus !== "upcoming"}
-              />
-            </label>
             <label>
               End Date & Time:
               <input
                 type="datetime-local"
                 name="endDateTime"
-                value={new Date(editedAuction.endDateTime).toISOString().slice(0,16)}
+                value={editedAuction.endDateTime}
                 onChange={handleInputChange}
               />
             </label>

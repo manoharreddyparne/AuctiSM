@@ -7,43 +7,57 @@ import ConfirmDeleteModal from "../../shared_components/ConfirmDeleteModal";
 import LoadingOverlay from "../../shared_components/LoadingOverlay";
 import AuctionImages from "./AuctionImages";
 import AuctionForm from "./AuctionForm";
-import BidUpdates from "../components/BidUpdates"; // Now used
+import BidUpdates from "../components/BidUpdates";
+import BidRanking from "../../users_dashboard/BidRanking";
+
+// Helper function to format a date as "YYYY-MM-DDTHH:mm" in local time.
+const formatDateTimeLocal = (dateInput) => {
+  const dt = new Date(dateInput);
+  const pad = (n) => (n < 10 ? "0" + n : n);
+  const year = dt.getFullYear();
+  const month = pad(dt.getMonth() + 1);
+  const day = pad(dt.getDate());
+  const hours = pad(dt.getHours());
+  const minutes = pad(dt.getMinutes());
+  return `${year}-${month}-${day}T${hours}:${minutes}`;
+};
 
 const AuctionDetail = () => {
+  // Always call hooks at the top
   const { auctionId } = useParams();
   const navigate = useNavigate();
   const authToken = localStorage.getItem("authToken");
 
-  // Dark mode state polling (0ms interval for instant updates)
   const [darkMode, setDarkMode] = useState(localStorage.getItem("darkMode") === "enabled");
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const currentDark = localStorage.getItem("darkMode") === "enabled";
-      setDarkMode(currentDark);
-    }, 0);
-    return () => clearInterval(interval);
-  }, []);
-
   const [auction, setAuction] = useState(null);
   const [loading, setLoading] = useState(true);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isEditing, setIsEditing] = useState(false);
   const [editedAuction, setEditedAuction] = useState(null);
   const [countdown, setCountdown] = useState("");
-
   const [newImages, setNewImages] = useState([]);
   const [removedImages, setRemovedImages] = useState([]);
-
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
-
   const dragStartXRef = useRef(null);
   const isDraggingRef = useRef(false);
 
-  // Fetch auction details
+  // Dark mode polling (hooks are always called)
   useEffect(() => {
+    const interval = setInterval(() => {
+      setDarkMode(localStorage.getItem("darkMode") === "enabled");
+    }, 0);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Fetch auction details and convert date/time fields using the helper
+  useEffect(() => {
+    if (!auctionId) {
+      console.error("Error: Auction ID is missing from the URL.");
+      return;
+    }
     const fetchAuction = async () => {
       try {
         const response = await fetch(`${process.env.REACT_APP_API_URL}/api/auctions/${auctionId}`, {
@@ -55,6 +69,8 @@ const AuctionDetail = () => {
         });
         if (response.ok) {
           const data = await response.json();
+          data.startDateTime = formatDateTimeLocal(data.startDateTime);
+          data.endDateTime = formatDateTimeLocal(data.endDateTime);
           setAuction(data);
           setEditedAuction(data);
         } else {
@@ -65,23 +81,17 @@ const AuctionDetail = () => {
       }
       setLoading(false);
     };
-
     fetchAuction();
   }, [auctionId, authToken]);
-
 
   const getAuctionStatus = () => {
     if (!auction) return "";
     const now = new Date();
     const startTime = new Date(auction.startDateTime);
     const endTime = new Date(auction.endDateTime);
-    if (now >= endTime) {
-      return "completed";
-    } else if (now >= startTime) {
-      return "started";
-    } else {
-      return "upcoming";
-    }
+    if (now >= endTime) return "completed";
+    if (now >= startTime) return "started";
+    return "upcoming";
   };
 
   const auctionStatus = getAuctionStatus();
@@ -116,7 +126,7 @@ const AuctionDetail = () => {
           display += `${hours}h ${minutes}m ${seconds}s`;
           setCountdown("Auction Starts In: " + display);
         } else {
-          let remaining = endTime - now;
+          let remaining = new Date(auction.endDateTime) - now;
           const years = Math.floor(remaining / (1000 * 60 * 60 * 24 * 365));
           remaining -= years * (1000 * 60 * 60 * 24 * 365);
           const months = Math.floor(remaining / (1000 * 60 * 60 * 24 * 30));
@@ -167,7 +177,7 @@ const AuctionDetail = () => {
       setIsDeleteModalOpen(false);
     }
   };
-  
+
   // Save auction changes handler
   const handleSaveChanges = async () => {
     const now = new Date();
@@ -231,78 +241,83 @@ const AuctionDetail = () => {
       <div className="countdown">
         <strong>Auction Status: </strong> {countdown}
       </div>
-      {/* Render the bid updates */}
-      <BidUpdates auctionId={auctionId} authToken={authToken} />
+
+      {/* Seller bid monitoring: display BidUpdates and BidRanking side by side */}
+      <div className="bid-info-container">
+        <div className="bid-updates-wrapper">
+        <BidUpdates auctionId={auctionId} authToken={authToken} registrations={auction.registeredUsers} />
+
+        </div>
+        <div className="bid-ranking-wrapper">
+          {auction.bids && auction.bids.length > 0 && (
+            <BidRanking bids={auction.bids} registrations={auction.registeredUsers} />
+          )}
+        </div>
+      </div>
+
+      {/* Auction Images */}
       <AuctionImages 
-          auction={auction}
-          currentImageIndex={currentImageIndex}
-          setCurrentImageIndex={setCurrentImageIndex}
-          dragStartXRef={dragStartXRef}
-          isDraggingRef={isDraggingRef}
-          handleTouchStart={(e) => { dragStartXRef.current = e.touches[0].clientX; }}
-          handleTouchMove={(e) => {
-            if (!dragStartXRef.current) return;
-            const diffX = dragStartXRef.current - e.touches[0].clientX;
-            if (diffX > 50) { setCurrentImageIndex((prev) => prev + 1); dragStartXRef.current = null; }
-            else if (diffX < -50) { setCurrentImageIndex((prev) => prev - 1); dragStartXRef.current = null; }
-          }}
-          handleMouseDown={(e) => { isDraggingRef.current = true; dragStartXRef.current = e.clientX; }}
-          handleMouseMove={(e) => {
-            if (!isDraggingRef.current || dragStartXRef.current === null) return;
-            const diffX = dragStartXRef.current - e.clientX;
-            if (diffX > 50) { setCurrentImageIndex((prev) => prev + 1); isDraggingRef.current = false; }
-            else if (diffX < -50) { setCurrentImageIndex((prev) => prev - 1); isDraggingRef.current = false; }
-          }}
-          handleMouseUp={() => { isDraggingRef.current = false; dragStartXRef.current = null; }}
-          handleThumbnailClick={(index) => setCurrentImageIndex(index)}
-          isEditing={isEditing}
-          editedAuction={editedAuction}
-          handleRemoveExistingImage={(url) => {
-            setEditedAuction((prev) => ({
-              ...prev,
-              imageUrls: prev.imageUrls.filter((imgUrl) => imgUrl !== url)
-            }));
-            setRemovedImages((prev) => [...prev, url]);
-            if (currentImageIndex >= editedAuction.imageUrls.length - 1) {
-              setCurrentImageIndex(Math.max(0, currentImageIndex - 1));
-            }
-          }}
-          newImages={newImages}
-          handleNewImageSelect={(e) => {
-            const files = Array.from(e.target.files);
-            setNewImages((prev) => [...prev, ...files]);
-          }}
-          handleRemoveNewImage={(file) => {
-            setNewImages((prev) => prev.filter((f) => f !== file));
-          }}
+        auction={auction}
+        currentImageIndex={currentImageIndex}
+        setCurrentImageIndex={setCurrentImageIndex}
+        dragStartXRef={dragStartXRef}
+        isDraggingRef={isDraggingRef}
+        handleTouchStart={(e) => { dragStartXRef.current = e.touches[0].clientX; }}
+        handleTouchMove={(e) => {
+          if (!dragStartXRef.current) return;
+          const diffX = dragStartXRef.current - e.touches[0].clientX;
+          if (diffX > 50) { 
+            setCurrentImageIndex((prev) => prev + 1); 
+            dragStartXRef.current = null; 
+          } else if (diffX < -50) { 
+            setCurrentImageIndex((prev) => prev - 1); 
+            dragStartXRef.current = null; 
+          }
+        }}
+        handleMouseDown={(e) => { isDraggingRef.current = true; dragStartXRef.current = e.clientX; }}
+        handleMouseMove={(e) => {
+          if (!isDraggingRef.current || dragStartXRef.current === null) return;
+          const diffX = dragStartXRef.current - e.clientX;
+          if (diffX > 50) { 
+            setCurrentImageIndex((prev) => prev + 1); 
+            isDraggingRef.current = false; 
+          } else if (diffX < -50) { 
+            setCurrentImageIndex((prev) => prev - 1); 
+            isDraggingRef.current = false; 
+          }
+        }}
+        handleMouseUp={() => { isDraggingRef.current = false; dragStartXRef.current = null; }}
+        handleThumbnailClick={(index) => setCurrentImageIndex(index)}
       />
+
+      {/* Auction editing form for the seller */}
       <AuctionForm 
-          isEditing={isEditing}
-          toggleEdit={() => setIsEditing((prev) => !prev)}
-          auctionStatus={auctionStatus}
-          editedAuction={editedAuction}
-          handleInputChange={(e) => {
-              const { name, value } = e.target;
-              setEditedAuction((prev) => ({ ...prev, [name]: value }));
-          }}
-          decrementPrice={() => {
-            const currentPrice = parseInt(editedAuction.basePrice || "0", 10);
-            const newPrice = Math.max(0, currentPrice - 100);
-            setEditedAuction((prev) => ({ ...prev, basePrice: newPrice.toString() }));
-          }}
-          incrementPrice={() => {
-            const currentPrice = parseInt(editedAuction.basePrice || "0", 10);
-            setEditedAuction((prev) => ({ ...prev, basePrice: (currentPrice + 100).toString() }));
-          }}
-          auction={auction}
-          countdown={countdown}
-          handleSave={handleSaveChanges}
-          handleDelete={handleDelete}
+        isEditing={isEditing}
+        toggleEdit={() => setIsEditing((prev) => !prev)}
+        auctionStatus={auctionStatus}
+        editedAuction={editedAuction}
+        handleInputChange={(e) => {
+          const { name, value } = e.target;
+          setEditedAuction((prev) => ({ ...prev, [name]: value }));
+        }}
+        decrementPrice={() => {
+          const currentPrice = parseInt(editedAuction.basePrice || "0", 10);
+          const newPrice = Math.max(0, currentPrice - 100);
+          setEditedAuction((prev) => ({ ...prev, basePrice: newPrice.toString() }));
+        }}
+        incrementPrice={() => {
+          const currentPrice = parseInt(editedAuction.basePrice || "0", 10);
+          setEditedAuction((prev) => ({ ...prev, basePrice: (currentPrice + 100).toString() }));
+        }}
+        auction={auction}
+        countdown={countdown}
+        handleSave={handleSaveChanges}
+        handleDelete={handleDelete}
       />
       <ConfirmDeleteModal
-          isOpen={isDeleteModalOpen}
-          onClose={() => setIsDeleteModalOpen(false)}
-          onConfirm={confirmDelete}
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={confirmDelete}
       />
       {isSaving && <LoadingOverlay message="Saving changes, please wait..." />}
       {isDeleting && <LoadingOverlay message="Deleting auction, please wait..." />}

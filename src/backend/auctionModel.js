@@ -18,6 +18,7 @@ const auctionSchema = new mongoose.Schema(
     imageUrls: { type: [String], default: [] },
     sellerId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
 
+    // Array for storing multiple registration details
     registeredUsers: [
       {
         userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
@@ -29,7 +30,6 @@ const auctionSchema = new mongoose.Schema(
       },
     ],
     participants: [{ type: mongoose.Schema.Types.ObjectId, ref: "User", default: [] }],
-
     bids: [bidSchema],
   },
   { timestamps: true }

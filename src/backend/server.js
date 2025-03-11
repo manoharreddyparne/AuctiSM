@@ -25,20 +25,21 @@ const app = express();
 const server = http.createServer(app);
 
 // Middleware Setup
-
 app.use(morgan("dev")); // Request logging for debugging
 app.use(cookieParser());
 app.use(express.json());
 
-const allowedOrigins = [
-  "http://localhost:3000" || process.env.REACT_APP_CLIENT,
-  "https://auctism-frontend.onrender.com", 
-
-];
+// Build allowed origins array dynamically
+const allowedOrigins = [];
+if (process.env.REACT_APP_CLIENT) {
+  allowedOrigins.push(process.env.REACT_APP_CLIENT);
+}
+allowedOrigins.push("http://localhost:3000", "https://auctism-frontend.onrender.com");
 
 app.use(
   cors({
     origin: function (origin, callback) {
+      // Allow requests with no origin (like mobile apps, curl, etc.)
       if (!origin || allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
@@ -52,21 +53,21 @@ app.use(
 // Socket.IO Setup
 const io = new Server(server, {
   cors: {
-    origin: process.env.REACT_APP_CLIENT,
+    origin: process.env.REACT_APP_CLIENT || "http://localhost:3000",
     credentials: true,
   },
 });
 
-
 io.on("connection", (socket) => {
   console.log("🔵 User connected:", socket.id);
 
-// Handle joining an auction room
+  // Handle joining an auction room
   socket.on("joinAuction", (auctionId) => {
     socket.join(auctionId);
     console.log(`Socket ${socket.id} joined auction ${auctionId}`);
   });
-// Handle leaving an auction room
+
+  // Handle bid placement via Socket.IO
   socket.on("placeBid", async (data) => {
     try {
       const { auctionId, userId, bidAmount } = data;
@@ -75,6 +76,9 @@ io.on("connection", (socket) => {
       if (!auction) {
         return socket.emit("bidError", { message: "Auction not found" });
       }
+
+      // OPTIONAL: You may verify here if the user is registered for the auction.
+      // For example, by checking if auction.registeredUsers contains the userId.
 
       auction.bids = auction.bids || [];
       auction.bids.push({ bidderId: userId, bidAmount, bidTime: new Date() });
@@ -169,7 +173,7 @@ app.post("/api/set-password", authenticate, async (req, res) => {
 // Test Route
 // ------------------
 app.get("/", (req, res) => {
-  res.send(" AuctiSM Backend is running");
+  res.send("AuctiSM Backend is running");
 });
 
 // ------------------
@@ -189,7 +193,6 @@ mongoose
   .connect(config.MONGO_URI)
   .then(() => {
     console.log("  Connected to MongoDB");
-
     const PORT = process.env.PORT || 5000;
     server.listen(PORT, () => {
       console.log(`🚀 Server running on port ${PORT}`);

@@ -1,63 +1,116 @@
+// src/seller/pages/Dashboard.jsx
 import React, { useState, useEffect } from "react";
-import "../css/dashboard.css"; 
-import Navbar from "../../shared_components/Navbar.jsx";
-import AuctionCard from "./AuctionCard.jsx";
-import auctionData from "./data";
 import axios from "axios";
+import { Container, Row, Col } from "react-bootstrap";
+
+import AuctionCard from "./AuctionCard";
 import { useNavigate } from "react-router-dom";
+import "./dashboard.css";
 
-function Dashboard() {
-  const [data, setData] = useState([]);
-  const [user, setUser] = useState(null);
+const Dashboard = () => {
+  const [auctions, setAuctions] = useState([]);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const authToken = localStorage.getItem("authToken");
 
+  // Fetch all auctions from the backend
   useEffect(() => {
-    const fetchUserProfile = async () => {
-      const authToken = localStorage.getItem("authToken");
-
-      if (!authToken) {
-        console.error("No auth token found, redirecting to login...");
-        navigate("/login"); 
-        return;
-      }
-
+    const fetchAuctions = async () => {
       try {
-        const response = await axios.get(`${process.env.REACT_APP_API_URL}/profile`, {
-          headers: { Authorization: `Bearer ${authToken}` },
-        });
-        setUser(response.data);
+        const response = await axios.get(
+          `${process.env.REACT_APP_API_URL}/api/auctions/all`,
+          {
+            headers: { Authorization: `Bearer ${authToken}` },
+          }
+        );
+        setAuctions(response.data);
       } catch (error) {
-        console.error("Error fetching user profile:", error);
-        navigate("/login"); 
+        console.error("Error fetching auctions:", error);
+      } finally {
+        setLoading(false);
       }
     };
+    fetchAuctions();
+  }, [authToken]);
 
-    fetchUserProfile();
-  }, [navigate]);
+  // Helper: Compute status based on start/end times
+  const computeStatus = (auction) => {
+    const now = new Date();
+    const start = new Date(auction.startDateTime);
+    const end = new Date(auction.endDateTime);
+    if (now < start) return "upcoming";
+    if (now >= start && now < end) return "ongoing";
+    return "completed";
+  };
 
+  // Separate auctions based on computed status
+  const ongoingAuctions = auctions.filter((auction) => computeStatus(auction) === "ongoing");
+  const upcomingAuctions = auctions.filter((auction) => computeStatus(auction) === "upcoming");
+  const completedAuctions = auctions.filter((auction) => computeStatus(auction) === "completed");
 
-  useEffect(() => {
-    if (auctionData && auctionData.length > 0) {
-      setData(auctionData);
-    }
-  }, []);
+  // When an auction card is clicked, navigate to /login
+  const handleAuctionClick = () => {
+    navigate("/login");
+  };
 
-  if (!user) {
-    return <div>Loading user data...</div>; // Show loading while fetching user
-  }
+  if (loading) return <p>Loading auctions...</p>;
 
   return (
-    <div className="dashboard-container">
-      <Navbar />
-      <h2 className="dashboard-title">Welcome, {user.message}!</h2>
-      <h3 className="dashboard-subtitle">Ongoing Auctions</h3>
-      <div className="auction-list">
-        {data.map((auction) => (
-          <AuctionCard key={auction.id} auction={auction} />
-        ))}
-      </div>
-    </div>
+    <Container className="dashboard-container">
+      <h2 className="dashboard-title">Dashboard</h2>
+
+      <section className="auctions-section">
+        <h3>Ongoing Auctions</h3>
+        <Row>
+          {ongoingAuctions.length > 0 ? (
+            ongoingAuctions.map((auction) => (
+              <Col key={auction._id} md={3} sm={6} className="mb-4">
+                <div onClick={handleAuctionClick} style={{ cursor: "pointer" }}>
+                  <AuctionCard auction={auction} />
+                </div>
+              </Col>
+            ))
+          ) : (
+            <p>No ongoing auctions available.</p>
+          )}
+        </Row>
+      </section>
+
+      <section className="auctions-section">
+        <h3>Upcoming Auctions</h3>
+        <Row>
+          {upcomingAuctions.length > 0 ? (
+            upcomingAuctions.map((auction) => (
+              <Col key={auction._id} md={3} sm={6} className="mb-4">
+                <div onClick={handleAuctionClick} style={{ cursor: "pointer" }}>
+                  <AuctionCard auction={auction} />
+                </div>
+              </Col>
+            ))
+          ) : (
+            <p>No upcoming auctions available.</p>
+          )}
+        </Row>
+      </section>
+
+      <section className="auctions-section">
+        <h3>Top Auctions (Completed)</h3>
+        <Row>
+          {completedAuctions.length > 0 ? (
+            completedAuctions.map((auction) => (
+              <Col key={auction._id} md={3} sm={6} className="mb-4">
+                <div onClick={handleAuctionClick} style={{ cursor: "pointer" }}>
+                  <AuctionCard auction={auction} />
+                </div>
+              </Col>
+            ))
+          ) : (
+            <p>No completed auctions available.</p>
+          )}
+        </Row>
+      </section>
+    </Container>
   );
-}
+};
 
 export default Dashboard;

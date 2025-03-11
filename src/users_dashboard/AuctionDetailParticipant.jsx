@@ -5,6 +5,8 @@ import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import "./AuctionDetailParticipant.css";
+import BidUpdates from "../seller/components/BidUpdates";
+import BidRanking from "./BidRanking"; // Adjust path if needed
 
 function AuctionDetailParticipant() {
   const { auctionId } = useParams();
@@ -13,10 +15,31 @@ function AuctionDetailParticipant() {
   const [isRegistered, setIsRegistered] = useState(false);
   const [error, setError] = useState(null);
   const [timeRemaining, setTimeRemaining] = useState("");
+  const [bidAmount, setBidAmount] = useState("");
+  const [bidError, setBidError] = useState(null);
+  const [bidSuccess, setBidSuccess] = useState(null);
 
   const darkMode = localStorage.getItem("darkMode") === "enabled";
   const API_BASE_URL = process.env.REACT_APP_API_URL;
 
+  // Helper: Retrieve user ID from localStorage ("userId" or from "user")
+  const getLocalUserId = () => {
+    let userId = localStorage.getItem("userId");
+    if (!userId) {
+      const userData = localStorage.getItem("user");
+      if (userData) {
+        try {
+          const userObj = JSON.parse(userData);
+          userId = userObj?.id;
+        } catch (e) {
+          // ignore parse error
+        }
+      }
+    }
+    return userId;
+  };
+
+  // Fetch auction details and registration status
   useEffect(() => {
     const fetchAuction = async () => {
       const token = localStorage.getItem("authToken");
@@ -29,19 +52,16 @@ function AuctionDetailParticipant() {
           headers: { Authorization: `Bearer ${token}` },
         });
         setAuction(response.data);
-
-        // Check registration status using the dedicated endpoint
         try {
           const regResponse = await axios.get(`${API_BASE_URL}/api/auctions/${auctionId}/registration-status`, {
             headers: { Authorization: `Bearer ${token}` },
           });
           setIsRegistered(regResponse.data.isRegistered);
         } catch (statusError) {
-          // Fallback: check registeredUsers from auction data
           if (response.data.registeredUsers) {
-            const userId = localStorage.getItem("userId");
+            const localUserId = getLocalUserId();
             const alreadyRegistered = response.data.registeredUsers.some(
-              (user) => user.userId.toString() === userId
+              (user) => user.userId.toString() === localUserId
             );
             setIsRegistered(alreadyRegistered);
           }
@@ -54,6 +74,7 @@ function AuctionDetailParticipant() {
     fetchAuction();
   }, [auctionId, API_BASE_URL]);
 
+  // Update time remaining
   const updateTimeRemaining = useCallback(() => {
     if (!auction) return;
     const now = Date.now();
@@ -83,7 +104,62 @@ function AuctionDetailParticipant() {
     return `${days ? days + "d " : ""}${hours ? hours + "h " : ""}${minutes ? minutes + "m " : ""}${seconds}s`;
   };
 
-  // Only navigate to AuctionRegister if the user is not already registered
+  // Helper: Check if the logged-in user's bid is currently top.
+  const isUserTop = () => {
+    if (!auction || !auction.bids || auction.bids.length === 0) return false;
+    const localUserId = getLocalUserId();
+    if (!localUserId) return false;
+    const userBids = auction.bids.filter(bid => String(bid.bidderId) === String(localUserId));
+    if (userBids.length === 0) return false;
+    const userHighest = Math.max(...userBids.map(bid => bid.bidAmount));
+    const overallHighest = Math.max(...auction.bids.map(bid => bid.bidAmount));
+    return userHighest === overallHighest;
+  };
+
+  // Compute disabled state for bid controls
+  const userIsTopValue = isUserTop();
+
+  // Bid placement handler
+  const handlePlaceBid = async () => {
+    setBidError(null);
+    setBidSuccess(null);
+    const token = localStorage.getItem("authToken");
+    if (!token) {
+      setBidError("You must be logged in to place a bid.");
+      return;
+    }
+    if (!bidAmount || isNaN(bidAmount)) {
+      setBidError("Please enter a valid bid amount.");
+      return;
+    }
+    try {
+      const response = await axios.post(
+        `${API_BASE_URL}/api/auctions/${auctionId}/bid`,
+        { bidAmount: parseFloat(bidAmount) },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setBidSuccess("Bid placed successfully!");
+      setAuction(response.data.auction);
+      setBidAmount("");
+    } catch (err) {
+      setBidError(err.response?.data?.message || "Failed to place bid.");
+    }
+  };
+
+  // Increment bid input handler
+  const handleIncrement = (value) => {
+    const current = parseFloat(bidAmount) || 0;
+    setBidAmount((current + value).toString());
+  };
+
+  // Cancel bid input handler
+  const handleCancelBid = () => {
+    setBidAmount("");
+    setBidError(null);
+    setBidSuccess(null);
+  };
+
+  // Navigate to registration if not registered
   const handleRegister = () => {
     if (!isRegistered) {
       navigate(`/auction-register/${auctionId}`);
@@ -114,28 +190,34 @@ function AuctionDetailParticipant() {
 
       <h1 className="auction-title">{auction.productName}</h1>
       <p className="auction-description">{auction.description}</p>
-      <p className="auction-category">
-        <strong>Category:</strong> {auction.category}
-      </p>
-      <p className="auction-price">
-        <strong>Base Price:</strong> ₹{auction.basePrice}
-      </p>
-      <p className="auction-seller">
-        <strong>Seller ID:</strong> {auction.sellerId}
-      </p>
+      <p className="auction-category"><strong>Category:</strong> {auction.category}</p>
+      <p className="auction-price"><strong>Base Price:</strong> ₹{auction.basePrice}</p>
+      <p className="auction-seller"><strong>Seller ID:</strong> {auction.sellerId}</p>
 
       {!hasStarted && (
         <>
-          <p className="auction-date">
-            <strong>Start Date:</strong> {new Date(auction.startDateTime).toLocaleString()}
-          </p>
-          <p className="auction-date">
-            <strong>End Date:</strong> {new Date(auction.endDateTime).toLocaleString()}
-          </p>
+          <p className="auction-date"><strong>Start Date:</strong> {new Date(auction.startDateTime).toLocaleString()}</p>
+          <p className="auction-date"><strong>End Date:</strong> {new Date(auction.endDateTime).toLocaleString()}</p>
         </>
       )}
 
       <h3>{timeRemaining}</h3>
+
+      {/* Side-by-side containers for bid history and ranking */}
+      <div className="bid-info-container">
+        <div className="bid-updates-wrapper">
+          <BidUpdates
+            auctionId={auctionId}
+            authToken={localStorage.getItem("authToken")}
+            registrations={auction.registeredUsers}
+          />
+        </div>
+        <div className="bid-ranking-wrapper">
+          {auction.bids && auction.bids.length > 0 && (
+            <BidRanking bids={auction.bids} registrations={auction.registeredUsers} />
+          )}
+        </div>
+      </div>
 
       <div className="auction-gallery">
         <Slider {...sliderSettings}>
@@ -147,23 +229,57 @@ function AuctionDetailParticipant() {
         </Slider>
       </div>
 
-      {/* Show Register button only if auction is open */}
+      {/* Registration / Bid Placement */}
       {!hasStarted && !hasEnded && (
-        <button
-          onClick={handleRegister}
-          className="register-button"
-          disabled={isRegistered}
-        >
+        <button className="register-button" onClick={handleRegister} disabled={isRegistered}>
           {isRegistered ? "Already Registered" : "Register for Auction"}
         </button>
       )}
 
-      {hasStarted && !hasEnded && !isRegistered && (
-        <p className="info-text">Registration is closed. Auction has started.</p>
+      {hasStarted && !hasEnded && (
+        <>
+          {isRegistered ? (
+            <fieldset disabled={userIsTopValue} style={{ border: "none", padding: 0 }}>
+              <div className="bid-section">
+                <h4>Place Your Bid</h4>
+                <div className="bid-input-container">
+                  <input
+                    type="number"
+                    placeholder="Enter bid amount"
+                    value={bidAmount}
+                    onChange={(e) => setBidAmount(e.target.value)}
+                    style={{ width: "150px" }}
+                  />
+                  <div className="bid-increment-buttons">
+                    <button onClick={() => handleIncrement(100)}>+100</button>
+                    <button onClick={() => handleIncrement(200)}>+200</button>
+                    <button onClick={() => handleIncrement(500)}>+500</button>
+                    <button onClick={() => handleIncrement(1000)}>+1000</button>
+                  </div>
+                </div>
+                <div className="bid-action-buttons">
+                  <button onClick={handlePlaceBid}>Place Bid</button>
+                  <button onClick={handleCancelBid}>Cancel</button>
+                </div>
+                {userIsTopValue && (
+                  <p className="info-text">
+                    🚫 Your bid is currently top. Wait for a higher bid.
+                  </p>
+                )}
+                {bidError && <p className="error">{bidError}</p>}
+                {bidSuccess && <p className="success">{bidSuccess}</p>}
+              </div>
+            </fieldset>
+          ) : (
+            <p className="info-text">Registration is closed. Auction has started.</p>
+          )}
+        </>
       )}
 
       {hasEnded && <p className="info-text">Auction is completed.</p>}
-      {isRegistered && <p className="info-text">✅ You are registered for this auction!</p>}
+      {hasStarted && isRegistered && !hasEnded && (
+        <p className="info-text">Auction has begun. Start bidding now!</p>
+      )}
     </div>
   );
 }
