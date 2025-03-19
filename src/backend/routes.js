@@ -9,6 +9,7 @@ require("dotenv").config();
 
 const router = express.Router();
 
+// Logging middleware for every request
 router.use((req, res, next) => {
   console.log("🔵 Incoming Request:", req.method, req.url);
   console.log("🔹 Headers:", req.headers);
@@ -21,7 +22,7 @@ router.post("/login", login);
 router.post("/google-login", googleLogin);
 router.post("/reset-password", resetPassword); // For manual password reset
 
-//  Protected Route: Fetch User Profile
+// Protected Route: Fetch User Profile
 router.get("/profile", authenticate, async (req, res) => {
   try {
     console.log("🟢 Fetching profile for user ID:", req.userId);
@@ -45,7 +46,6 @@ router.get("/profile", authenticate, async (req, res) => {
   }
 });
 
-
 // Set Password Route (for manual password reset)
 router.post("/set-password", async (req, res) => {
   try {
@@ -67,7 +67,7 @@ router.post("/set-password", async (req, res) => {
     user.needsPassword = false;
     await user.save();
 
-    console.log(` Password set successfully for user: ${email}`);
+    console.log(`🟢 Password set successfully for user: ${email}`);
     res.status(200).json({ message: "Password set successfully" });
   } catch (error) {
     console.error("❌ Error setting password:", error);
@@ -76,6 +76,7 @@ router.post("/set-password", async (req, res) => {
 });
 
 // Login Route (for manual login)
+// This route handles both manual and Google login based on the request body.
 router.post("/login", async (req, res) => {
   const { email, authProvider, googleId, password } = req.body;
   try {
@@ -87,7 +88,11 @@ router.post("/login", async (req, res) => {
         return res.status(400).send("Invalid Google ID");
       }
       // Generate JWT token
-      const token = jwt.sign({ userId: user._id, email: user.email }, process.env.JWT_SECRET, { expiresIn: "24h" });
+      const token = jwt.sign(
+        { userId: user._id, email: user.email },
+        process.env.JWT_SECRET,
+        { expiresIn: "24h" }
+      );
       return res.status(200).json({ token, needsPassword: user.needsPassword });
     }
 
@@ -98,7 +103,11 @@ router.post("/login", async (req, res) => {
     const isMatch = await user.comparePassword(password);
     if (!isMatch) return res.status(400).send("Invalid credentials");
 
-    const token = jwt.sign({ userId: user._id, email: user.email }, process.env.JWT_SECRET, { expiresIn: "1h" });
+    const token = jwt.sign(
+      { userId: user._id, email: user.email },
+      process.env.JWT_SECRET,
+      { expiresIn: "1h" }
+    );
     res.status(200).json({ token, needsPassword: user.needsPassword });
   } catch (error) {
     console.error("❌ Login error:", error);

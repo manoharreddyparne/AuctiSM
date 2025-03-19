@@ -1,3 +1,4 @@
+// auctionController.js
 const mongoose = require("mongoose");
 const Auction = require("./auctionModel");
 
@@ -61,15 +62,15 @@ exports.getAllAuctions = async (req, res) => {
     if (!auctions.length) {
       return res.status(404).json({ message: "No auctions available." });
     }
-    res.json({ auctions });
+    // Return the auctions array directly
+    res.json(auctions);
   } catch (error) {
     console.error("❌ Error fetching auctions:", error.message);
     res.status(500).json({ message: "Failed to fetch auctions", details: error.message });
   }
 };
 
-// Register for Auction (Updated)
-// Stores registration details directly into the Auction document.
+// Register for Auction
 exports.registerForAuction = async (req, res) => {
   try {
     if (!req.userId) {
@@ -143,8 +144,7 @@ exports.getAuctionParticipants = async (req, res) => {
   }
 };
 
-// Place a Bid on an Auction (Step 2)
-// If the user already has a bid, update it if not currently top; otherwise, add a new bid.
+// Place a Bid on an Auction
 exports.placeBid = async (req, res) => {
   try {
     if (!req.userId) {

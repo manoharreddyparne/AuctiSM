@@ -1,6 +1,6 @@
 const express = require("express");
-const http = require("http"); 
-const { Server } = require("socket.io"); 
+const http = require("http");
+const { Server } = require("socket.io");
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 const cors = require("cors");
@@ -21,25 +21,21 @@ const awsRoutes = require("./awsRoutes");
 const Auction = require("./auctionModel");
 
 const app = express();
-// Create an HTTP server
 const server = http.createServer(app);
 
 // Middleware Setup
-app.use(morgan("dev")); // Request logging for debugging
+app.use(morgan("dev"));
 app.use(cookieParser());
 app.use(express.json());
 
-// Build allowed origins array dynamically
-const allowedOrigins = [];
-if (process.env.REACT_APP_CLIENT) {
-  allowedOrigins.push(process.env.REACT_APP_CLIENT);
-}
-allowedOrigins.push("http://localhost:3000", "https://auctism-frontend.onrender.com");
-
+// CORS Configuration
+const allowedOrigins = [
+  process.env.REACT_APP_CLIENT || "http://localhost:3000",
+  "https://auctism-frontend.onrender.com",
+];
 app.use(
   cors({
     origin: function (origin, callback) {
-      // Allow requests with no origin (like mobile apps, curl, etc.)
       if (!origin || allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
@@ -61,85 +57,86 @@ const io = new Server(server, {
 io.on("connection", (socket) => {
   console.log("🔵 User connected:", socket.id);
 
-  // Handle joining an auction room
+  // Join auction room
   socket.on("joinAuction", (auctionId) => {
     socket.join(auctionId);
     console.log(`Socket ${socket.id} joined auction ${auctionId}`);
   });
 
-  // Handle bid placement via Socket.IO
+  // Place bid
   socket.on("placeBid", async (data) => {
     try {
       const { auctionId, userId, bidAmount } = data;
-      // Find the auction by ID
+
+      // Check if user is registered
       const auction = await Auction.findById(auctionId);
       if (!auction) {
-        return socket.emit("bidError", { message: "Auction not found" });
+        return socket.emit("bidError", { code: "AUCTION_NOT_FOUND", message: "Auction not found" });
       }
 
-      // OPTIONAL: You may verify here if the user is registered for the auction.
-      // For example, by checking if auction.registeredUsers contains the userId.
+      const user = await User.findById(userId);
+      if (!user || !user.isRegisteredForAuction(auctionId)) {
+        return socket.emit("bidError", { code: "USER_NOT_REGISTERED", message: "User not registered for this auction" });
+      }
 
       auction.bids = auction.bids || [];
       auction.bids.push({ bidderId: userId, bidAmount, bidTime: new Date() });
       await auction.save();
 
-      // Broadcast the new bid to all clients in this auction room
       io.to(auctionId).emit("bidUpdate", { auctionId, bidAmount, userId });
       console.log(`Bid placed in auction ${auctionId} by ${userId}: ${bidAmount}`);
     } catch (error) {
       console.error("❌ Error placing bid:", error);
-      socket.emit("bidError", { message: "Server error placing bid" });
+      socket.emit("bidError", { code: "SERVER_ERROR", message: "Server error placing bid" });
     }
   });
 
+  // User disconnect logic (optional)
   socket.on("disconnect", () => {
     console.log("🔴 User disconnected:", socket.id);
   });
 });
 
-// ------------------
 // API Routes
-// ------------------
 app.use("/api/aws", awsRoutes);
 app.use("/api/auctions", auctionRoutes);
 app.use("/api", routes);
 app.use(
   "/api/profile",
+  authenticate, // Ensure this middleware checks the JWT
   (req, res, next) => {
     res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
     res.setHeader("Pragma", "no-cache");
     res.setHeader("Expires", "0");
-    next();
+    next();  // Proceed to the profileRoute
   },
-  profileRoute
+  profileRoute // Ensure this route is properly defined in the profileRoute file
 );
 
-// ------------------
+
 // Authentication Routes
-// ------------------
 app.post("/api/google-login", authController.googleLogin);
 
 app.post("/api/reset-password", authenticate, async (req, res) => {
   try {
     const { newPassword } = req.body;
     if (!newPassword || newPassword.length < 6) {
-      return res.status(400).json({ message: "Password must be at least 6 characters long" });
+      return res.status(400).json({ code: "WEAK_PASSWORD", message: "Password must be at least 6 characters long" });
     }
     const user = await User.findById(req.userId);
     if (!user) {
-      return res.status(404).json({ message: "User not found" });
+      return res.status(404).json({ code: "USER_NOT_FOUND", message: "User not found" });
     }
     const hashedPassword = await bcrypt.hash(newPassword, 10);
     user.password = hashedPassword;
     user.authProvider = "manual";
     user.needsPassword = false;
     await user.save();
-    console.log("  Password reset successful for:", user.email);
+    console.log("Password reset successful for:", user.email);
     res.status(200).json({ message: "Password updated successfully" });
   } catch (error) {
     console.error("❌ Error resetting password:", error);
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({ code: "SERVER_ERROR", message: "Server error" });
   }
 });
 
@@ -147,38 +144,64 @@ app.post("/api/set-password", authenticate, async (req, res) => {
   try {
     const { email, password } = req.body;
     if (!email || !password || password.length < 6) {
-      return res.status(400).json({ message: "Invalid email or weak password (min 6 chars)" });
+      return res.status(400).json({ code: "INVALID_INPUT", message: "Invalid email or weak password (min 6 chars)" });
     }
     const user = await User.findOne({ email });
     if (!user) {
-      return res.status(404).json({ message: "User not found" });
+      return res.status(404).json({ code: "USER_NOT_FOUND", message: "User not found" });
     }
     if (user.authProvider !== "google") {
-      return res.status(400).json({ message: "Only Google login users can set a password" });
+      return res.status(400).json({ code: "INVALID_AUTH_PROVIDER", message: "Only Google login users can set a password" });
     }
     const hashedPassword = await bcrypt.hash(password, 10);
     user.password = hashedPassword;
     user.authProvider = "manual";
     user.needsPassword = false;
     await user.save();
-    console.log("  Password set successfully for Google user:", user.email);
+    console.log("Password set successfully for Google user:", user.email);
     res.status(200).json({ message: "Password set successfully. You can now log in manually." });
   } catch (error) {
     console.error("❌ Error setting password:", error);
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({ code: "SERVER_ERROR", message: "Server error" });
   }
 });
 
-// ------------------
+// Register user for auction route
+app.post("/api/register-for-auction", authenticate, async (req, res) => {
+  try {
+    const { auctionId } = req.body;
+    const user = await User.findById(req.userId);
+
+    if (!user) {
+      return res.status(404).json({ code: "USER_NOT_FOUND", message: "User not found" });
+    }
+
+    const auction = await Auction.findById(auctionId);
+    if (!auction) {
+      return res.status(404).json({ code: "AUCTION_NOT_FOUND", message: "Auction not found" });
+    }
+
+    // Check if user is already registered
+    if (user.registeredAuctions.includes(auctionId)) {
+      return res.status(400).json({ code: "USER_ALREADY_REGISTERED", message: "User is already registered for this auction" });
+    }
+
+    user.registeredAuctions.push(auctionId);
+    await user.save();
+
+    res.status(200).json({ message: "User successfully registered for the auction" });
+  } catch (error) {
+    console.error("❌ Error registering for auction:", error);
+    res.status(500).json({ code: "SERVER_ERROR", message: "Server error registering for auction" });
+  }
+});
+
 // Test Route
-// ------------------
 app.get("/", (req, res) => {
   res.send("AuctiSM Backend is running");
 });
 
-// ------------------
 // Debug Middleware (Logs Incoming Requests)
-// ------------------
 app.use((req, res, next) => {
   console.log("🔵 Incoming Request:", req.method, req.url);
   console.log("🔹 Headers:", req.headers);
@@ -186,9 +209,7 @@ app.use((req, res, next) => {
   next();
 });
 
-// ------------------
 // Database Connection & Server Start
-// ------------------
 mongoose
   .connect(config.MONGO_URI)
   .then(() => {

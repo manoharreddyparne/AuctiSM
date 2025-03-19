@@ -11,10 +11,7 @@ const ResetPasswordModal = ({ isOpen, onClose, userEmail, onSubmitPassword }) =>
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
-  // Clear all fields and messages whenever the modal opens or userEmail changes
   useEffect(() => {
-    console.log("🔹 ResetPasswordModal isOpen:", isOpen);
-    console.log("🔹 User email:", userEmail);
     setError("");
     setSuccess("");
     setPassword("");
@@ -37,7 +34,6 @@ const ResetPasswordModal = ({ isOpen, onClose, userEmail, onSubmitPassword }) =>
 
     setIsLoading(true);
     try {
-      // Call the callback passed via props; this function should update the password in MongoDB
       await onSubmitPassword(password);
       setSuccess("✅ Password set successfully! Redirecting...");
       setTimeout(() => {
@@ -45,14 +41,12 @@ const ResetPasswordModal = ({ isOpen, onClose, userEmail, onSubmitPassword }) =>
         navigate("/mainpage");
       }, 2000);
     } catch (err) {
-      console.error("❌ Error setting password:", err);
       setError("Failed to set password. Please try again.");
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Allow user to skip resetting their password
   const handleSkip = () => {
     onClose();
     navigate("/mainpage");
@@ -89,10 +83,20 @@ const ResetPasswordModal = ({ isOpen, onClose, userEmail, onSubmitPassword }) =>
               />
             </Form.Group>
             <div className="d-flex justify-content-between mt-3">
-              <Button variant="secondary" onClick={handleSkip} disabled={isLoading}>
+              <Button
+                variant="secondary"
+                onClick={handleSkip}
+                disabled={isLoading}
+                className="skip-btn"
+              >
                 Skip
               </Button>
-              <Button variant="primary" type="submit" disabled={isLoading}>
+              <Button
+                variant="primary"
+                type="submit"
+                disabled={isLoading}
+                className="set-password-btn"
+              >
                 {isLoading ? <Spinner animation="border" size="sm" /> : "Set Password"}
               </Button>
             </div>

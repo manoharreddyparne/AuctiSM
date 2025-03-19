@@ -92,9 +92,9 @@ function AuctionDetailParticipant() {
   useEffect(() => {
     updateTimeRemaining();
     const interval = setInterval(updateTimeRemaining, 1000);
-    return () => clearInterval(interval);
+    return () => clearInterval(interval);  
   }, [updateTimeRemaining]);
-
+  
   const formatTime = (ms) => {
     if (ms <= 0) return "0s";
     const seconds = Math.floor((ms / 1000) % 60);
@@ -248,38 +248,38 @@ function AuctionDetailParticipant() {
                     placeholder="Enter bid amount"
                     value={bidAmount}
                     onChange={(e) => setBidAmount(e.target.value)}
-                    style={{ width: "150px" }}
                   />
-                  <div className="bid-increment-buttons">
-                    <button onClick={() => handleIncrement(100)}>+100</button>
-                    <button onClick={() => handleIncrement(200)}>+200</button>
-                    <button onClick={() => handleIncrement(500)}>+500</button>
-                    <button onClick={() => handleIncrement(1000)}>+1000</button>
+                  <div className="bid-buttons">
+                    <button type="button" onClick={() => handleIncrement(100)}>
+                      + ₹100
+                    </button>
+                    <button type="button" onClick={() => handleIncrement(500)}>
+                      + ₹500
+                    </button>
+                    <button type="button" onClick={handleCancelBid}>
+                      Cancel
+                    </button>
                   </div>
+                  {bidError && <p className="error">{bidError}</p>}
+                  {bidSuccess && <p className="success">{bidSuccess}</p>}
+                  <button
+                    type="button"
+                    className="place-bid-button"
+                    onClick={handlePlaceBid}
+                    disabled={!bidAmount || isNaN(bidAmount) || userIsTopValue}
+                  >
+                    Place Bid
+                  </button>
                 </div>
-                <div className="bid-action-buttons">
-                  <button onClick={handlePlaceBid}>Place Bid</button>
-                  <button onClick={handleCancelBid}>Cancel</button>
-                </div>
-                {userIsTopValue && (
-                  <p className="info-text">
-                    🚫 Your bid is currently top. Wait for a higher bid.
-                  </p>
-                )}
-                {bidError && <p className="error">{bidError}</p>}
-                {bidSuccess && <p className="success">{bidSuccess}</p>}
               </div>
             </fieldset>
           ) : (
-            <p className="info-text">Registration is closed. Auction has started.</p>
+            <p className="not-registered">You need to register first!</p>
           )}
         </>
       )}
 
-      {hasEnded && <p className="info-text">Auction is completed.</p>}
-      {hasStarted && isRegistered && !hasEnded && (
-        <p className="info-text">Auction has begun. Start bidding now!</p>
-      )}
+      {hasEnded && <p>Auction has ended.</p>}
     </div>
   );
 }

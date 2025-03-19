@@ -1,3 +1,4 @@
+// auctionRoutes.js
 const express = require("express");
 const router = express.Router();
 const mongoose = require("mongoose");
@@ -8,6 +9,25 @@ const auctionController = require("./auctionController"); // Import updated cont
 
 // Utility: Check if ObjectId is valid
 const isValidObjectId = (id) => mongoose.Types.ObjectId.isValid(id);
+
+// ---------------------
+// Public Endpoint
+// ---------------------
+// Get all auctions without requiring authentication.
+// This endpoint is used by the default_dashboard so that auctions are visible even when the user is not logged in.
+router.get("/public", async (req, res) => {
+  try {
+    const auctions = await Auction.find({});
+    res.json(auctions);
+  } catch (error) {
+    console.error("Error fetching public auctions:", error);
+    res.status(500).json({ error: "Failed to fetch auctions.", details: error.message });
+  }
+});
+
+// ---------------------
+// Protected Endpoints
+// ---------------------
 
 // ✅ Create Auction (Authenticated Users Only)
 router.post("/create", authMiddleware, async (req, res) => {
@@ -49,7 +69,7 @@ router.post("/create", authMiddleware, async (req, res) => {
   }
 });
 
-// Actions created by the user (My Auctions)
+// Get auctions created by the logged-in seller (My Auctions)
 router.get("/myAuctions", authMiddleware, async (req, res) => {
   try {
     if (!req.userId) {
@@ -63,13 +83,11 @@ router.get("/myAuctions", authMiddleware, async (req, res) => {
   }
 });
 
-// All auctions in the database (other than the logged-in user's)
+// Get all auctions (for default_dashboard & users_dashboard)
+// Note: This endpoint is still protected. Use the public endpoint (/public) for non-authenticated access.
 router.get("/all", authMiddleware, async (req, res) => {
   try {
-    if (!req.userId) {
-      return res.status(401).json({ error: "Unauthorized: No user ID found" });
-    }
-    const auctions = await Auction.find({ sellerId: { $ne: req.userId } });
+    const auctions = await Auction.find({});
     res.json(auctions);
   } catch (error) {
     console.error("Error fetching auctions in /all:", error);
@@ -77,7 +95,7 @@ router.get("/all", authMiddleware, async (req, res) => {
   }
 });
 
-// Find auction by id
+// Get auction by ID
 router.get("/:auctionId", authMiddleware, async (req, res) => {
   try {
     const { auctionId } = req.params;
@@ -143,7 +161,7 @@ router.post("/:auctionId/register", authMiddleware, auctionController.registerFo
 // Place a Bid on an Auction (Delegate to auctionController.placeBid)
 router.post("/:auctionId/bid", authMiddleware, auctionController.placeBid);
 
-// Updating the Auction
+// Update an Auction
 router.put("/:auctionId", authMiddleware, async (req, res) => {
   try {
     const { auctionId } = req.params;
@@ -165,7 +183,7 @@ router.put("/:auctionId", authMiddleware, async (req, res) => {
   }
 });
 
-// Deleting the Auction
+// Delete an Auction
 router.delete("/:auctionId", authMiddleware, async (req, res) => {
   try {
     const { auctionId } = req.params;

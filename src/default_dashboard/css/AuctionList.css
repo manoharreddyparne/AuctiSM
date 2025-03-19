@@ -1,0 +1,77 @@
+/* Default Light Mode Styles */
+.auction-list-container {
+    margin-top: 2rem;
+    padding: 0 1rem;
+    background-color: transparent; /* Keep it transparent in light mode */
+  }
+  
+  .auction-title {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #333; /* Default title color */
+  }
+  
+  /* Auction Card column styles */
+  .auction-col {
+    padding: 0.5rem;
+  }
+  
+  /* Auction card styles */
+  .auction-card {
+    transition: all 0.3s ease;
+  }
+  
+  /* Dark Mode Styles */
+  .dark-mode .auction-list-container {
+    background-color: transparent; /* Keep container background as transparent in dark mode */
+  }
+  
+  .dark-mode .auction-title {
+    color: #f1f1f1; /* Light color for title in dark mode */
+  }
+  
+  .dark-mode .auction-col {
+    background-color: #2c2c2c; /* Dark background for each column in dark mode */
+    border-radius: 8px;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+  }
+  
+  .dark-mode .auction-card {
+    background-color: rgba(40, 40, 40, 0.85); /* Dark background for cards in dark mode */
+    backdrop-filter: blur(5px);
+  }
+  
+  .dark-mode .auction-card .auction-title {
+    color: #f1f1f1; /* Light title text */
+  }
+  
+  .dark-mode .auction-card .auction-price {
+    color: #ff6b6b; /* Red price in dark mode */
+  }
+  
+  .dark-mode .auction-card .auction-image-container {
+    background-color: transparent !important;
+  }
+  
+  /* No auctions available text */
+  .dark-mode .auction-list-container .text-center p {
+    color: #f1f1f1; /* Light color for the 'No auctions available' text */
+  }
+  
+  /* "See More" button */
+  .dark-mode .see-more {
+    color: #ff6b6b; /* Red color for the "See More" link */
+    cursor: pointer;
+  }
+  
+  .dark-mode .see-more:hover {
+    text-decoration: underline;
+  }
+  
+  /* Mobile Responsiveness */
+  @media (max-width: 768px) {
+    .auction-col {
+      padding: 0.3rem;
+    }
+  }
+  

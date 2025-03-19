@@ -1,25 +1,45 @@
-import React from "react";
-import "../css/AuctionCard.css"; 
+import React, { useEffect } from "react";
+import "../css/AuctionCard.css";
 
-function AuctionCard({ auction }) {
+const AuctionCard = ({ auction, onCardClick, isDarkMode }) => {
+  useEffect(() => {
+    // Add any specific logic needed for dark mode or auction updates
+  }, [isDarkMode, auction]);
 
-  if (!auction || !auction.image || !auction.title || !auction.basePrice) {
-    return <div className="auction-card-error">No preview found</div>;
-  }
+  // Ensure image URLs are valid
+  const imageSrc =
+    auction.imageUrls && auction.imageUrls.length > 0
+      ? auction.imageUrls[0]
+      : "https://via.placeholder.com/300x200?text=No+Image";
+
+  const title = auction.productName || "Untitled Auction";
+  const basePrice = auction.basePrice !== undefined ? auction.basePrice : "N/A";
 
   return (
-    <div className="auction-card">
-      <img
-        src={auction.image}
-        alt={auction.title}
-        className="auction-image"
-        // If image is missing, show a default image (optional)
-        onError={(e) => e.target.src = "https://support.heberjahiz.com/hc/article_attachments/21013076295570"}
-      />
-      <h3 className="auction-title">{auction.title}</h3>
-      <p className="auction-price">Starting Price: ${auction.basePrice}</p>
+    <div
+      className={`auction-card ${isDarkMode ? "dark-mode" : ""}`}
+      onClick={() => onCardClick(auction.id)}
+    >
+      {/* Image Container */}
+      <div className="auction-image-container">
+        <img
+          src={imageSrc}
+          alt={`${title} - main view`}
+          className="auction-image"
+          onError={(e) =>
+            (e.target.src =
+              "https://via.placeholder.com/300x200?text=No+Image")
+          }
+        />
+      </div>
+
+      {/* Auction Details */}
+      <div className="auction-details">
+        <h3 className="auction-title">{title}</h3>
+        <p className="auction-price">Base Price: ₹{basePrice}</p>
+      </div>
     </div>
   );
-}
+};
 
 export default AuctionCard;

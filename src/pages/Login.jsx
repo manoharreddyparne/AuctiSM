@@ -25,6 +25,7 @@ const Login = () => {
       setShowModal(true);
     }
   }, []);
+  
 
   // Handle Manual Login
   const handleSubmit = async (e) => {
@@ -91,40 +92,41 @@ const Login = () => {
   // Handle Google Login
   const handleGoogleLogin = async (googleResponse) => {
     console.log("🔵 Google login received:", googleResponse);
-
+  
     try {
       const response = await fetch(`${process.env.REACT_APP_API_URL}/api/google-login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ credential: googleResponse.credential }),
       });
-
+  
       const data = await response.json();
       console.log("🟣 Google login response:", data);
-
+  
       if (data.token) {
         try {
           const decodedUser = jwtDecode(data.token);
           console.log("🟢 Decoded Google JWT:", decodedUser);
-
+  
           if (!decodedUser.userId || !decodedUser.email) {
             console.error("❌ Google token missing required fields:", decodedUser);
             setError("Invalid Google token received. Please try again.");
             return;
           }
-
+  
           localStorage.setItem("authToken", data.token);
           localStorage.setItem("user", JSON.stringify(data.user || {}));
           localStorage.setItem("email", data.user.email);
           login(data.token, data.user);
-
+  
+          // Check if password reset is required
           if (data.needsPassword) {
             console.log("🟠 Google login indicates password reset is needed.");
             setShowModal(true);
             localStorage.setItem("needsPassword", "true");
             return;
           }
-
+  
           console.log("🟢 Redirecting to mainpage...");
           navigate("/mainpage");
         } catch (decodeError) {
@@ -140,26 +142,28 @@ const Login = () => {
       setError("Something went wrong with Google login.");
     }
   };
+  
 
   // Handle Password Reset for Google Users
   const handleSetPassword = async () => {
-    console.log("🔵 Setting password for Google user...");
+    console.log("🔵 Setting password for user...");
+  
     try {
       const storedEmail = localStorage.getItem("email");
       if (!storedEmail) {
         setError("No email found. Try logging in again.");
         return;
       }
-
+  
       const response = await fetch(`${process.env.REACT_APP_API_URL}/api/reset-password`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: storedEmail, password: newPassword }),
       });
-
+  
       const data = await response.json();
       console.log("🔵 Password reset response:", data);
-
+  
       if (response.ok) {
         alert("Password set successfully. You can now log in manually.");
         setShowModal(false);
@@ -175,6 +179,7 @@ const Login = () => {
       setError("Something went wrong.");
     }
   };
+  
 
   return (
     <Container className="mt-4">

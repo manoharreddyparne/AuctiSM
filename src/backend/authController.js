@@ -12,7 +12,8 @@ if (!JWT_SECRET || !JWT_REFRESH_SECRET) {
   console.error("❌ JWT_SECRET or JWT_REFRESH_SECRET is missing! Check your config.");
   process.exit(1);
 }
-//refresh token
+
+// Helper function to generate tokens
 const generateTokens = (user) => {
   const accessToken = jwt.sign(
     { userId: user._id, email: user.email },
@@ -27,7 +28,7 @@ const generateTokens = (user) => {
   return { accessToken, refreshToken };
 };
 
-//manual register
+// Manual Register
 const register = async (req, res) => {
   try {
     const { fullName, email, phone, dob, address, password } = req.body;
@@ -65,7 +66,8 @@ const register = async (req, res) => {
     res.status(500).json({ message: 'Error creating user. Please try again.' });
   }
 };
-//manual login
+
+// Manual Login
 const login = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -79,7 +81,7 @@ const login = async (req, res) => {
 
     if (!user.password) {
       console.warn("🔴 No password set. Must reset password before manual login.");
-      return res.status(400).json({ message: "Please reset your password to log in manually." });
+      return res.status(400).json({ message: "Please reset your password to log in manually.", needsPassword: true });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
@@ -92,15 +94,16 @@ const login = async (req, res) => {
     console.log("✅ Login successful:", email);
     res.status(200).json({ 
       message: "Login successful", 
-      token: accessToken,
+      token: accessToken, 
       refreshToken,
       user: { id: user._id, email: user.email }
     });
   } catch (error) {
-    console.error("🚨 Login error:", error);
-    res.status(500).json({ message: "Error logging in. Please try again." });
+    console.error('🚨 Error in login:', error);
+    res.status(500).json({ message: 'Login failed. Please try again.' });
   }
 };
+
 
 // Google Login
 const googleLogin = async (req, res) => {
@@ -120,11 +123,8 @@ const googleLogin = async (req, res) => {
       return res.status(400).json({ message: "Google login failed: No email received" });
     }
 
-// Check if user exists in the database
     let user = await User.findOne({ email }).select("+password");
     if (!user) {
-
-      // New Google user: create a new account and password
       user = new User({
         fullName: name,
         email,
@@ -136,12 +136,10 @@ const googleLogin = async (req, res) => {
       await user.save();
       console.log("✅ New Google user created:", email);
     } else if (!user.password) {
-      // Existing Google user without a manual password set: require reset.
       user.needsPassword = true;
       await user.save();
       console.log("🔵 Google user exists but needs a password:", email);
     } else {
-      // If the user already has a password, ensure needsPassword is false.
       user.needsPassword = false;
       await user.save();
     }

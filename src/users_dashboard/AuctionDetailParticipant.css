@@ -1,178 +1,222 @@
+/* Main container for auction detail */
 .auction-detail-container {
-    max-width: 800px;
-    margin: auto;
-    padding: 20px;
-    border-radius: 8px;
-    background-color: #f9f9f9;
-    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-    transition: background-color 0.3s ease-in-out;
-  }
-  
-  .dark-mode {
-    background-color: #1e1e1e;
-    color: white;
-  }
-  
-  .back-button {
-    background: none;
-    border: none;
-    color: #007bff;
-    font-size: 18px;
-    cursor: pointer;
-    margin-bottom: 10px;
-  }
-  
-  .back-button:hover {
-    color: #0056b3;
-  }
-  
-  .auction-title {
-    font-size: 28px;
-    font-weight: bold;
-    margin-bottom: 10px;
-  }
-  
-  .auction-description {
-    font-size: 16px;
-    color: #555;
-  }
-  
-  .auction-price,
-  .auction-category,
-  .auction-seller {
-    font-size: 14px;
-    margin-top: 5px;
-    font-weight: bold;
-  }
-  
-  .auction-gallery {
-    margin-top: 15px;
-    max-width: 100%;
-  }
-  
-  .auction-image {
-    width: 100%;
-    height: 400px;
-    object-fit: contain;
-    border-radius: 5px;
-  }
-  
-  .register-button {
-    background-color: #007bff;
-    color: white;
-    padding: 10px 20px;
-    font-size: 16px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    margin-top: 15px;
-  }
-  
-  .register-button:disabled {
-    background-color: #aaa;
-    cursor: not-allowed;
-  }
-  
-  .bid-info-container {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 10px;
-  }
-  
-  .bid-updates-wrapper,
-  .bid-ranking-wrapper {
-    flex: 1;
-    max-height: 250px;
-    overflow-y: auto;
-    border: 1px solid #ccc;
-    padding: 10px;
-  }
-  
-  .bid-section {
-    margin-top: 15px;
-  }
-  
-  .bid-input-container {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    margin-bottom: 10px;
-  }
-  
-  .bid-input-container input {
-    width: 150px;
-    padding: 5px;
-    font-size: 16px;
-  }
-  
-  .bid-increment-buttons {
-    display: flex;
-    gap: 5px;
-  }
-  
-  .bid-increment-buttons button {
-    padding: 5px 10px;
-    background-color: #007bff;
-    border: none;
-    border-radius: 3px;
-    color: white;
-    cursor: pointer;
-    font-size: 14px;
-    transition: background-color 0.2s;
-  }
-  
-  .bid-increment-buttons button:hover {
-    background-color: #0056b3;
-  }
-  
-  .bid-action-buttons {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 10px;
-  }
-  
-  .bid-action-buttons button {
-    padding: 8px 16px;
-    border: none;
-    border-radius: 5px;
-    color: white;
-    font-size: 16px;
-    cursor: pointer;
-    transition: background-color 0.2s;
-  }
-  
-  .bid-action-buttons button:disabled {
-    cursor: not-allowed;
-  }
-  
-  /* Disabled controls styling */
-  button:disabled,
-  button.disabled {
-    background-color: transparent !important;
-    color: #ccc !important;
-    cursor: not-allowed !important;
-  }
-  
-  /* Optional: Remove duplicate hover icon if browser already shows disabled cursor */
-  button:disabled:hover::after,
-  button.disabled:hover::after {
-    content: "";
-  }
-  
-  .info-text {
-    font-size: 16px;
-    font-weight: bold;
-    color: red;
-    margin-top: 10px;
-  }
-  
-  .success {
-    color: green;
-    font-weight: bold;
-  }
-  
-  .error {
-    color: red;
-    font-weight: bold;
-  }
-  
+  max-width: 800px;
+  margin: auto;
+  padding: 20px;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
+}
+
+/* Dark mode styles */
+.dark-mode .auction-detail-container {
+  background-color: #333;
+  color: white;
+}
+
+/* Dark mode: Register button, etc. */
+.dark-mode .register-button {
+  background-color: #007bff;
+  color: white;
+}
+
+/* Additional dark mode adjustments for other elements as needed */
+.dark-mode .back-button {
+  color: #ffffff;
+}
+
+.dark-mode .auction-description {
+  color: #ccc;
+}
+
+.dark-mode .bid-updates-wrapper{
+  background-color:#333 ;
+}
+
+.dark-mode .bid-ranking-wrapper {
+  background-color: #333;
+}
+/* Back button */
+.back-button {
+  background: none;
+  border: none;
+  color: #007bff;
+  font-size: 18px;
+  cursor: pointer;
+  margin-bottom: 10px;
+}
+
+.back-button:hover {
+  color: #0056b3;
+}
+
+/* Auction title */
+.auction-title {
+  font-size: 28px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+/* Auction description */
+.auction-description {
+  font-size: 16px;
+  color: #555;
+}
+
+/* Auction price, category, and seller */
+.auction-price,
+.auction-category,
+.auction-seller {
+  font-size: 14px;
+  margin-top: 5px;
+  font-weight: bold;
+}
+
+/* Auction gallery */
+.auction-gallery {
+  margin-top: 15px;
+  max-width: 100%;
+}
+
+.auction-image {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  border-radius: 5px;
+  transition: transform 0.3s ease-in-out;
+}
+
+.auction-image:hover {
+  transform: scale(1.05);
+}
+
+/* Register button */
+.register-button {
+  background-color: #007bff;
+  color: white;
+  padding: 10px 20px;
+  font-size: 16px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 15px;
+}
+
+.register-button:disabled {
+  background-color: #aaa;
+  cursor: not-allowed;
+}
+
+/* Bid info */
+.bid-info-container {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.bid-updates-wrapper,
+.bid-ranking-wrapper {
+  flex: 1;
+  max-height: 250px;
+  overflow-y: auto;
+  border: 1px solid #ccc;
+  padding: 10px;
+  background-color: #f9f9f9;
+  border-radius: 5px;
+}
+
+/* Bid section */
+.bid-section {
+  margin-top: 15px;
+}
+
+/* Bid input container */
+.bid-input-container {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-bottom: 10px;
+}
+
+.bid-input-container input {
+  width: 150px;
+  padding: 5px;
+  font-size: 16px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+
+/* Bid increment buttons */
+.bid-increment-buttons {
+  display: flex;
+  gap: 5px;
+}
+
+.bid-increment-buttons button {
+  padding: 5px 10px;
+  background-color: #007bff;
+  border: none;
+  border-radius: 3px;
+  color: white;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s;
+}
+
+.bid-increment-buttons button:hover {
+  background-color: #0056b3;
+}
+
+/* Bid action buttons */
+.bid-action-buttons {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.bid-action-buttons button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 5px;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.bid-action-buttons button:disabled {
+  cursor: not-allowed;
+}
+
+/* Disabled controls styling */
+button:disabled,
+button.disabled {
+  background-color: transparent !important;
+  color: #ccc !important;
+  cursor: not-allowed !important;
+}
+
+/* Optional: Remove duplicate hover icon if browser already shows disabled cursor */
+button:disabled:hover::after,
+button.disabled:hover::after {
+  content: "";
+}
+
+/* Info and success/error text */
+.info-text {
+  font-size: 16px;
+  font-weight: bold;
+  color: red;
+  margin-top: 10px;
+}
+
+.success {
+  color: green;
+  font-weight: bold;
+}
+
+.error {
+  color: red;
+  font-weight: bold;
+}

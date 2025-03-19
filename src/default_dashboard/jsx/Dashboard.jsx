@@ -1,28 +1,25 @@
-// src/seller/pages/Dashboard.jsx
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { Container, Row, Col } from "react-bootstrap";
-
+import { Button } from "react-bootstrap";
 import AuctionCard from "./AuctionCard";
 import { useNavigate } from "react-router-dom";
+import LoginModal from "../../shared_components/LoginModal";
 import "./dashboard.css";
 
 const Dashboard = () => {
   const [auctions, setAuctions] = useState([]);
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
-  const authToken = localStorage.getItem("authToken");
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);  // Track login status
+  const [isDarkMode, setIsDarkMode] = useState(localStorage.getItem("darkMode") === "enabled");
 
-  // Fetch all auctions from the backend
+  const navigate = useNavigate();
+
+  // Fetch auctions on mount
   useEffect(() => {
     const fetchAuctions = async () => {
       try {
-        const response = await axios.get(
-          `${process.env.REACT_APP_API_URL}/api/auctions/all`,
-          {
-            headers: { Authorization: `Bearer ${authToken}` },
-          }
-        );
+        const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/auctions/public`);
         setAuctions(response.data);
       } catch (error) {
         console.error("Error fetching auctions:", error);
@@ -31,9 +28,33 @@ const Dashboard = () => {
       }
     };
     fetchAuctions();
-  }, [authToken]);
+  }, []);
 
-  // Helper: Compute status based on start/end times
+  // Check if user is logged in
+  useEffect(() => {
+    const token = localStorage.getItem("authToken"); // Get auth token from localStorage
+    if (token) {
+      setIsLoggedIn(true);
+    } else {
+      setIsLoggedIn(false);
+    }
+  }, []);
+
+  // Listen for storage events to update dark mode in real time
+  useEffect(() => {
+    const handleStorageChange = () => {
+      setIsDarkMode(localStorage.getItem("darkMode") === "enabled");
+    };
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
+  }, []);
+
+  // Update document body class based on dark mode
+  useEffect(() => {
+    document.body.classList.toggle("dark-mode", isDarkMode);
+  }, [isDarkMode]);
+
+  // Compute auction status
   const computeStatus = (auction) => {
     const now = new Date();
     const start = new Date(auction.startDateTime);
@@ -43,73 +64,69 @@ const Dashboard = () => {
     return "completed";
   };
 
-  // Separate auctions based on computed status
-  const ongoingAuctions = auctions.filter((auction) => computeStatus(auction) === "ongoing");
-  const upcomingAuctions = auctions.filter((auction) => computeStatus(auction) === "upcoming");
-  const completedAuctions = auctions.filter((auction) => computeStatus(auction) === "completed");
+  const categorizedAuctions = { ongoing: [], upcoming: [], completed: [] };
+  auctions.forEach((auction) => {
+    const status = computeStatus(auction);
+    categorizedAuctions[status].push(auction);
+  });
 
-  // When an auction card is clicked, navigate to /login
-  const handleAuctionClick = () => {
-    navigate("/login");
+  // Handle auction click (show login modal if not logged in)
+  const handleAuctionClick = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (!isLoggedIn) {
+      // If user is not logged in, show the login modal
+      setShowLoginModal(true);
+    } else {
+      // If logged in, handle auction click (navigate to auction detail)
+      navigate(`/auction-detail/${e.target.closest('.auction-item').id}`);
+    }
+  };
+
+  const handleModalYes = () => {
+    setShowLoginModal(false);
+    navigate("/login"); // Navigate to login page after user confirms
   };
 
   if (loading) return <p>Loading auctions...</p>;
 
   return (
-    <Container className="dashboard-container">
+    <div className={`dashboard-container ${isDarkMode ? "dark-mode" : ""}`}>
+      <div className="global-background"></div>
       <h2 className="dashboard-title">Dashboard</h2>
-
-      <section className="auctions-section">
-        <h3>Ongoing Auctions</h3>
-        <Row>
-          {ongoingAuctions.length > 0 ? (
-            ongoingAuctions.map((auction) => (
-              <Col key={auction._id} md={3} sm={6} className="mb-4">
-                <div onClick={handleAuctionClick} style={{ cursor: "pointer" }}>
-                  <AuctionCard auction={auction} />
+      {["ongoing", "upcoming", "completed"].map((status) => (
+        <section key={status} className="auctions-section">
+          <h3>
+            {status.charAt(0).toUpperCase() + status.slice(1)} Auctions (
+            {categorizedAuctions[status].length})
+          </h3>
+          <div className="auction-list">
+            {categorizedAuctions[status].length > 0 ? (
+              categorizedAuctions[status].map((auction) => (
+                <div id={auction._id} key={auction._id} className="auction-item">
+                  <Button
+                    variant="link"
+                    type="button"
+                    onClick={handleAuctionClick}
+                    style={{ padding: 0, textDecoration: "none" }}
+                  >
+                    <AuctionCard auction={auction} isDarkMode={isDarkMode} />
+                  </Button>
                 </div>
-              </Col>
-            ))
-          ) : (
-            <p>No ongoing auctions available.</p>
-          )}
-        </Row>
-      </section>
-
-      <section className="auctions-section">
-        <h3>Upcoming Auctions</h3>
-        <Row>
-          {upcomingAuctions.length > 0 ? (
-            upcomingAuctions.map((auction) => (
-              <Col key={auction._id} md={3} sm={6} className="mb-4">
-                <div onClick={handleAuctionClick} style={{ cursor: "pointer" }}>
-                  <AuctionCard auction={auction} />
-                </div>
-              </Col>
-            ))
-          ) : (
-            <p>No upcoming auctions available.</p>
-          )}
-        </Row>
-      </section>
-
-      <section className="auctions-section">
-        <h3>Top Auctions (Completed)</h3>
-        <Row>
-          {completedAuctions.length > 0 ? (
-            completedAuctions.map((auction) => (
-              <Col key={auction._id} md={3} sm={6} className="mb-4">
-                <div onClick={handleAuctionClick} style={{ cursor: "pointer" }}>
-                  <AuctionCard auction={auction} />
-                </div>
-              </Col>
-            ))
-          ) : (
-            <p>No completed auctions available.</p>
-          )}
-        </Row>
-      </section>
-    </Container>
+              ))
+            ) : (
+              <p>No {status} auctions available.</p>
+            )}
+          </div>
+        </section>
+      ))}
+      <LoginModal
+        show={showLoginModal}
+        onYes={handleModalYes}
+        onCancel={() => setShowLoginModal(false)}
+      />
+    </div>
   );
 };
 

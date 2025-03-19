@@ -1,75 +1,77 @@
+/* Default Light Mode */
 .auction-card {
-  border: 1px solid #ddd;
+  width: 100%;
+  max-width: 300px;
   border-radius: 8px;
-  padding: 20px;
-  text-align: center;
-  background-color: #ffffff;
-  box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.1); 
-  transition: transform 0.2s ease-in-out, box-shadow 0.3s ease-in-out;
+  overflow: hidden;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+  background-color: rgba(255, 255, 255, 0.95);
+  transition: transform 0.2s ease, box-shadow 0.3s ease, background-color 0.3s, color 0.3s;
+  cursor: pointer;
+  background-size: cover;
+  background-position: center;
 }
 
-.auction-card:hover {
-  transform: scale(1.05);
-  box-shadow: 0px 12px 24px rgba(0, 0, 0, 0.2);
+/* Dark Mode for Auction Card ONLY */
+.dark-mode .auction-card {
+  background: rgba(40, 40, 40, 0.85) !important; /* Dark but slightly transparent */
+  backdrop-filter: blur(5px);
+  color: white;
 }
 
-.auction-image {
+/* Ensure the image remains visible in dark mode */
+.auction-card .auction-image-container {
   width: 100%;
   height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: transparent !important;
+}
+
+.auction-card .auction-image {
+  width: 100%;
+  height: 100%;
   object-fit: cover;
-  border-radius: 8px;
-  margin-bottom: 15px; 
+  object-position: center;
 }
 
-.auction-title {
-  font-size: 20px;
-  font-weight: 600; 
-  color: #333;
-  margin: 15px 0;
+/* Prevent images from darkening */
+.dark-mode .auction-card .auction-image {
+  filter: none !important;
 }
 
-.auction-price {
-  color: #28a745;
-  font-weight: 600;
-  font-size: 16px; 
-  margin-bottom: 15px; 
+/* Text styles in dark mode */
+.dark-mode .auction-card .auction-details {
+  color: white;
 }
 
-.auction-card-error {
-  color: #ff0000;
-  font-weight: bold;
-  padding: 20px;
-  text-align: center;
-  background-color: #fff3f3;
-  border: 1px solid #ff0000;
-  border-radius: 8px;
-  box-shadow: 0px 4px 8px rgba(255, 0, 0, 0.1);
+.dark-mode .auction-card .auction-title {
+  color: #f1f1f1;
 }
 
+.dark-mode .auction-card .auction-price {
+  color: #ff6b6b;
+}
+
+/* Hover effect */
+.auction-card:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+/* Mobile Responsiveness */
 @media (max-width: 768px) {
-  .auction-title {
-    font-size: 18px; 
-  }
-
-  .auction-price {
-    font-size: 14px; 
-  }
-
   .auction-card {
-    padding: 15px; 
+    max-width: 100%;
   }
 }
 
-@media (max-width: 576px) {
-  .auction-title {
-    font-size: 16px;
-  }
-
-  .auction-price {
-    font-size: 13px; 
-  }
-
-  .auction-card {
-    padding: 12px; 
-  }
+/* === Make Other Sections Transparent Instead of Black in Dark Mode === */
+.dark-mode .gy-4,
+.dark-mode .g-0,
+.dark-mode .row,
+.dark-mode .text-center {
+  color: inherit !important;
 }

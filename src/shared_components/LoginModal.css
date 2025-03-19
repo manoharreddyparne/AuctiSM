@@ -1,0 +1,109 @@
+
+.modal-header {
+    background-color: #5F6368;
+    color: #fff;
+    padding: 20px;
+    position: relative;
+}
+  
+.modal-title {
+    font-weight: bold;
+    font-size: 20px;
+    margin: 0;
+    padding-right: 40px;
+}
+  
+.modal-body {
+    font-size: 16px;
+    color: #333;
+    padding: 20px;
+    text-align: center;
+}
+  
+.modal-options {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 30px;
+}
+  
+.cancel-btn {
+    padding: 10px 18px;
+    background-color: #f0f0f0;
+    border: 2px solid #ccc;
+    color: #333;
+    font-size: 16px;
+    width: 45%;
+    border-radius: 8px;
+    margin-right: 10px;
+}
+  
+.login-btn {
+    padding: 10px 18px;
+    background-color: #4CAF50;
+    border: 2px solid #4CAF50;
+    color: white;
+    font-size: 16px;
+    width: 45%;
+    border-radius: 8px;
+}
+  
+.login-btn:hover {
+    background-color: #45a049;
+    border-color: #45a049;
+}
+  
+.cancel-btn:hover {
+    background-color: #e0e0e0;
+    border-color: #bbb;
+}
+  
+.footer-text {
+    font-size: 14px;
+    text-align: center;
+    color: #555;
+}
+  
+.footer-text a {
+    color: #007bff;
+    text-decoration: none;
+}
+  
+.footer-text a:hover {
+    text-decoration: underline;
+}
+  
+.modal-header .close {
+    display: none;
+}
+  
+.modal-header .btn-close {
+    background-color: transparent;
+    border: none;
+    font-size: 18px;
+    color: #333;
+    opacity: 0.8;
+    cursor: pointer;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    text-align: center;
+    line-height: 30px;
+    border: 3px solid #333;
+    border-radius: 10px;
+}
+  
+.modal-header .btn-close:before {
+    content: "×";
+    font-size: 30px;
+    color: #333;
+}
+  
+.modal-header .btn-close:hover {
+    background-color: #f44336;
+    color: white;
+    opacity: 1;
+    border-color: #f44336;
+}
