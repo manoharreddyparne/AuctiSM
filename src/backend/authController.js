@@ -71,7 +71,8 @@ const register = async (req, res) => {
 const login = async (req, res) => {
   try {
     const { email, password } = req.body;
-    console.log("🔵 Login attempt:", email);
+    console.log("🔵 Login attempt for:", email);
+    console.log("Received password:", password);
 
     const user = await User.findOne({ email }).select("+password");
     if (!user) {
@@ -79,19 +80,34 @@ const login = async (req, res) => {
       return res.status(400).json({ message: "User not found" });
     }
 
-    if (!user.password) {
-      console.warn("🔴 No password set. Must reset password before manual login.");
-      return res.status(400).json({ message: "Please reset your password to log in manually.", needsPassword: true });
+    // Prevent manual login if the password has not been set yet.
+    if (user.needsPassword === true) {
+      console.warn("🔴 Manual login not allowed: Password not set. Please log in with Google and reset your password.");
+      return res.status(400).json({ 
+        message: "Password not set. Please log in with Google and reset your password.", 
+        needsPassword: true 
+      });
     }
 
-    const isMatch = await bcrypt.compare(password, user.password);
+    if (!user.password) {
+      console.warn("🔴 No password set for user. Must reset password before manual login.");
+      return res.status(400).json({ 
+        message: "Please reset your password to log in manually.", 
+        needsPassword: true 
+      });
+    }
+
+    console.log("Stored password hash:", user.password);
+    const isMatch = await bcrypt.compare(password.trim(), user.password);
+    console.log("bcrypt.compare result:", isMatch);
+
     if (!isMatch) {
       console.warn("❌ Invalid credentials for:", email);
       return res.status(400).json({ message: "Invalid credentials" });
     }
 
     const { accessToken, refreshToken } = generateTokens(user);
-    console.log("✅ Login successful:", email);
+    console.log("✅ Login successful for:", email);
     res.status(200).json({ 
       message: "Login successful", 
       token: accessToken, 
@@ -99,8 +115,8 @@ const login = async (req, res) => {
       user: { id: user._id, email: user.email }
     });
   } catch (error) {
-    console.error('🚨 Error in login:', error);
-    res.status(500).json({ message: 'Login failed. Please try again.' });
+    console.error("🚨 Error in login:", error);
+    res.status(500).json({ message: "Login failed. Please try again." });
   }
 };
 
@@ -164,6 +180,7 @@ const googleLogin = async (req, res) => {
 };
 
 // Set Password for Google Users (Convert to Manual Login)
+// Set Password for Google Users (Convert to Manual Login)
 const setPassword = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -178,9 +195,9 @@ const setPassword = async (req, res) => {
       return res.status(400).json({ message: "Password must be at least 6 characters long." });
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
-    user.password = hashedPassword;
-    user.authProvider = "manual"; 
+    // Instead of hashing here, assign the plain text password
+    user.password = password;
+    user.authProvider = "manual";
     user.needsPassword = false;
     await user.save();
 
@@ -197,6 +214,7 @@ const setPassword = async (req, res) => {
     res.status(500).json({ message: "Error setting password. Please try again." });
   }
 };
+
 
 // Reset Password (Manual Reset)
 const resetPassword = async (req, res) => {

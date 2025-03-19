@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -21,20 +20,34 @@ function Auctions() {
         if (!token) {
           throw new Error("No authentication token found.");
         }
-        console.log("🟢 Using token:", token);
         const config = { headers: { Authorization: `Bearer ${token}` } };
         const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/auctions/all`, config);
-        console.log("✅ Auctions fetched:", response.data);
-        setAuctions(response.data);
+        // Exclude auctions created by the logged-in user (assuming sellerId holds the creator's id)
+        const allAuctions = response.data.filter(
+          (auction) => String(auction.sellerId) !== String(user.id)
+        );
+        setAuctions(allAuctions);
       } catch (error) {
-        console.error("❌ Error fetching auctions:", error.response?.data || error.message);
+        console.error("Error fetching auctions:", error.response?.data || error.message);
         setError(error.response?.data?.error || "Failed to fetch auctions.");
       } finally {
         setLoading(false);
       }
     };
     fetchAuctions();
-  }, []);
+  }, [user.id]);
+
+  const now = new Date();
+  const ongoingAuctions = auctions.filter(
+    (auction) =>
+      new Date(auction.startDateTime) <= now && new Date(auction.endDateTime) >= now
+  );
+  const upcomingAuctions = auctions.filter(
+    (auction) => new Date(auction.startDateTime) > now
+  );
+  const completedAuctions = auctions.filter(
+    (auction) => new Date(auction.endDateTime) < now
+  );
 
   const handleAuctionClick = (auctionId) => {
     if (user) navigate(`/auction-detail/${auctionId}`);
@@ -42,24 +55,55 @@ function Auctions() {
 
   return (
     <div className="container mt-5">
-      <h1>Available Auctions</h1>
       {loading && <p>Loading auctions...</p>}
       {error && <p className="error-message">⚠️ {error}</p>}
       {!loading && !error && (
         <>
-          {auctions.length > 0 ? (
-            <div className="auction-list">
-              {auctions.map((auction) => (
-                <ParticipateAuctionCard
-                  key={auction._id}
-                  auction={auction}
-                  onClick={() => handleAuctionClick(auction._id)}
-                />
-              ))}
-            </div>
-          ) : (
-            <p>No auctions available.</p>
+          {ongoingAuctions.length > 0 && (
+            <section className="ongoing-auctions">
+              <h2>Ongoing Auctions</h2>
+              <div className="auction-list">
+                {ongoingAuctions.map((auction) => (
+                  <ParticipateAuctionCard
+                    key={auction._id}
+                    auction={auction}
+                    onClick={() => handleAuctionClick(auction._id)}
+                  />
+                ))}
+              </div>
+            </section>
           )}
+          {upcomingAuctions.length > 0 && (
+            <section className="upcoming-auctions mt-4">
+              <h2>Upcoming Auctions</h2>
+              <div className="auction-list">
+                {upcomingAuctions.map((auction) => (
+                  <ParticipateAuctionCard
+                    key={auction._id}
+                    auction={auction}
+                    onClick={() => handleAuctionClick(auction._id)}
+                  />
+                ))}
+              </div>
+            </section>
+          )}
+          {completedAuctions.length > 0 && (
+            <section className="completed-auctions mt-4">
+              <h2>Completed Auctions</h2>
+              <div className="auction-list">
+                {completedAuctions.map((auction) => (
+                  <ParticipateAuctionCard
+                    key={auction._id}
+                    auction={auction}
+                    onClick={() => handleAuctionClick(auction._id)}
+                  />
+                ))}
+              </div>
+            </section>
+          )}
+          {ongoingAuctions.length === 0 &&
+            upcomingAuctions.length === 0 &&
+            completedAuctions.length === 0 && <p>No auctions available.</p>}
         </>
       )}
     </div>

@@ -60,7 +60,6 @@ const login = async (token, userData) => {
     }
   } catch (error) {
     console.error("❌ Error fetching profile:", error.response?.data || error.message);
-    alert("There was an issue fetching your profile. Please try again."); // Add this for better UX
     navigate("/login", { replace: true });  // Redirect to login page
   }
 };

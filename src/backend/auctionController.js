@@ -1,4 +1,3 @@
-// auctionController.js
 const mongoose = require("mongoose");
 const Auction = require("./auctionModel");
 
@@ -37,9 +36,9 @@ exports.createAuction = async (req, res) => {
       endDateTime: new Date(endDateTime),
       imageUrls: Array.isArray(imageUrls) ? imageUrls : [],
       sellerId: userId,
-      // The registeredUsers array will hold detailed registration info.
       registeredUsers: [],
       participants: [],
+      bids: [],
     });
 
     await auction.save();
@@ -58,11 +57,11 @@ exports.getAllAuctions = async (req, res) => {
       return res.status(401).json({ message: "Unauthorized: No user ID found" });
     }
     const userId = new mongoose.Types.ObjectId(req.userId);
-    const auctions = await Auction.find({ sellerId: { $ne: userId } });
+    const auctions = await Auction.find({ sellerId: { $ne: userId } }).sort({ startDateTime: 1 });
+    
     if (!auctions.length) {
       return res.status(404).json({ message: "No auctions available." });
     }
-    // Return the auctions array directly
     res.json(auctions);
   } catch (error) {
     console.error("❌ Error fetching auctions:", error.message);
@@ -76,30 +75,29 @@ exports.registerForAuction = async (req, res) => {
     if (!req.userId) {
       return res.status(401).json({ message: "Unauthorized: No user ID found" });
     }
+
     const auctionId = req.params.auctionId;
     const userId = new mongoose.Types.ObjectId(req.userId);
 
-    // Fetch the auction to ensure it exists.
     const auction = await Auction.findById(auctionId);
     if (!auction) {
       return res.status(404).json({ message: "Auction not found" });
     }
 
-    // Check if the user is already registered using the registeredUsers array.
-    const alreadyRegistered = auction.registeredUsers.some(
-      (reg) => reg.userId.toString() === userId.toString()
-    );
+    if (new Date() > new Date(auction.startDateTime)) {
+      return res.status(400).json({ message: "Auction has already started. Registration is closed." });
+    }
+
+    const alreadyRegistered = auction.registeredUsers.some(reg => reg.userId.toString() === userId.toString());
     if (alreadyRegistered) {
       return res.status(400).json({ message: "User is already registered for this auction" });
     }
 
-    // Expect registration details in the request body.
     const { fullName, email, mobileNumber, paymentDetails, additionalInfo } = req.body;
     if (!fullName || !email || !mobileNumber || !paymentDetails) {
       return res.status(400).json({ message: "Missing required registration details" });
     }
 
-    // Add the registration details to the registeredUsers array.
     auction.registeredUsers.push({
       userId,
       fullName,
@@ -109,8 +107,7 @@ exports.registerForAuction = async (req, res) => {
       additionalInfo,
     });
 
-    // Optionally, update the participants array for quick reference.
-    if (!auction.participants.some((id) => id.toString() === userId.toString())) {
+    if (!auction.participants.includes(userId)) {
       auction.participants.push(userId);
     }
 
@@ -131,12 +128,15 @@ exports.getAuctionParticipants = async (req, res) => {
   try {
     const auctionId = req.params.auctionId;
     const auction = await Auction.findById(auctionId).populate("registeredUsers.userId", "fullName email");
+    
     if (!auction) {
       return res.status(404).json({ message: "Auction not found" });
     }
+    
     if (!auction.registeredUsers.length) {
       return res.status(404).json({ message: "No participants found for this auction" });
     }
+    
     res.status(200).json({ participants: auction.registeredUsers });
   } catch (error) {
     console.error("❌ Error fetching participants:", error.message);
@@ -150,60 +150,49 @@ exports.placeBid = async (req, res) => {
     if (!req.userId) {
       return res.status(401).json({ message: "Unauthorized: No user ID found" });
     }
+
     const auctionId = req.params.auctionId;
     const userId = new mongoose.Types.ObjectId(req.userId);
     const { bidAmount } = req.body;
     const bidValue = parseFloat(bidAmount);
-    if (isNaN(bidValue)) {
+
+    if (isNaN(bidValue) || bidValue <= 0) {
       return res.status(400).json({ message: "Invalid bid amount" });
     }
 
-    // Retrieve the auction.
     const auction = await Auction.findById(auctionId);
     if (!auction) {
       return res.status(404).json({ message: "Auction not found" });
     }
 
-    // Check if the user is registered by verifying the registeredUsers array.
-    const isRegistered = auction.registeredUsers.some(
-      (reg) => reg.userId.toString() === userId.toString()
-    );
+    const isRegistered = auction.registeredUsers.some(reg => reg.userId.toString() === userId.toString());
     if (!isRegistered) {
       return res.status(403).json({ message: "You are not registered for this auction" });
     }
 
-    // Check if the auction is active based on start and end times.
     const now = new Date();
-    if (now < auction.startDateTime || now > auction.endDateTime) {
+    if (now < new Date(auction.startDateTime) || now > new Date(auction.endDateTime)) {
       return res.status(400).json({ message: "Auction is not active" });
     }
 
-    // Determine the current highest bid.
     let currentHighest = auction.basePrice;
-    if (auction.bids && auction.bids.length > 0) {
+    if (auction.bids.length > 0) {
       currentHighest = Math.max(...auction.bids.map(bid => bid.bidAmount));
     }
 
-    // Validate that the new bid is higher than the current highest bid.
     if (bidValue <= currentHighest) {
       return res.status(400).json({ message: "Bid must be higher than the current highest bid" });
     }
 
-    // Check if the user already has a bid.
-    const existingBidIndex = auction.bids.findIndex(
-      (bid) => bid.bidderId.toString() === userId.toString()
-    );
+    const existingBidIndex = auction.bids.findIndex(bid => bid.bidderId.toString() === userId.toString());
     if (existingBidIndex > -1) {
-      // If the user's bid is already the top bid, disallow a new bid.
       if (auction.bids[existingBidIndex].bidAmount === currentHighest) {
-        return res.status(400).json({ message: "Your current bid is top now already" });
+        return res.status(400).json({ message: "Your current bid is already the highest" });
       } else {
-        // Otherwise, update the user's existing bid.
         auction.bids[existingBidIndex].bidAmount = bidValue;
         auction.bids[existingBidIndex].bidTime = now;
       }
     } else {
-      // Otherwise, add a new bid entry.
       auction.bids.push({
         bidderId: userId,
         bidAmount: bidValue,

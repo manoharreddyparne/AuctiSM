@@ -1,9 +1,10 @@
-import React, { useState, useContext, useEffect } from "react";
+import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button, Form, Container, Row, Col, Alert, Spinner, Modal } from "react-bootstrap";
+import { Button, Form, Container, Row, Col, Alert, Spinner } from "react-bootstrap";
 import { AuthContext } from "../utils/AuthContext";
 import { jwtDecode } from "jwt-decode";
 import { GoogleLogin } from "@react-oauth/google";
+import ResetPasswordModal from "../shared_components/ResetPasswordModal";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -13,21 +14,10 @@ const Login = () => {
   const { login } = useContext(AuthContext);
   const navigate = useNavigate();
 
-  // State for password reset modal
+  // Controls display of the ResetPasswordModal (only for Google login flow)
   const [showModal, setShowModal] = useState(false);
-  const [newPassword, setNewPassword] = useState("");
 
-  // Check if user needs to set a password
-  useEffect(() => {
-    const needsPassword = localStorage.getItem("needsPassword") === "true";
-    if (needsPassword) {
-      console.log("🔴 User needs to set a password. Showing reset modal.");
-      setShowModal(true);
-    }
-  }, []);
-  
-
-  // Handle Manual Login
+  // Handle Manual Login (via email and password)
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
@@ -43,23 +33,30 @@ const Login = () => {
       });
 
       const data = await response.json();
-      console.log("🟢 Login response received:", data);
+      console.log("🟢 Manual login response received:", data);
+
+      // Debug logs for reset flags
+      console.log("DEBUG: data.needsPassword =", data.needsPassword);
+      console.log("DEBUG: data.user?.needsPassword =", data.user ? data.user.needsPassword : undefined);
 
       if (response.ok && data.token) {
         try {
           const decodedUser = jwtDecode(data.token);
           console.log("🟢 Decoded token:", decodedUser);
 
-          // If the backend instructs a reset, show modal instead of continuing
-          if (data.message && data.message.includes("reset")) {
-            console.warn("🔴 Manual login: Password reset required.");
-            localStorage.setItem("needsPassword", "true");
-            localStorage.setItem("email", email);
-            setShowModal(true);
+          // For manual login, if the response indicates password is not set,
+          // do not open the modal. Instead, show an error message.
+          if (
+            (data.message && data.message.includes("reset")) ||
+            data.needsPassword === true ||
+            (data.user && data.user.needsPassword === true)
+          ) {
+            console.warn("🔴 Manual login: Password reset required. Please use Google sign-in.");
+            setError("Password not set. Please log in with Google and reset your password.");
             return;
           }
 
-          // Store token and update context
+          // Otherwise, proceed with normal login.
           localStorage.setItem("authToken", data.token);
           localStorage.setItem("user", JSON.stringify(data.user || {}));
           login(data.token, data.user);
@@ -69,20 +66,12 @@ const Login = () => {
           setError("Token decoding failed. Please try again.");
         }
       } else {
-        // If error message indicates password reset, trigger modal
-        if (data.message && data.message.includes("reset")) {
-          console.warn("🔴 Manual login error indicates reset required.");
-          localStorage.setItem("needsPassword", "true");
-          localStorage.setItem("email", email);
-          setShowModal(true);
-        } else {
-          console.warn("⚠️ Login failed:", data);
-          setError(data.message || "Login failed. Please try again.");
-          localStorage.removeItem("authToken");
-        }
+        console.warn("⚠️ Manual login failed:", data);
+        setError(data.message || "Login failed. Please try again.");
+        localStorage.removeItem("authToken");
       }
-    } catch (error) {
-      console.error("🔴 Login failed:", error);
+    } catch (err) {
+      console.error("🔴 Manual login error:", err);
       setError("Something went wrong. Please try again.");
     } finally {
       setLoading(false);
@@ -92,41 +81,50 @@ const Login = () => {
   // Handle Google Login
   const handleGoogleLogin = async (googleResponse) => {
     console.log("🔵 Google login received:", googleResponse);
-  
+
     try {
       const response = await fetch(`${process.env.REACT_APP_API_URL}/api/google-login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ credential: googleResponse.credential }),
       });
-  
+
       const data = await response.json();
       console.log("🟣 Google login response:", data);
-  
+
+      // Debug logs for reset flags
+      console.log("DEBUG: data.needsPassword =", data.needsPassword);
+      console.log("DEBUG: data.user?.needsPassword =", data.user ? data.user.needsPassword : undefined);
+
       if (data.token) {
         try {
           const decodedUser = jwtDecode(data.token);
           console.log("🟢 Decoded Google JWT:", decodedUser);
-  
+
           if (!decodedUser.userId || !decodedUser.email) {
             console.error("❌ Google token missing required fields:", decodedUser);
             setError("Invalid Google token received. Please try again.");
             return;
           }
-  
+
+          // Merge the top-level needsPassword flag into the user object.
+          const userData = { ...data.user, needsPassword: data.needsPassword };
+
           localStorage.setItem("authToken", data.token);
-          localStorage.setItem("user", JSON.stringify(data.user || {}));
-          localStorage.setItem("email", data.user.email);
-          login(data.token, data.user);
-  
-          // Check if password reset is required
-          if (data.needsPassword) {
+          localStorage.setItem("user", JSON.stringify(userData));
+          localStorage.setItem("email", userData.email);
+
+          // If the backend indicates a password reset is needed for Google users,
+          // show the modal.
+          if (data.needsPassword === true) {
             console.log("🟠 Google login indicates password reset is needed.");
+            login(data.token, userData); // update context if needed
             setShowModal(true);
-            localStorage.setItem("needsPassword", "true");
             return;
           }
-  
+
+          // Otherwise, proceed normally.
+          login(data.token, userData);
           console.log("🟢 Redirecting to mainpage...");
           navigate("/mainpage");
         } catch (decodeError) {
@@ -137,49 +135,60 @@ const Login = () => {
         console.warn("⚠️ Google login failed:", data);
         setError(data.message || "Google login failed.");
       }
-    } catch (error) {
-      console.error("🔴 Error in Google login:", error);
+    } catch (err) {
+      console.error("🔴 Error in Google login:", err);
       setError("Something went wrong with Google login.");
     }
   };
-  
 
-  // Handle Password Reset for Google Users
-  const handleSetPassword = async () => {
+  // Handle Password Reset (called by the modal for Google users)
+  const handleSetPassword = async (newPassword) => {
     console.log("🔵 Setting password for user...");
-  
     try {
       const storedEmail = localStorage.getItem("email");
       if (!storedEmail) {
         setError("No email found. Try logging in again.");
         return;
       }
-  
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/reset-password`, {
+
+      // Build payload to match your signup flow.
+      const payload = {
+        email: storedEmail,
+        password: newPassword,
+        authProvider: "manual"
+      };
+
+      console.log("Submitting new password with payload:", payload);
+
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/set-password`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: storedEmail, password: newPassword }),
+        body: JSON.stringify(payload),
       });
-  
+
       const data = await response.json();
       console.log("🔵 Password reset response:", data);
-  
+
       if (response.ok) {
         alert("Password set successfully. You can now log in manually.");
         setShowModal(false);
-        setNewPassword("");
-        localStorage.removeItem("needsPassword");
         navigate("/mainpage");
       } else {
         console.warn("⚠️ Password reset failed:", data);
         setError(data.message || "Error setting password.");
       }
-    } catch (error) {
-      console.error("🔴 Error in setting password:", error);
+    } catch (err) {
+      console.error("🔴 Error in setting password:", err);
       setError("Something went wrong.");
     }
   };
-  
+
+  // Handle Skip Password Reset (for Google users via the modal)
+  const handleSkipPassword = () => {
+    console.log("🔵 User skipped setting password.");
+    setShowModal(false);
+    navigate("/mainpage");
+  };
 
   return (
     <Container className="mt-4">
@@ -187,7 +196,6 @@ const Login = () => {
         <Col md={6}>
           <h2 className="text-center">Login</h2>
           {error && <Alert variant="danger">{error}</Alert>}
-
           <Form onSubmit={handleSubmit} autoComplete="on">
             <Form.Group className="mb-3">
               <Form.Label>Email</Form.Label>
@@ -198,7 +206,6 @@ const Login = () => {
                 required
               />
             </Form.Group>
-
             <Form.Group className="mb-3">
               <Form.Label>Password</Form.Label>
               <Form.Control
@@ -208,12 +215,10 @@ const Login = () => {
                 required
               />
             </Form.Group>
-
             <Button type="submit" variant="primary" className="w-100" disabled={loading}>
               {loading ? <Spinner animation="border" size="sm" /> : "Login"}
             </Button>
           </Form>
-
           <div className="text-center mt-3">
             <GoogleLogin
               onSuccess={handleGoogleLogin}
@@ -223,32 +228,13 @@ const Login = () => {
               }}
             />
           </div>
-
-          {/* Password Reset Modal */}
-          <Modal show={showModal} onHide={() => setShowModal(false)} centered>
-            <Modal.Header closeButton>
-              <Modal.Title>Set Your Password</Modal.Title>
-            </Modal.Header>
-            <Modal.Body>
-              <Form.Group>
-                <Form.Label>New Password</Form.Label>
-                <Form.Control
-                  type="password"
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
-                  required
-                />
-              </Form.Group>
-            </Modal.Body>
-            <Modal.Footer>
-              <Button variant="secondary" onClick={() => setShowModal(false)}>
-                Cancel
-              </Button>
-              <Button variant="primary" onClick={handleSetPassword}>
-                Save Password
-              </Button>
-            </Modal.Footer>
-          </Modal>
+          {/* Render the external ResetPasswordModal (only for Google users) */}
+          <ResetPasswordModal
+            isOpen={showModal}
+            userEmail={localStorage.getItem("email") || ""}
+            onClose={handleSkipPassword}
+            onSubmitPassword={handleSetPassword}
+          />
         </Col>
       </Row>
     </Container>

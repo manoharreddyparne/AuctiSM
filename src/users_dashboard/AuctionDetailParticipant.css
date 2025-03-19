@@ -1,43 +1,22 @@
-/* Main container for auction detail */
+/* Container for Auction Details */
 .auction-detail-container {
-  max-width: 800px;
+  max-width: 90%;
+  width: 800px;
   margin: auto;
   padding: 20px;
   border-radius: 8px;
   background-color: #f9f9f9;
+  color: #333 !important;
   box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
   transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
 }
 
-/* Dark mode styles */
 .dark-mode .auction-detail-container {
-  background-color: #333;
-  color: white;
+  background-color: #333 !important;
+  color: #fff !important;
 }
 
-/* Dark mode: Register button, etc. */
-.dark-mode .register-button {
-  background-color: #007bff;
-  color: white;
-}
-
-/* Additional dark mode adjustments for other elements as needed */
-.dark-mode .back-button {
-  color: #ffffff;
-}
-
-.dark-mode .auction-description {
-  color: #ccc;
-}
-
-.dark-mode .bid-updates-wrapper{
-  background-color:#333 ;
-}
-
-.dark-mode .bid-ranking-wrapper {
-  background-color: #333;
-}
-/* Back button */
+/* Back Button */
 .back-button {
   background: none;
   border: none;
@@ -45,44 +24,47 @@
   font-size: 18px;
   cursor: pointer;
   margin-bottom: 10px;
+  transition: color 0.3s ease;
 }
 
 .back-button:hover {
   color: #0056b3;
 }
 
-/* Auction title */
+/* Auction Title */
 .auction-title {
-  font-size: 28px;
+  font-size: 26px;
   font-weight: bold;
   margin-bottom: 10px;
+  transition: color 0.3s ease;
+  text-align: center;
 }
 
-/* Auction description */
+/* Auction Description */
 .auction-description {
   font-size: 16px;
-  color: #555;
+  color: #000 !important;
+  text-align: justify;
+  transition: color 0.3s ease;
 }
 
-/* Auction price, category, and seller */
-.auction-price,
-.auction-category,
-.auction-seller {
-  font-size: 14px;
-  margin-top: 5px;
-  font-weight: bold;
+.dark-mode .auction-description {
+  color: #fff !important;
 }
 
-/* Auction gallery */
+/* Auction Image Gallery */
 .auction-gallery {
   margin-top: 15px;
   max-width: 100%;
+  overflow: hidden;
+  position: relative; /* For positioning the index indicator */
 }
 
 .auction-image {
   width: 100%;
-  height: auto;
+  max-height: 400px;
   object-fit: contain;
+  object-position: center;
   border-radius: 5px;
   transition: transform 0.3s ease-in-out;
 }
@@ -91,132 +73,246 @@
   transform: scale(1.05);
 }
 
-/* Register button */
-.register-button {
-  background-color: #007bff;
+/* Image Index Indicator */
+.image-index {
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.6);
   color: white;
-  padding: 10px 20px;
-  font-size: 16px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  margin-top: 15px;
+  padding: 5px 10px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: bold;
 }
 
-.register-button:disabled {
-  background-color: #aaa;
-  cursor: not-allowed;
+.dark-mode .image-index {
+  color: white;
 }
 
-/* Bid info */
-.bid-info-container {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 10px;
-}
-
-.bid-updates-wrapper,
-.bid-ranking-wrapper {
-  flex: 1;
-  max-height: 250px;
-  overflow-y: auto;
-  border: 1px solid #ccc;
-  padding: 10px;
-  background-color: #f9f9f9;
-  border-radius: 5px;
-}
-
-/* Bid section */
+/* Bid Section */
 .bid-section {
   margin-top: 15px;
+  padding: 15px;
+  border: 2px solid #0d6efd;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+  text-align: center;
 }
 
-/* Bid input container */
+/* Bid Input and Buttons */
 .bid-input-container {
   display: flex;
   align-items: center;
-  gap: 5px;
-  margin-bottom: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
 .bid-input-container input {
   width: 150px;
-  padding: 5px;
+  padding: 8px;
   font-size: 16px;
   border-radius: 5px;
   border: 1px solid #ccc;
 }
 
-/* Bid increment buttons */
 .bid-increment-buttons {
   display: flex;
+  flex-wrap: wrap;
   gap: 5px;
 }
 
 .bid-increment-buttons button {
-  padding: 5px 10px;
-  background-color: #007bff;
+  padding: 8px 12px;
+  background-color: #0d6efd;
   border: none;
-  border-radius: 3px;
-  color: white;
+  border-radius: 4px;
+  color: #fff;
   cursor: pointer;
   font-size: 14px;
-  transition: background-color 0.2s;
+  transition: background-color 0.2s ease;
 }
 
 .bid-increment-buttons button:hover {
-  background-color: #0056b3;
+  background-color: #0b5ed7;
 }
 
-/* Bid action buttons */
+/* Action Buttons */
 .bid-action-buttons {
   display: flex;
+  justify-content: center;
   gap: 10px;
-  margin-bottom: 10px;
+  margin-top: 10px;
 }
 
-.bid-action-buttons button {
-  padding: 8px 16px;
+.bid-action-buttons .place-bid-button {
+  padding: 10px 20px;
+  background-color: #2e7d32;
   border: none;
   border-radius: 5px;
-  color: white;
+  color: #fff;
   font-size: 16px;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: background-color 0.2s ease;
 }
 
-.bid-action-buttons button:disabled {
-  cursor: not-allowed;
+.bid-action-buttons .place-bid-button:hover {
+  background-color: #1b5e20;
 }
 
-/* Disabled controls styling */
-button:disabled,
-button.disabled {
-  background-color: transparent !important;
-  color: #ccc !important;
+/* Disabled Button */
+button:disabled {
+  background-color: #ddd !important;
+  color: #999 !important;
   cursor: not-allowed !important;
 }
 
-/* Optional: Remove duplicate hover icon if browser already shows disabled cursor */
-button:disabled:hover::after,
-button.disabled:hover::after {
-  content: "";
-}
-
-/* Info and success/error text */
+/* Status Messages */
 .info-text {
   font-size: 16px;
   font-weight: bold;
-  color: red;
+  color: #ef6c00;
   margin-top: 10px;
 }
 
 .success {
-  color: green;
+  color: #2e7d32;
   font-weight: bold;
 }
 
 .error {
-  color: red;
+  color: #d32f2f;
   font-weight: bold;
+}
+
+/* Auction Ended & Status */
+.auction-ended {
+  font-size: 18px;
+  font-weight: bold;
+  color: #d32f2f;
+  background-color: #ffebee;
+  padding: 10px;
+  border-radius: 5px;
+  text-align: center;
+}
+
+.auction-status {
+  font-size: 16px;
+  font-weight: bold;
+  color: #2e7d32;
+  background-color: #e8f5e9;
+  padding: 8px;
+  border-radius: 5px;
+  text-align: center;
+}
+
+.registration-closed {
+  font-size: 16px;
+  font-weight: bold;
+  color: #ef6c00;
+  background-color: #fff3e0;
+  padding: 8px;
+  border-radius: 5px;
+  text-align: center;
+}
+
+.dark-mode .auction-ended {
+  color: #ff8a80;
+  background-color: #424242;
+}
+
+.dark-mode .auction-status {
+  color: #81c784;
+  background-color: #2e7d32;
+}
+
+.dark-mode .registration-closed {
+  color: #ffb74d;
+  background-color: #424242;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .auction-title {
+    font-size: 22px;
+  }
+
+  .auction-image {
+    max-height: 300px;
+  }
+
+  .bid-input-container input {
+    width: 120px;
+  }
+}
+
+@media (max-width: 768px) {
+  .auction-detail-container {
+    width: 95%;
+    padding: 15px;
+  }
+
+  .auction-title {
+    font-size: 20px;
+  }
+
+  .auction-description {
+    font-size: 14px;
+  }
+
+  .auction-image {
+    max-height: 250px;
+  }
+
+  .bid-input-container {
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .bid-input-container input {
+    width: 100px;
+    font-size: 14px;
+  }
+
+  .bid-increment-buttons {
+    flex-wrap: wrap;
+  }
+
+  .bid-increment-buttons button {
+    font-size: 12px;
+    padding: 6px 10px;
+  }
+
+  .bid-action-buttons .place-bid-button {
+    padding: 8px 15px;
+    font-size: 14px;
+  }
+
+  .auction-ended,
+  .auction-status,
+  .registration-closed {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .auction-title {
+    font-size: 18px;
+  }
+
+  .auction-image {
+    max-height: 200px;
+  }
+
+  .bid-input-container input {
+    width: 80px;
+    font-size: 12px;
+  }
+
+  .bid-increment-buttons button {
+    font-size: 10px;
+    padding: 5px 8px;
+  }
 }
