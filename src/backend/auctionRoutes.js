@@ -1,11 +1,13 @@
 const express = require("express");
 const router = express.Router();
 const mongoose = require("mongoose");
+const moment = require("moment-timezone");
 const Auction = require("./auctionModel");
 const authMiddleware = require("./authMiddleware");
 const { deleteImageFromS3 } = require("../utils/uploadS3");
-const auctionController = require("./auctionController"); 
+const auctionController = require("./auctionController");
 const isValidObjectId = (id) => mongoose.Types.ObjectId.isValid(id);
+
 router.get("/public", async (req, res) => {
   try {
     const auctions = await Auction.find({});
@@ -18,7 +20,6 @@ router.get("/public", async (req, res) => {
 
 router.post("/create", authMiddleware, async (req, res) => {
   try {
-    console.log("🔥 Incoming Request Body:", req.body);
     if (!req.userId) {
       return res.status(401).json({ error: "Unauthorized: No user ID found" });
     }
@@ -31,29 +32,34 @@ router.post("/create", authMiddleware, async (req, res) => {
       startDateTime,
       endDateTime,
       imageUrls,
+      timeZone
     } = req.body;
     if (!productName || !description || !category || !basePrice || !startDateTime || !endDateTime) {
       return res.status(400).json({ error: "Missing required fields" });
     }
     const finalCategory = category === "Other" ? newCategory : category;
+    const tz = timeZone || "UTC";
+    const startUTC = moment.tz(startDateTime, "YYYY-MM-DDTHH:mm", tz).utc().toISOString();
+    const endUTC = moment.tz(endDateTime, "YYYY-MM-DDTHH:mm", tz).utc().toISOString();
     const newAuction = new Auction({
       sellerId: req.userId,
       productName,
       description,
       category: finalCategory,
       basePrice: parseFloat(basePrice),
-      startDateTime: new Date(startDateTime),
-      endDateTime: new Date(endDateTime),
+      startDateTime: new Date(startUTC),
+      endDateTime: new Date(endUTC),
       imageUrls: Array.isArray(imageUrls) ? imageUrls : [],
-      registeredUsers: [], 
+      registeredUsers: []
     });
     const savedAuction = await newAuction.save();
     res.status(201).json(savedAuction);
   } catch (error) {
-    console.error("❌ Error saving auction:", error);
+    console.error("Error saving auction:", error);
     res.status(500).json({ error: "Failed to save auction", details: error.message });
   }
 });
+
 router.get("/myAuctions", authMiddleware, async (req, res) => {
   try {
     if (!req.userId) {
@@ -76,6 +82,7 @@ router.get("/all", authMiddleware, async (req, res) => {
     res.status(500).json({ error: "Failed to fetch auctions.", details: error.message });
   }
 });
+
 router.get("/:auctionId", authMiddleware, async (req, res) => {
   try {
     const { auctionId } = req.params;
@@ -93,7 +100,6 @@ router.get("/:auctionId", authMiddleware, async (req, res) => {
   }
 });
 
-
 router.get("/:auctionId/bids", authMiddleware, async (req, res) => {
   try {
     const { auctionId } = req.params;
@@ -104,7 +110,6 @@ router.get("/:auctionId/bids", authMiddleware, async (req, res) => {
     if (!auction) {
       return res.status(404).json({ error: "Auction not found" });
     }
-
     let currentBid = auction.basePrice;
     if (auction.bids && auction.bids.length > 0) {
       currentBid = Math.max(...auction.bids.map(bid => bid.bidAmount));
@@ -148,6 +153,14 @@ router.put("/:auctionId", authMiddleware, async (req, res) => {
     if (Object.keys(updatedData).length === 0) {
       return res.status(400).json({ error: "No data provided for update" });
     }
+    if (updatedData.startDateTime) {
+      const tz = updatedData.timeZone || "UTC";
+      updatedData.startDateTime = new Date(moment.tz(updatedData.startDateTime, "YYYY-MM-DDTHH:mm", tz).utc().toISOString());
+    }
+    if (updatedData.endDateTime) {
+      const tz = updatedData.timeZone || "UTC";
+      updatedData.endDateTime = new Date(moment.tz(updatedData.endDateTime, "YYYY-MM-DDTHH:mm", tz).utc().toISOString());
+    }
     const auction = await Auction.findByIdAndUpdate(auctionId, updatedData, { new: true, runValidators: true });
     if (!auction) {
       return res.status(404).json({ error: "Auction not found" });
@@ -169,7 +182,6 @@ router.delete("/:auctionId", authMiddleware, async (req, res) => {
     if (!auction) {
       return res.status(404).json({ error: "Auction not found" });
     }
-
     if (auction.imageUrls?.length > 0) {
       await Promise.all(
         auction.imageUrls.map(async (imageUrl) => {
