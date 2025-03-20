@@ -24,15 +24,16 @@ exports.createAuction = async (req, res) => {
     }
     const finalCategory = category === "Other" ? newCategory : category;
     const tz = timeZone || "Asia/Kolkata";
-    const startUTC = moment.tz(startDateTime, "DD-MM-YYYY HH:mm", tz).utc().toISOString();
-    const endUTC = moment.tz(endDateTime, "DD-MM-YYYY HH:mm", tz).utc().toISOString();
+    const startUTC = moment.tz(startDateTime, "YYYY-MM-DDTHH:mm", tz).utc().toISOString();
+    const endUTC = moment.tz(endDateTime, "YYYY-MM-DDTHH:mm", tz).utc().toISOString();
+    
     const auction = new Auction({
       productName,
       description,
       category: finalCategory,
       basePrice: parseFloat(basePrice),
       startDateTime: new Date(startUTC),
-      endDateTime: new Date(endUTC),
+      endDateTime: new Date(endUTC),      
       imageUrls: Array.isArray(imageUrls) ? imageUrls : [],
       sellerId: userId,
       registeredUsers: [],

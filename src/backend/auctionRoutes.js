@@ -146,14 +146,15 @@ router.put("/:auctionId", authMiddleware, async (req, res) => {
     if (Object.keys(updatedData).length === 0) {
       return res.status(400).json({ error: "No data provided for update" });
     }
-    if (updatedData.startDateTime && /^\d{2}-\d{2}-\d{4} \d{2}:\d{2}$/.test(updatedData.startDateTime)) {
+    if (updatedData.startDateTime && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(updatedData.startDateTime)) {
       const tz = updatedData.timeZone || "Asia/Kolkata";
-      updatedData.startDateTime = moment.tz(updatedData.startDateTime, "DD-MM-YYYY HH:mm", tz).toDate();
+      updatedData.startDateTime = moment.tz(updatedData.startDateTime, "YYYY-MM-DDTHH:mm", tz).utc().toDate();
     }
-    if (updatedData.endDateTime && /^\d{2}-\d{2}-\d{4} \d{2}:\d{2}$/.test(updatedData.endDateTime)) {
+    if (updatedData.endDateTime && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(updatedData.endDateTime)) {
       const tz = updatedData.timeZone || "Asia/Kolkata";
-      updatedData.endDateTime = moment.tz(updatedData.endDateTime, "DD-MM-YYYY HH:mm", tz).toDate();
+      updatedData.endDateTime = moment.tz(updatedData.endDateTime, "YYYY-MM-DDTHH:mm", tz).utc().toDate();
     }
+    
     const auction = await Auction.findByIdAndUpdate(auctionId, updatedData, { new: true, runValidators: true });
     if (!auction) {
       return res.status(404).json({ error: "Auction not found" });
