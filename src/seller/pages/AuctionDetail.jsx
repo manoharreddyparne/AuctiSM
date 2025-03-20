@@ -8,16 +8,11 @@ import AuctionImages from "./AuctionImages";
 import AuctionForm from "./AuctionForm";
 import BidUpdates from "../components/BidUpdates";
 import BidRanking from "../../users_dashboard/BidRanking";
+import moment from "moment-timezone";
 
 const formatDateTimeLocal = (dateInput) => {
-  const dt = new Date(dateInput);
-  const pad = (n) => (n < 10 ? "0" + n : n);
-  const year = dt.getFullYear();
-  const month = pad(dt.getMonth() + 1);
-  const day = pad(dt.getDate());
-  const hours = pad(dt.getHours());
-  const minutes = pad(dt.getMinutes());
-  return `${year}-${month}-${day}T${hours}:${minutes}`;
+  // Interpret the backend UTC ISO string and convert to IST (or any desired timezone)
+  return moment.utc(dateInput).tz("Asia/Kolkata").format("YYYY-MM-DDTHH:mm");
 };
 
 const AuctionDetail = () => {
@@ -210,7 +205,6 @@ const AuctionDetail = () => {
       setIsDeleteModalOpen(false);
     }
   };
-  
 
   const handleSaveChanges = async () => {
     const now = new Date();
