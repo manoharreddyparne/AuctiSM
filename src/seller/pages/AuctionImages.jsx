@@ -20,7 +20,7 @@ const AuctionImages = ({
 }) => {
   return (
     <>
-      {/* Image Gallery */}
+
       <div
         className="image-gallery"
         onTouchStart={handleTouchStart}

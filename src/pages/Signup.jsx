@@ -20,7 +20,6 @@ const Signup = () => {
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [googleEmail, setGoogleEmail] = useState("");
 
-  // Redirect if already logged in
   useEffect(() => {
     const token = localStorage.getItem("authToken");
     if (token) {
@@ -48,7 +47,6 @@ const Signup = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  // Manual signup handler
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
@@ -69,7 +67,6 @@ const Signup = () => {
     }
   };
 
-  // Google login handler
   const handleGoogleSuccess = async (response) => {
     console.log("Google authentication success:", response);
     try {
@@ -95,7 +92,7 @@ const Signup = () => {
     }
   };
 
-  // Callback for password reset from the modal
+
   const handlePasswordReset = async (newPassword) => {
     try {
       const res = await axios.post(`${process.env.REACT_APP_API_URL}/api/reset-password`, {

@@ -9,20 +9,17 @@ require("dotenv").config();
 
 const router = express.Router();
 
-// Logging middleware for every request
 router.use((req, res, next) => {
   console.log("🔵 Incoming Request:", req.method, req.url);
   console.log("🔹 Headers:", req.headers);
   next();
 });
 
-// Public Routes
 router.post("/signup", register);
 router.post("/login", login);
 router.post("/google-login", googleLogin);
-router.post("/reset-password", resetPassword); // For manual password reset
+router.post("/reset-password", resetPassword); 
 
-// Protected Route: Fetch User Profile
 router.get("/profile", authenticate, async (req, res) => {
   try {
     console.log("🟢 Fetching profile for user ID:", req.userId);
@@ -45,23 +42,17 @@ router.get("/profile", authenticate, async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 });
-
-// Set Password Route (for manual password reset)
 router.post("/set-password", async (req, res) => {
   try {
     const { email, password } = req.body;
     if (!email || !password || password.length < 6) {
       return res.status(400).json({ message: "Invalid email or weak password (min 6 chars)" });
     }
-
-    // Find user by email
     const user = await User.findOne({ email });
     if (!user) {
       console.log("❌ User not found:", email);
       return res.status(404).json({ message: "User not found" });
     }
-
-    // Hash and update password, switch authProvider to manual, and clear needsPassword flag
     user.password = await bcrypt.hash(password, 10);
     user.authProvider = "manual";
     user.needsPassword = false;
@@ -74,20 +65,17 @@ router.post("/set-password", async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 });
-
-// Login Route (for manual login)
-// This route handles both manual and Google login based on the request body.
 router.post("/login", async (req, res) => {
   const { email, authProvider, googleId, password } = req.body;
   try {
-    // If login is via Google
+
     if (authProvider === "google") {
       const user = await User.findOne({ email });
       if (!user) return res.status(404).send("User not found");
       if (user.googleId !== googleId) {
         return res.status(400).send("Invalid Google ID");
       }
-      // Generate JWT token
+
       const token = jwt.sign(
         { userId: user._id, email: user.email },
         process.env.JWT_SECRET,
@@ -95,8 +83,6 @@ router.post("/login", async (req, res) => {
       );
       return res.status(200).json({ token, needsPassword: user.needsPassword });
     }
-
-    // Manual login (email & password)
     const user = await User.findOne({ email });
     if (!user) return res.status(404).send("User not found");
 
@@ -114,8 +100,6 @@ router.post("/login", async (req, res) => {
     res.status(500).send("Internal server error");
   }
 });
-
-// Protected Route: Create Auction
 router.post("/auctions/create", authenticate, createAuction);
 
 module.exports = router;

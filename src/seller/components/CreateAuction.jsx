@@ -27,7 +27,7 @@ const CreateAuction = () => {
   const fileInputRef = useRef(null);
   const navigate = useNavigate();
 
-  // Poll dark mode from localStorage instantly (0ms interval)
+
   const [darkMode, setDarkMode] = useState(localStorage.getItem("darkMode") === "enabled");
   useEffect(() => {
     const interval = setInterval(() => {

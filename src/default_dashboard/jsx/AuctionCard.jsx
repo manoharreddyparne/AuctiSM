@@ -3,10 +3,9 @@ import "../css/AuctionCard.css";
 
 const AuctionCard = ({ auction, onCardClick, isDarkMode }) => {
   useEffect(() => {
-    // Add any specific logic needed for dark mode or auction updates
+
   }, [isDarkMode, auction]);
 
-  // Ensure image URLs are valid
   const imageSrc =
     auction.imageUrls && auction.imageUrls.length > 0
       ? auction.imageUrls[0]
@@ -20,7 +19,7 @@ const AuctionCard = ({ auction, onCardClick, isDarkMode }) => {
       className={`auction-card ${isDarkMode ? "dark-mode" : ""}`}
       onClick={() => onCardClick(auction.id)}
     >
-      {/* Image Container */}
+
       <div className="auction-image-container">
         <img
           src={imageSrc}
@@ -33,7 +32,6 @@ const AuctionCard = ({ auction, onCardClick, isDarkMode }) => {
         />
       </div>
 
-      {/* Auction Details */}
       <div className="auction-details">
         <h3 className="auction-title">{title}</h3>
         <p className="auction-price">Base Price: ₹{basePrice}</p>

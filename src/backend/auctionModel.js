@@ -17,8 +17,6 @@ const auctionSchema = new mongoose.Schema(
     endDateTime: { type: Date, required: true },
     imageUrls: { type: [String], default: [] },
     sellerId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
-
-    // Array for storing multiple registration details
     registeredUsers: [
       {
         userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },

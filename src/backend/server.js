@@ -22,13 +22,10 @@ const Auction = require("./auctionModel");
 
 const app = express();
 const server = http.createServer(app);
-
-// Middleware Setup
 app.use(morgan("dev"));
 app.use(cookieParser());
 app.use(express.json());
 
-// CORS Configuration
 const allowedOrigins = [
   process.env.REACT_APP_CLIENT || "http://localhost:3000",
   "https://auctism-frontend.onrender.com",
@@ -45,8 +42,6 @@ app.use(
     credentials: true,
   })
 );
-
-// Socket.IO Setup
 const io = new Server(server, {
   cors: {
     origin: process.env.REACT_APP_CLIENT || "http://localhost:3000",
@@ -57,18 +52,15 @@ const io = new Server(server, {
 io.on("connection", (socket) => {
   console.log("🔵 User connected:", socket.id);
 
-  // Join auction room
   socket.on("joinAuction", (auctionId) => {
     socket.join(auctionId);
     console.log(`Socket ${socket.id} joined auction ${auctionId}`);
   });
 
-  // Place bid
   socket.on("placeBid", async (data) => {
     try {
       const { auctionId, userId, bidAmount } = data;
 
-      // Check if user is registered
       const auction = await Auction.findById(auctionId);
       if (!auction) {
         return socket.emit("bidError", { code: "AUCTION_NOT_FOUND", message: "Auction not found" });
@@ -91,30 +83,26 @@ io.on("connection", (socket) => {
     }
   });
 
-  // User disconnect logic (optional)
   socket.on("disconnect", () => {
     console.log("🔴 User disconnected:", socket.id);
   });
 });
 
-// API Routes
 app.use("/api/aws", awsRoutes);
 app.use("/api/auctions", auctionRoutes);
 app.use("/api", routes);
 app.use(
   "/api/profile",
-  authenticate, // Ensure this middleware checks the JWT
+  authenticate, 
   (req, res, next) => {
     res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
     res.setHeader("Pragma", "no-cache");
     res.setHeader("Expires", "0");
-    next();  // Proceed to the profileRoute
+    next();  
   },
-  profileRoute // Ensure this route is properly defined in the profileRoute file
+  profileRoute 
 );
 
-
-// Authentication Routes
 app.post("/api/google-login", authController.googleLogin);
 
 app.post("/api/reset-password", authenticate, async (req, res) => {
@@ -165,8 +153,6 @@ app.post("/api/set-password", authenticate, async (req, res) => {
     res.status(500).json({ code: "SERVER_ERROR", message: "Server error" });
   }
 });
-
-// Register user for auction route
 app.post("/api/register-for-auction", authenticate, async (req, res) => {
   try {
     const { auctionId } = req.body;
@@ -180,8 +166,6 @@ app.post("/api/register-for-auction", authenticate, async (req, res) => {
     if (!auction) {
       return res.status(404).json({ code: "AUCTION_NOT_FOUND", message: "Auction not found" });
     }
-
-    // Check if user is already registered
     if (user.registeredAuctions.includes(auctionId)) {
       return res.status(400).json({ code: "USER_ALREADY_REGISTERED", message: "User is already registered for this auction" });
     }
@@ -195,21 +179,15 @@ app.post("/api/register-for-auction", authenticate, async (req, res) => {
     res.status(500).json({ code: "SERVER_ERROR", message: "Server error registering for auction" });
   }
 });
-
-// Test Route
 app.get("/", (req, res) => {
   res.send("AuctiSM Backend is running");
 });
-
-// Debug Middleware (Logs Incoming Requests)
 app.use((req, res, next) => {
   console.log("🔵 Incoming Request:", req.method, req.url);
   console.log("🔹 Headers:", req.headers);
   console.log("🔹 Body:", req.body);
   next();
 });
-
-// Database Connection & Server Start
 mongoose
   .connect(config.MONGO_URI)
   .then(() => {

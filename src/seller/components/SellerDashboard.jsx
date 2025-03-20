@@ -10,10 +10,8 @@ const SellerDashboard = () => {
   const [loading, setLoading] = useState(true);
   const authToken = localStorage.getItem("authToken");
   const navigate = useNavigate();
-
   const [darkMode, setDarkMode] = useState(localStorage.getItem("darkMode") === "enabled");
 
-  // Poll for dark mode changes (you might consider a more efficient solution later)
   useEffect(() => {
     const interval = setInterval(() => {
       const currentDark = localStorage.getItem("darkMode") === "enabled";
@@ -41,38 +39,76 @@ const SellerDashboard = () => {
     fetchData();
   }, [authToken, userId]);
 
+  const getAuctionStatus = (auction) => {
+    const now = new Date();
+    const start = new Date(auction.startDateTime);
+    const end = new Date(auction.endDateTime);
+    if (now >= end) return "completed";
+    if (now >= start) return "ongoing";
+    return "upcoming";
+  };
+
+  const ongoingAuctions = auctions.filter((a) => getAuctionStatus(a) === "ongoing");
+  const upcomingAuctions = auctions.filter((a) => getAuctionStatus(a) === "upcoming");
+  const completedAuctions = auctions.filter((a) => getAuctionStatus(a) === "completed");
+
   const handleCreateAuction = () => {
     navigate("/create-auction");
   };
 
   return (
-    <div className="seller-dashboard">
-      <h1>My Auctions</h1>
+    <div className={`seller-dashboard ${darkMode ? "dark" : "light"}`}>
       {loading ? (
         <p>Loading auctions...</p>
       ) : (
-        <div className="auction-list">
-          {/* Plus card to navigate to CreateAuction page */}
-          <div
-            className={`create-auction-card ${darkMode ? "dark" : ""}`}
-            onClick={handleCreateAuction}
-          >
-            <span className="plus-symbol">+</span>
-            <p>Create Auction</p>
-          </div>
-          {auctions.length > 0 ? (
-            auctions.map((auction) => (
-              <AuctionCard 
-                key={auction._id} 
-                auction={auction} 
-                darkMode={darkMode} 
-                authToken={authToken} 
-              />
-            ))
-          ) : (
-            <p>No auctions found.</p>
-          )}
-        </div>
+        <>
+          <section className="auction-section">
+            <h2>Ongoing Auctions</h2>
+            <div className="auction-list">
+              <div className={`create-auction-card ${darkMode ? "dark" : ""}`} onClick={handleCreateAuction}>
+                <span className="plus-symbol">+</span>
+                <p>Create Auction</p>
+              </div>
+              {ongoingAuctions.length > 0 ? (
+                ongoingAuctions.map((auction) => (
+                  <AuctionCard key={auction._id} auction={auction} darkMode={darkMode} authToken={authToken} />
+                ))
+              ) : (
+                <p className="no-auctions">No ongoing auctions. Create one now!</p>
+              )}
+            </div>
+          </section>
+
+          <section className="auction-section">
+            <h2>Upcoming Auctions</h2>
+            <div className="auction-list">
+              <div className={`create-auction-card ${darkMode ? "dark" : ""}`} onClick={handleCreateAuction}>
+                <span className="plus-symbol">+</span>
+                <p>Create Auction</p>
+              </div>
+              {upcomingAuctions.length > 0 ? (
+                upcomingAuctions.map((auction) => (
+                  <AuctionCard key={auction._id} auction={auction} darkMode={darkMode} authToken={authToken} />
+                ))
+              ) : (
+                <p className="no-auctions">No upcoming auctions. Create one now!</p>
+              )}
+            </div>
+          </section>
+
+          <section className="auction-section">
+            <h2>Completed Auctions</h2>
+            <div className="auction-list">
+              {completedAuctions.length > 0 ? (
+                completedAuctions.map((auction) => (
+                  <AuctionCard key={auction._id} auction={auction} darkMode={darkMode} authToken={authToken} />
+                ))
+              ) : (
+                <p className="no-auctions">No completed auctions.</p>
+              )}
+            </div>
+          </section>
+        </>
       )}
     </div>
   );

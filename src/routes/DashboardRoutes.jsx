@@ -27,11 +27,11 @@ function DashboardRoutes() {
       <Route path="/get-started" element={<GetStarted />} />
       <Route path="/help" element={<Help />} />
 
-      {/* Prevent logged-in users from accessing login/signup */}
+
       <Route path="/login" element={user ? <Navigate to="/mainpage" /> : <Login />} />
       <Route path="/signup" element={user ? <Navigate to="/mainpage" /> : <Signup />} />
 
-      {/* Catch-all route */}
+
       <Route path="*" element={<Error404Page />} />
     </Routes>
   );

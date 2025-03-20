@@ -5,8 +5,8 @@ import queryString from "query-string";
 
 const Error404Page = () => {
   const location = useLocation();
-  const queryParams = queryString.parse(location.search); // Parse the query string
-  const searchQuery = queryParams.search; // Get the search query from the query string
+  const queryParams = queryString.parse(location.search); 
+  const searchQuery = queryParams.search; 
 
   return (
     <Container className="d-flex justify-content-center align-items-center" style={{ minHeight: "100vh" }}>

@@ -1,6 +1,6 @@
 import React from 'react';
 
-// Helper to truncate a name (e.g. first 3 and last 3 characters)
+
 const truncateName = (name) => {
   if (!name) return "Anonymous";
   if (name.length <= 6) return name;
@@ -8,13 +8,13 @@ const truncateName = (name) => {
 };
 
 const BidRanking = ({ bids, registrations }) => {
-  // Group bids by bidder so that each user appears only once
+
   const uniqueBidsMap = new Map();
   bids.forEach(bid => {
     const key = bid.bidderId.toString();
     if (uniqueBidsMap.has(key)) {
       const existing = uniqueBidsMap.get(key);
-      // Keep the higher bid for that user
+
       if (bid.bidAmount > existing.bidAmount) {
         uniqueBidsMap.set(key, bid);
       }
@@ -24,7 +24,6 @@ const BidRanking = ({ bids, registrations }) => {
   });
   const uniqueBids = Array.from(uniqueBidsMap.values());
 
-  // Sort the unique bids in descending order by bidAmount
   const sortedBids = uniqueBids.sort((a, b) => b.bidAmount - a.bidAmount);
 
   return (
@@ -42,7 +41,7 @@ const BidRanking = ({ bids, registrations }) => {
       {sortedBids.length > 0 ? (
         <ol>
           {sortedBids.map((bid) => {
-            // Find registration info by matching bidderId with registeredUsers' userId
+   
             const reg = registrations.find(
               (reg) => reg.userId.toString() === bid.bidderId.toString()
             );

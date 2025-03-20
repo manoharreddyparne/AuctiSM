@@ -1,7 +1,6 @@
 const AWS = require("aws-sdk");
 const path = require("path");
 
-
 require("dotenv").config({ path: path.resolve(__dirname, "../../.env") });
 
 const s3 = new AWS.S3({
@@ -17,12 +16,11 @@ const getPresignedUrl = async (req, res) => {
       return res.status(400).json({ error: "Missing fileName or fileType" });
     }
 
-  // Create a new key for the image
     const fileKey = `auction-images/${Date.now()}-${fileName}`;
     const params = {
       Bucket: process.env.REACT_APP_AWS_BUCKET_NAME,
       Key: fileKey,
-      Expires: 60, // URL expires in 60 seconds
+      Expires: 60,
       ContentType: fileType,
     };
 
@@ -56,4 +54,26 @@ const deleteImage = async (req, res) => {
   }
 };
 
-module.exports = { getPresignedUrl, deleteImage };
+const deleteImages = async (req, res) => {
+  try {
+    const { fileKeys } = req.body;
+    if (!fileKeys || !Array.isArray(fileKeys)) {
+      return res.status(400).json({ error: "Missing or invalid fileKeys" });
+    }
+    const params = {
+      Bucket: process.env.REACT_APP_AWS_BUCKET_NAME,
+      Delete: {
+        Objects: fileKeys.map(key => ({ Key: key })),
+        Quiet: false,
+      },
+    };
+
+    await s3.deleteObjects(params).promise();
+    res.status(200).json({ message: "Images deleted successfully" });
+  } catch (error) {
+    console.error("❌ Error deleting images from S3:", error);
+    res.status(500).json({ error: "Failed to delete images", details: error.message });
+  }
+};
+
+module.exports = { getPresignedUrl, deleteImage, deleteImages };

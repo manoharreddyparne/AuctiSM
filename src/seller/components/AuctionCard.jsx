@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import BidUpdates from "./BidUpdates"; // Adjust the path if needed
+import BidUpdates from "./BidUpdates"; 
 import "./AuctionCard.css";
 
 const AuctionCard = ({ auction, darkMode, authToken }) => {
@@ -39,7 +39,7 @@ const AuctionCard = ({ auction, darkMode, authToken }) => {
           <h3>{auction.productName}</h3>
           <p>{auction.description.substring(0, 100)}...</p>
           <p className="price">Base Price: ₹{auction.basePrice}</p>
-          {/* Embed the BidUpdates component to show live bid info */}
+  
           <BidUpdates auctionId={auction._id} authToken={authToken} />
         </div>
 

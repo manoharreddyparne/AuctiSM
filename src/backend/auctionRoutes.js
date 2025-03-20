@@ -1,20 +1,11 @@
-// auctionRoutes.js
 const express = require("express");
 const router = express.Router();
 const mongoose = require("mongoose");
 const Auction = require("./auctionModel");
 const authMiddleware = require("./authMiddleware");
 const { deleteImageFromS3 } = require("../utils/uploadS3");
-const auctionController = require("./auctionController"); // Import updated controller
-
-// Utility: Check if ObjectId is valid
+const auctionController = require("./auctionController"); 
 const isValidObjectId = (id) => mongoose.Types.ObjectId.isValid(id);
-
-// ---------------------
-// Public Endpoint
-// ---------------------
-// Get all auctions without requiring authentication.
-// This endpoint is used by the default_dashboard so that auctions are visible even when the user is not logged in.
 router.get("/public", async (req, res) => {
   try {
     const auctions = await Auction.find({});
@@ -25,11 +16,6 @@ router.get("/public", async (req, res) => {
   }
 });
 
-// ---------------------
-// Protected Endpoints
-// ---------------------
-
-// ✅ Create Auction (Authenticated Users Only)
 router.post("/create", authMiddleware, async (req, res) => {
   try {
     console.log("🔥 Incoming Request Body:", req.body);
@@ -59,7 +45,7 @@ router.post("/create", authMiddleware, async (req, res) => {
       startDateTime: new Date(startDateTime),
       endDateTime: new Date(endDateTime),
       imageUrls: Array.isArray(imageUrls) ? imageUrls : [],
-      registeredUsers: [],  // Stores registration details
+      registeredUsers: [], 
     });
     const savedAuction = await newAuction.save();
     res.status(201).json(savedAuction);
@@ -68,8 +54,6 @@ router.post("/create", authMiddleware, async (req, res) => {
     res.status(500).json({ error: "Failed to save auction", details: error.message });
   }
 });
-
-// Get auctions created by the logged-in seller (My Auctions)
 router.get("/myAuctions", authMiddleware, async (req, res) => {
   try {
     if (!req.userId) {
@@ -83,8 +67,6 @@ router.get("/myAuctions", authMiddleware, async (req, res) => {
   }
 });
 
-// Get all auctions (for default_dashboard & users_dashboard)
-// Note: This endpoint is still protected. Use the public endpoint (/public) for non-authenticated access.
 router.get("/all", authMiddleware, async (req, res) => {
   try {
     const auctions = await Auction.find({});
@@ -94,8 +76,6 @@ router.get("/all", authMiddleware, async (req, res) => {
     res.status(500).json({ error: "Failed to fetch auctions.", details: error.message });
   }
 });
-
-// Get auction by ID
 router.get("/:auctionId", authMiddleware, async (req, res) => {
   try {
     const { auctionId } = req.params;
@@ -113,7 +93,7 @@ router.get("/:auctionId", authMiddleware, async (req, res) => {
   }
 });
 
-// ★ New Route: Get bid details for a specific auction ★
+
 router.get("/:auctionId/bids", authMiddleware, async (req, res) => {
   try {
     const { auctionId } = req.params;
@@ -124,7 +104,7 @@ router.get("/:auctionId/bids", authMiddleware, async (req, res) => {
     if (!auction) {
       return res.status(404).json({ error: "Auction not found" });
     }
-    // Calculate current highest bid; if no bids, use basePrice.
+
     let currentBid = auction.basePrice;
     if (auction.bids && auction.bids.length > 0) {
       currentBid = Math.max(...auction.bids.map(bid => bid.bidAmount));
@@ -136,7 +116,6 @@ router.get("/:auctionId/bids", authMiddleware, async (req, res) => {
   }
 });
 
-// Get registration status for an auction using registeredUsers array
 router.get("/:auctionId/registration-status", authMiddleware, async (req, res) => {
   try {
     const { auctionId } = req.params;
@@ -155,13 +134,10 @@ router.get("/:auctionId/registration-status", authMiddleware, async (req, res) =
   }
 });
 
-// Register for Auction (Delegate to auctionController.registerForAuction)
 router.post("/:auctionId/register", authMiddleware, auctionController.registerForAuction);
 
-// Place a Bid on an Auction (Delegate to auctionController.placeBid)
 router.post("/:auctionId/bid", authMiddleware, auctionController.placeBid);
 
-// Update an Auction
 router.put("/:auctionId", authMiddleware, async (req, res) => {
   try {
     const { auctionId } = req.params;
@@ -183,7 +159,6 @@ router.put("/:auctionId", authMiddleware, async (req, res) => {
   }
 });
 
-// Delete an Auction
 router.delete("/:auctionId", authMiddleware, async (req, res) => {
   try {
     const { auctionId } = req.params;
@@ -194,7 +169,7 @@ router.delete("/:auctionId", authMiddleware, async (req, res) => {
     if (!auction) {
       return res.status(404).json({ error: "Auction not found" });
     }
-    // Delete images from the S3 bucket if any
+
     if (auction.imageUrls?.length > 0) {
       await Promise.all(
         auction.imageUrls.map(async (imageUrl) => {

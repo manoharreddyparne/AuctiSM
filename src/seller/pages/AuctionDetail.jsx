@@ -1,5 +1,4 @@
-// src/seller/pages/AuctionDetail.jsx
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { uploadImagesToS3, deleteImageFromS3 } from "../../utils/uploadS3";
 import "./AuctionDetail.css";
@@ -10,7 +9,6 @@ import AuctionForm from "./AuctionForm";
 import BidUpdates from "../components/BidUpdates";
 import BidRanking from "../../users_dashboard/BidRanking";
 
-// Helper function to format a date as "YYYY-MM-DDTHH:mm" in local time.
 const formatDateTimeLocal = (dateInput) => {
   const dt = new Date(dateInput);
   const pad = (n) => (n < 10 ? "0" + n : n);
@@ -23,7 +21,6 @@ const formatDateTimeLocal = (dateInput) => {
 };
 
 const AuctionDetail = () => {
-  // Always call hooks at the top
   const { auctionId } = useParams();
   const navigate = useNavigate();
   const authToken = localStorage.getItem("authToken");
@@ -44,7 +41,6 @@ const AuctionDetail = () => {
   const dragStartXRef = useRef(null);
   const isDraggingRef = useRef(false);
 
-  // Dark mode polling (hooks are always called)
   useEffect(() => {
     const interval = setInterval(() => {
       setDarkMode(localStorage.getItem("darkMode") === "enabled");
@@ -52,7 +48,6 @@ const AuctionDetail = () => {
     return () => clearInterval(interval);
   }, []);
 
-  // Fetch auction details and convert date/time fields using the helper
   useEffect(() => {
     if (!auctionId) {
       console.error("Error: Auction ID is missing from the URL.");
@@ -96,7 +91,6 @@ const AuctionDetail = () => {
 
   const auctionStatus = getAuctionStatus();
 
-  // Countdown timer
   useEffect(() => {
     if (auction) {
       const timer = setInterval(() => {
@@ -150,7 +144,30 @@ const AuctionDetail = () => {
     }
   }, [auction]);
 
-  // Delete auction functions
+  const nextImage = useCallback(() => {
+    let next = currentImageIndex + 1;
+    if (next >= auction.imageUrls.length) next = 0;
+    setCurrentImageIndex(next);
+  }, [currentImageIndex, auction]);
+
+  const prevImage = useCallback(() => {
+    let prev = currentImageIndex - 1;
+    if (prev < 0) prev = auction.imageUrls.length - 1;
+    setCurrentImageIndex(prev);
+  }, [currentImageIndex, auction]);
+
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (event.key === "ArrowRight") {
+        nextImage();
+      } else if (event.key === "ArrowLeft") {
+        prevImage();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [nextImage, prevImage]);
+
   const handleDelete = async () => {
     setIsDeleteModalOpen(true);
   };
@@ -158,6 +175,22 @@ const AuctionDetail = () => {
   const confirmDelete = async () => {
     setIsDeleting(true);
     try {
+      if (auction.imageUrls && auction.imageUrls.length > 0) {
+        const fileKeys = auction.imageUrls.map((url) => {
+          const parts = url.split(".com/");
+          return parts[1];
+        });
+        for (const key of fileKeys) {
+          await fetch(`${process.env.REACT_APP_API_URL}/api/aws/s3/delete`, {
+            method: "DELETE",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${authToken}`,
+            },
+            body: JSON.stringify({ fileKey: key }),
+          });
+        }
+      }
       const res = await fetch(`${process.env.REACT_APP_API_URL}/api/auctions/${auctionId}`, {
         method: "DELETE",
         headers: {
@@ -177,8 +210,8 @@ const AuctionDetail = () => {
       setIsDeleteModalOpen(false);
     }
   };
+  
 
-  // Save auction changes handler
   const handleSaveChanges = async () => {
     const now = new Date();
     const newStart = new Date(editedAuction.startDateTime);
@@ -242,11 +275,9 @@ const AuctionDetail = () => {
         <strong>Auction Status: </strong> {countdown}
       </div>
 
-      {/* Seller bid monitoring: display BidUpdates and BidRanking side by side */}
       <div className="bid-info-container">
         <div className="bid-updates-wrapper">
-        <BidUpdates auctionId={auctionId} authToken={authToken} registrations={auction.registeredUsers} />
-
+          <BidUpdates auctionId={auctionId} authToken={authToken} registrations={auction.registeredUsers} />
         </div>
         <div className="bid-ranking-wrapper">
           {auction.bids && auction.bids.length > 0 && (
@@ -255,7 +286,6 @@ const AuctionDetail = () => {
         </div>
       </div>
 
-      {/* Auction Images */}
       <AuctionImages 
         auction={auction}
         currentImageIndex={currentImageIndex}
@@ -267,10 +297,10 @@ const AuctionDetail = () => {
           if (!dragStartXRef.current) return;
           const diffX = dragStartXRef.current - e.touches[0].clientX;
           if (diffX > 50) { 
-            setCurrentImageIndex((prev) => prev + 1); 
+            nextImage(); 
             dragStartXRef.current = null; 
           } else if (diffX < -50) { 
-            setCurrentImageIndex((prev) => prev - 1); 
+            prevImage(); 
             dragStartXRef.current = null; 
           }
         }}
@@ -279,10 +309,10 @@ const AuctionDetail = () => {
           if (!isDraggingRef.current || dragStartXRef.current === null) return;
           const diffX = dragStartXRef.current - e.clientX;
           if (diffX > 50) { 
-            setCurrentImageIndex((prev) => prev + 1); 
+            nextImage(); 
             isDraggingRef.current = false; 
           } else if (diffX < -50) { 
-            setCurrentImageIndex((prev) => prev - 1); 
+            prevImage(); 
             isDraggingRef.current = false; 
           }
         }}
@@ -290,7 +320,6 @@ const AuctionDetail = () => {
         handleThumbnailClick={(index) => setCurrentImageIndex(index)}
       />
 
-      {/* Auction editing form for the seller */}
       <AuctionForm 
         isEditing={isEditing}
         toggleEdit={() => setIsEditing((prev) => !prev)}

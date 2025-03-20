@@ -8,6 +8,17 @@ import "./AuctionRegister.css";
 const AuctionRegister = () => {
   const { auctionId } = useParams();
   const navigate = useNavigate();
+  const [darkMode, setDarkMode] = useState(localStorage.getItem("darkMode") === "enabled");
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const currentDarkMode = localStorage.getItem("darkMode") === "enabled";
+      if (currentDarkMode !== darkMode) {
+        setDarkMode(currentDarkMode);
+      }
+    }, 50);
+    return () => clearInterval(interval);
+  }, [darkMode]);
 
   const [formData, setFormData] = useState({
     fullName: "",
@@ -19,7 +30,6 @@ const AuctionRegister = () => {
   });
   const [error, setError] = useState(null);
   const [message, setMessage] = useState("");
-  const [isRegistered, setIsRegistered] = useState(false);
   const [loading, setLoading] = useState(false);
   const [showTermsModal, setShowTermsModal] = useState(false);
 
@@ -28,18 +38,19 @@ const AuctionRegister = () => {
       try {
         const token = localStorage.getItem("authToken");
         if (!token) return;
-        const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/auctions/${auctionId}/registration-status`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const response = await axios.get(
+          `${process.env.REACT_APP_API_URL}/api/auctions/${auctionId}/registration-status`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
         if (response.data.isRegistered) {
-          setIsRegistered(true);
+          navigate(`/auction-detail/${auctionId}`);
         }
       } catch (error) {
         console.error("Error checking registration status:", error);
       }
     };
     checkRegistrationStatus();
-  }, [auctionId]);
+  }, [auctionId, navigate]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -50,12 +61,10 @@ const AuctionRegister = () => {
     e.preventDefault();
     setError(null);
     setMessage("");
-
     if (!formData.acceptedTerms) {
       setError("You must accept the Terms and Conditions to register.");
       return;
     }
-
     try {
       setLoading(true);
       const token = localStorage.getItem("authToken");
@@ -63,15 +72,12 @@ const AuctionRegister = () => {
         setError("Unauthorized: Please log in to register.");
         return;
       }
-
       const response = await axios.post(
         `${process.env.REACT_APP_API_URL}/api/auctions/${auctionId}/register`,
         formData,
         { headers: { Authorization: `Bearer ${token}` } }
       );
-
       setMessage(response.data.message || "Successfully registered for the auction!");
-      setIsRegistered(true);
       setTimeout(() => navigate(`/auction-detail/${auctionId}`), 1500);
     } catch (error) {
       setError(error.response?.data?.error || "Registration failed.");
@@ -93,11 +99,10 @@ const AuctionRegister = () => {
   };
 
   return (
-    <div className="auction-register-container">
+    <div className={`auction-register-container ${darkMode ? "dark-mode" : ""}`}>
       <h2>Auction Registration</h2>
-
-      {isRegistered ? (
-        <p className="success-message">✅ You are already registered for this auction.</p>
+      {message ? (
+        <p className="success-message">✅ {message}</p>
       ) : (
         <form onSubmit={handleSubmit}>
           <label>Full Name:</label>
@@ -109,7 +114,6 @@ const AuctionRegister = () => {
             onChange={handleChange}
             required
           />
-
           <label>Email Address:</label>
           <input
             type="email"
@@ -119,7 +123,6 @@ const AuctionRegister = () => {
             onChange={handleChange}
             required
           />
-
           <label>Mobile Number:</label>
           <input
             type="tel"
@@ -129,7 +132,6 @@ const AuctionRegister = () => {
             onChange={handleChange}
             required
           />
-
           <label>Payment Details (e.g., UPI ID):</label>
           <input
             type="text"
@@ -139,7 +141,6 @@ const AuctionRegister = () => {
             onChange={handleChange}
             required
           />
-
           <label>Additional Info:</label>
           <textarea
             name="additionalInfo"
@@ -147,7 +148,6 @@ const AuctionRegister = () => {
             value={formData.additionalInfo}
             onChange={handleChange}
           ></textarea>
-
           <div className="terms-container">
             <input
               type="checkbox"
@@ -162,7 +162,6 @@ const AuctionRegister = () => {
               </span>
             </label>
           </div>
-
           <div className="button-group">
             <button type="submit" disabled={!formData.acceptedTerms || loading}>
               {loading ? <LoadingOverlay /> : "Register"}
@@ -173,10 +172,7 @@ const AuctionRegister = () => {
           </div>
         </form>
       )}
-
       {error && <p className="error-message">❌ {error}</p>}
-      {message && <p className="success-message">✅ {message}</p>}
-
       {showTermsModal && (
         <div className="modal-overlay">
           <div className="modal-content">

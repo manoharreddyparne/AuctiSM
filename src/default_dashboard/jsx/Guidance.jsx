@@ -18,7 +18,7 @@ const Guidance = () => {
       </div>
 
       <Container className="py-5">
-        {/* How to Get Started Section */}
+
         <Row id="how-to-get-started" className="mb-5">
           <Col>
             <h2 className="guidance-section-title">How to Get Started</h2>
@@ -32,7 +32,6 @@ const Guidance = () => {
           </Col>
         </Row>
 
-        {/* Auction Participation */}
         <Row id="participation" className="mb-5">
           <Col>
             <h2 className="guidance-section-title">How to Participate in an Auction</h2>
@@ -45,7 +44,6 @@ const Guidance = () => {
           </Col>
         </Row>
 
-        {/* Frequently Asked Questions */}
         <Row id="faqs" className="mb-5">
           <Col>
             <h2 className="guidance-section-title">Frequently Asked Questions</h2>
@@ -59,7 +57,6 @@ const Guidance = () => {
           </Col>
         </Row>
 
-        {/* Tips & Tricks Section */}
         <Row id="tips" className="mb-5">
           <Col>
             <h2 className="guidance-section-title">Tips and Tricks for Winning Auctions</h2>
@@ -72,7 +69,6 @@ const Guidance = () => {
           </Col>
         </Row>
 
-        {/* Contact and Support */}
         <Row id="support" className="text-center mb-5">
           <Col>
             <h2 className="guidance-section-title">Need Help? Contact Support</h2>

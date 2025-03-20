@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 
-// Helper to truncate a name (e.g., first 3 and last 3 characters)
+
 const truncateName = (name) => {
   if (!name) return "Anonymous";
   if (name.length <= 6) return name;
@@ -41,7 +41,7 @@ const BidUpdates = ({ auctionId, authToken, registrations = [] }) => {
       }
     };
 
-    // Initial fetch and then poll every 2 seconds
+
     fetchBids();
     const interval = setInterval(fetchBids, 2000);
     return () => clearInterval(interval);

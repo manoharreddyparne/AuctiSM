@@ -29,7 +29,7 @@ const ImageLightbox = ({ images, initialIndex = 0, onClose, darkMode, productTit
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [handleKeyDown]);
 
-  // Touch events for mobile
+
   const handleTouchStart = (event) => {
     touchStartX.current = event.touches[0].clientX;
   };
@@ -41,7 +41,6 @@ const ImageLightbox = ({ images, initialIndex = 0, onClose, darkMode, productTit
     else if (deltaX < -50) prevImage();
   };
 
-  // Mouse events for drag/swipe (works with mousepad)
   const handleMouseDown = (event) => {
     isMouseDown.current = true;
     mouseStartX.current = event.clientX;

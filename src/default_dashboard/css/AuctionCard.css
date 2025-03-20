@@ -1,4 +1,3 @@
-/* Default Light Mode */
 .auction-card {
   width: 100%;
   max-width: 300px;
@@ -12,14 +11,12 @@
   background-position: center;
 }
 
-/* Dark Mode for Auction Card ONLY */
 .dark-mode .auction-card {
-  background: rgba(40, 40, 40, 0.85) !important; /* Dark but slightly transparent */
+  background: rgba(40, 40, 40, 0.85) !important; 
   backdrop-filter: blur(5px);
   color: white;
 }
 
-/* Ensure the image remains visible in dark mode */
 .auction-card .auction-image-container {
   width: 100%;
   height: 200px;
@@ -37,12 +34,10 @@
   object-position: center;
 }
 
-/* Prevent images from darkening */
 .dark-mode .auction-card .auction-image {
   filter: none !important;
 }
 
-/* Text styles in dark mode */
 .dark-mode .auction-card .auction-details {
   color: white;
 }
@@ -55,20 +50,17 @@
   color: #ff6b6b;
 }
 
-/* Hover effect */
 .auction-card:hover {
   transform: scale(1.05);
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
 }
 
-/* Mobile Responsiveness */
 @media (max-width: 768px) {
   .auction-card {
     max-width: 100%;
   }
 }
 
-/* === Make Other Sections Transparent Instead of Black in Dark Mode === */
 .dark-mode .gy-4,
 .dark-mode .g-0,
 .dark-mode .row,

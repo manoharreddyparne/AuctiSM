@@ -51,7 +51,6 @@ const Auctions = () => {
             onLoadMore={setVisibleRecent}
           />
 
-          {/* Top Bid This Month */}
           <h2 className="text-center mb-4">Top Bid This Month</h2>
           <Row>
             {topBidAuctions.slice(0, visibleTopBid).map((auction) => (

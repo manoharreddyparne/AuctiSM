@@ -25,12 +25,11 @@ function AuctionDetailParticipant() {
   const [bidStatusMsg, setBidStatusMsg] = useState("");
   const darkMode = localStorage.getItem("darkMode") === "enabled";
   const API_BASE_URL = process.env.REACT_APP_API_URL;
-  
-  // Lightbox state
+
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
   
-  // Slider current index for image indicator
+
   const [currentSlide, setCurrentSlide] = useState(0);
 
   const getLocalUserId = () => {
@@ -42,17 +41,16 @@ function AuctionDetailParticipant() {
           const userObj = JSON.parse(userData);
           userId = userObj?.id;
         } catch (e) {
-          // ignore parse error
+          console.log(e);
         }
       }
     }
     return userId;
   };
 
-  // Helper sleep function for delaying execution
   const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
-  // Polling: Fetch auction details from the API every 3 seconds
+
   const fetchAuctionDetails = useCallback(async () => {
     const token = localStorage.getItem("authToken");
     if (!token) {
@@ -164,7 +162,7 @@ function AuctionDetailParticipant() {
       setAuction(response.data.auction);
       setBidAmount("");
       setBidSuccess("Bid placed successfully!");
-      // Wait for 4 seconds before updating bid status message
+
       await sleep(4000);
       if (isUserTop()) {
         setBidStatusMsg("Your bid is currently top. Please wait until others outbid you before placing a new bid.");
@@ -195,7 +193,6 @@ function AuctionDetailParticipant() {
     }
   };
 
-  // Lightbox handlers
   const openLightbox = (index) => {
     setLightboxIndex(index);
     setLightboxOpen(true);
@@ -284,7 +281,7 @@ function AuctionDetailParticipant() {
           {isRegistered ? (
             <p className="already-registered">Already Registered</p>
           ) : (
-            <button className="register-button" onClick={handleRegister}>
+            <button className="register-auction-button" onClick={handleRegister}>
               Register for Auction
             </button>
           )}

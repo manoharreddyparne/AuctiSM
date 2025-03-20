@@ -12,8 +12,6 @@ if (!JWT_SECRET || !JWT_REFRESH_SECRET) {
   console.error("❌ JWT_SECRET or JWT_REFRESH_SECRET is missing! Check your config.");
   process.exit(1);
 }
-
-// Helper function to generate tokens
 const generateTokens = (user) => {
   const accessToken = jwt.sign(
     { userId: user._id, email: user.email },
@@ -27,8 +25,6 @@ const generateTokens = (user) => {
   );
   return { accessToken, refreshToken };
 };
-
-// Manual Register
 const register = async (req, res) => {
   try {
     const { fullName, email, phone, dob, address, password } = req.body;
@@ -66,8 +62,6 @@ const register = async (req, res) => {
     res.status(500).json({ message: 'Error creating user. Please try again.' });
   }
 };
-
-// Manual Login
 const login = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -80,7 +74,6 @@ const login = async (req, res) => {
       return res.status(400).json({ message: "User not found" });
     }
 
-    // Prevent manual login if the password has not been set yet.
     if (user.needsPassword === true) {
       console.warn("🔴 Manual login not allowed: Password not set. Please log in with Google and reset your password.");
       return res.status(400).json({ 
@@ -194,8 +187,6 @@ const setPassword = async (req, res) => {
     if (!password || password.length < 6) {
       return res.status(400).json({ message: "Password must be at least 6 characters long." });
     }
-
-    // Instead of hashing here, assign the plain text password
     user.password = password;
     user.authProvider = "manual";
     user.needsPassword = false;
@@ -215,8 +206,6 @@ const setPassword = async (req, res) => {
   }
 };
 
-
-// Reset Password (Manual Reset)
 const resetPassword = async (req, res) => {
   try {
     const { email, newPassword } = req.body;
@@ -247,8 +236,6 @@ const resetPassword = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
-
-// Refresh Token Route
 const refreshToken = async (req, res) => {
   try {
     const { token } = req.body;

@@ -11,7 +11,7 @@ export const AuthProvider = ({ children }) => {
   const [needsPassword, setNeedsPassword] = useState(false);
   const navigate = useNavigate();
 
-//  Logout function - Removes token and user data
+
 const logout = useCallback(() => {
   console.log("🔴 Logging out user...");
   localStorage.removeItem("authToken"); 
@@ -23,17 +23,14 @@ const logout = useCallback(() => {
   navigate("/login", { replace: true });
 }, [navigate]);
 
-  // Login function - Stores token and user data
-  // Login function - Stores token and user data
+
 const login = async (token, userData) => {
   console.log("🔵 Storing auth token and user data...");
 
-  // Store token and user data in local storage
   localStorage.setItem("authToken", token);
   localStorage.setItem("user", JSON.stringify(userData));
   setUser(userData);
 
-  // Check if user needs to set a password
   if (userData?.needsPassword) {
     console.warn("🔴 User needs to set a password. Redirecting to reset page.");
     localStorage.setItem("needsPassword", "true");
@@ -48,19 +45,18 @@ const login = async (token, userData) => {
     const profile = response.data;
     console.log("🟢 Profile fetched:", profile);
 
-    // Handle profile-related state
     setNeedsPassword(profile.needsPassword);
     if (profile.needsPassword) {
       console.warn("🔴 Profile indicates password reset needed.");
       localStorage.setItem("needsPassword", "true");
       navigate("/reset-password", { replace: true });
     } else {
-      // If no password reset needed, navigate to main page
+
       navigate("/mainpage", { replace: true });
     }
   } catch (error) {
     console.error("❌ Error fetching profile:", error.response?.data || error.message);
-    navigate("/login", { replace: true });  // Redirect to login page
+    navigate("/login", { replace: true }); 
   }
 };
 

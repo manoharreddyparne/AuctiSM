@@ -14,10 +14,8 @@ const Login = () => {
   const { login } = useContext(AuthContext);
   const navigate = useNavigate();
 
-  // Controls display of the ResetPasswordModal (only for Google login flow)
   const [showModal, setShowModal] = useState(false);
 
-  // Handle Manual Login (via email and password)
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
@@ -35,7 +33,6 @@ const Login = () => {
       const data = await response.json();
       console.log("🟢 Manual login response received:", data);
 
-      // Debug logs for reset flags
       console.log("DEBUG: data.needsPassword =", data.needsPassword);
       console.log("DEBUG: data.user?.needsPassword =", data.user ? data.user.needsPassword : undefined);
 
@@ -43,9 +40,6 @@ const Login = () => {
         try {
           const decodedUser = jwtDecode(data.token);
           console.log("🟢 Decoded token:", decodedUser);
-
-          // For manual login, if the response indicates password is not set,
-          // do not open the modal. Instead, show an error message.
           if (
             (data.message && data.message.includes("reset")) ||
             data.needsPassword === true ||
@@ -56,7 +50,6 @@ const Login = () => {
             return;
           }
 
-          // Otherwise, proceed with normal login.
           localStorage.setItem("authToken", data.token);
           localStorage.setItem("user", JSON.stringify(data.user || {}));
           login(data.token, data.user);
@@ -78,7 +71,6 @@ const Login = () => {
     }
   };
 
-  // Handle Google Login
   const handleGoogleLogin = async (googleResponse) => {
     console.log("🔵 Google login received:", googleResponse);
 
@@ -92,7 +84,6 @@ const Login = () => {
       const data = await response.json();
       console.log("🟣 Google login response:", data);
 
-      // Debug logs for reset flags
       console.log("DEBUG: data.needsPassword =", data.needsPassword);
       console.log("DEBUG: data.user?.needsPassword =", data.user ? data.user.needsPassword : undefined);
 
@@ -107,23 +98,17 @@ const Login = () => {
             return;
           }
 
-          // Merge the top-level needsPassword flag into the user object.
           const userData = { ...data.user, needsPassword: data.needsPassword };
 
           localStorage.setItem("authToken", data.token);
           localStorage.setItem("user", JSON.stringify(userData));
           localStorage.setItem("email", userData.email);
-
-          // If the backend indicates a password reset is needed for Google users,
-          // show the modal.
           if (data.needsPassword === true) {
             console.log("🟠 Google login indicates password reset is needed.");
-            login(data.token, userData); // update context if needed
+            login(data.token, userData); 
             setShowModal(true);
             return;
           }
-
-          // Otherwise, proceed normally.
           login(data.token, userData);
           console.log("🟢 Redirecting to mainpage...");
           navigate("/mainpage");
@@ -140,8 +125,6 @@ const Login = () => {
       setError("Something went wrong with Google login.");
     }
   };
-
-  // Handle Password Reset (called by the modal for Google users)
   const handleSetPassword = async (newPassword) => {
     console.log("🔵 Setting password for user...");
     try {
@@ -150,8 +133,6 @@ const Login = () => {
         setError("No email found. Try logging in again.");
         return;
       }
-
-      // Build payload to match your signup flow.
       const payload = {
         email: storedEmail,
         password: newPassword,
@@ -182,8 +163,6 @@ const Login = () => {
       setError("Something went wrong.");
     }
   };
-
-  // Handle Skip Password Reset (for Google users via the modal)
   const handleSkipPassword = () => {
     console.log("🔵 User skipped setting password.");
     setShowModal(false);
@@ -228,7 +207,6 @@ const Login = () => {
               }}
             />
           </div>
-          {/* Render the external ResetPasswordModal (only for Google users) */}
           <ResetPasswordModal
             isOpen={showModal}
             userEmail={localStorage.getItem("email") || ""}

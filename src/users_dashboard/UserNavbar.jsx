@@ -60,12 +60,12 @@ const UserNavbar = ({ searchQuery, setSearchQuery }) => {
               { path: "/mainpage/help", label: "Help" },
               { path: "/mainpage/contact", label: "Contact" },
               { path: "/mainpage/my-auctions", label: "My Auctions" },
-               // New "My Auctions" button
+
             ].map(({ path, label }, index) => (
               <NavLink
                 key={index}
                 to={path}
-                end={path === "/mainpage"} // Only active on exact path match
+                end={path === "/mainpage"} 
                 className={({ isActive }) =>
                   `nav-link ${isActive ? "active" : ""}`
                 }
@@ -76,12 +76,11 @@ const UserNavbar = ({ searchQuery, setSearchQuery }) => {
             ))}
           </Nav>
 
-          {/* Dark Mode Toggle */}
+
           <div className="dark-mode-toggle" onClick={toggleDarkMode}>
             {darkMode ? <FaSun className="toggle-icon sun" /> : <FaMoon className="toggle-icon moon" />}
           </div>
 
-          {/* Search Bar */}
           <Form className="search-form">
             <FaSearch className="search-icon" onClick={handleSearch} />
             <input
@@ -95,7 +94,6 @@ const UserNavbar = ({ searchQuery, setSearchQuery }) => {
             />
           </Form>
 
-          {/* Profile & Logout buttons (Only visible when user is logged in) */}
           {isLoggedIn && (
             <div className="auth-buttons">
               <Button as={Link} to="/mainpage/profile" variant="outline-primary" className="btn-custom">

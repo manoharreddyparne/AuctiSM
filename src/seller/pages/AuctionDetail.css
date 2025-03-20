@@ -112,6 +112,12 @@
   right: 10px;
 }
 
+@media (max-width: 768px) {
+  .carousel-btn {
+    display: none;
+  }
+}
+
 .dot-indicators {
   display: flex;
   justify-content: center;
@@ -227,7 +233,6 @@
   background: rgba(255, 0, 0, 0.9);
 }
 
-/* Seller bid monitoring containers */
 .bid-info-container {
   display: flex;
   gap: 10px;
@@ -243,7 +248,6 @@
   padding: 10px;
 }
 
-/* Info, success, error messages */
 .info-text {
   font-size: 16px;
   font-weight: bold;

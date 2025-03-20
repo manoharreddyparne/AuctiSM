@@ -1,152 +1,244 @@
-
-.auction-register-container {
-  max-width: 500px;
-  margin: 20px auto;
+.auction-detail {
+  position: relative;
+  max-width: 1200px;
+  margin: 100px auto 20px;
   padding: 20px;
-  background-color: #f8f9fa;
+  font-family: Arial, sans-serif;
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid #e0e0e0;
   border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-.auction-register-container h2 {
-  text-align: center;
+.auction-detail.dark {
+  background: rgba(0, 0, 0, 0.85);
+  border-color: #444;
+  color: #eee;
+}
+
+.header-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
   margin-bottom: 20px;
 }
 
-.auction-register-container form {
-  display: flex;
-  flex-direction: column;
+.back-arrow {
+  align-self: flex-start;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1.3rem;
+  color: #333;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
 }
 
-.auction-register-container label {
-  margin-bottom: 5px;
+.back-arrow:hover {
+  background: rgba(83, 6, 236, 0.7);
+  color: black;
+}
+
+.auction-detail.dark .back-arrow {
+  background: rgba(83, 6, 236, 0.7);
+  color: #eee;
+}
+
+.product-name-container {
+  margin-top: 40px;
+}
+
+.auction-detail h1 {
+  margin: 0;
+  font-size: 2rem;
+  color: inherit;
+}
+
+.countdown {
+  font-size: 1.2rem;
+  margin-bottom: 20px;
+  color: #d9534f;
+  text-align: center;
+}
+
+.image-gallery {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  user-select: none;
+}
+
+.main-image-container {
+  position: relative;
+  width: 500px;
+  height: 500px;
+  margin-bottom: 10px;
+  overflow: hidden;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+}
+
+.main-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.main-image:hover {
+  transform: scale(1.05);
+}
+
+.carousel-btn,
+.prev-btn,
+.next-btn {
+  display: none !important;
+}
+
+.dot-indicators {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background-color: #ccc;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.dot.active {
+  background-color: #007bff;
+}
+
+.auction-info {
+  margin-top: 20px;
+}
+
+.auction-info label {
+  display: block;
+  margin-bottom: 10px;
   font-weight: bold;
 }
 
-.auction-register-container input,
-.auction-register-container textarea {
-  margin-bottom: 15px;
-  padding: 10px;
-  border: 1px solid #ced4da;
+.auction-info input,
+.auction-info textarea,
+.auction-info select {
+  width: 100%;
+  padding: 8px;
+  margin-top: 4px;
+  box-sizing: border-box;
+  border: 1px solid #ccc;
   border-radius: 4px;
-  font-size: 16px;
 }
 
-.auction-register-container textarea {
-  resize: vertical;
-  min-height: 80px;
-}
-
-.terms-container {
+.price-adjust {
   display: flex;
   align-items: center;
-  margin-bottom: 15px;
+  gap: 5px;
+  margin-top: 5px;
 }
 
-.terms-container input[type="checkbox"] {
-  margin-right: 8px;
+.auction-actions {
+  margin-top: 20px;
+  text-align: center;
 }
 
-.terms-link {
-  color: #007bff;
-  text-decoration: underline;
+.auction-actions button {
+  margin-right: 10px;
+  padding: 10px 20px;
   cursor: pointer;
-}
-
-.button-group {
-  display: flex;
-  justify-content: space-between;
-}
-
-.button-group button {
-  flex: 1;
-  margin: 0 5px;
-  padding: 10px;
-  font-size: 16px;
   border: none;
   border-radius: 4px;
-  cursor: pointer;
+  background-color: #007bff;
+  color: #fff;
+  transition: background-color 0.3s ease;
 }
 
-.button-group button:first-child {
-  background-color: #28a745;
-  color: white;
+.auction-actions button:hover {
+  background-color: #0056b3;
 }
 
-.button-group button:last-child {
-  background-color: #dc3545;
-  color: white;
+.edit-images {
+  margin-top: 20px;
+  border: 1px solid #ddd;
+  padding: 10px;
+  border-radius: 4px;
+  background: #fff;
 }
 
-.error-message {
-  color: #dc3545;
-  margin-top: 10px;
-  text-align: center;
+.image-preview-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
-.success-message {
-  color: #28a745;
-  margin-top: 10px;
-  text-align: center;
+.image-preview {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  overflow: hidden;
 }
 
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
+.image-preview img {
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.7);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-  animation: fadeIn 0.3s ease-in-out;
+  object-fit: cover;
 }
 
-
-.modal-content {
-  background: #fff;
-  padding: 30px;
-  border-radius: 8px;
-  width: 90%;
-  max-width: 600px;
-  max-height: 80%;
-  overflow-y: auto;
-  position: relative;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
-  animation: slideDown 0.3s ease-in-out;
-}
-
-
-.modal-close {
+.image-preview button {
   position: absolute;
-  top: 10px;
-  right: 10px;
-  width: 24px;
-  height: 24px;
-  background-color: #fff;
-  border: 1px solid #ccc;
-  font-size: 18px;
-  color: #333;
-  text-align: center;
-  line-height: 24px;
+  top: 2px;
+  right: 2px;
+  background: rgba(255, 0, 0, 0.7);
+  color: #fff;
+  border: none;
   cursor: pointer;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  font-size: 0.8rem;
+  padding: 2px 5px;
+  border-radius: 2px;
+  transition: background 0.3s ease;
 }
 
-.modal-close:hover {
-  background-color: #f0f0f0;
-  color: #007bff;
+.image-preview button:hover {
+  background: rgba(255, 0, 0, 0.9);
 }
 
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+.bid-info-container {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
 }
 
-@keyframes slideDown {
-  from { transform: translateY(-20px); }
-  to { transform: translateY(0); }
+.bid-updates-wrapper,
+.bid-ranking-wrapper {
+  flex: 1;
+  max-height: 250px;
+  overflow-y: auto;
+  border: 1px solid #ccc;
+  padding: 10px;
+}
+
+.info-text {
+  font-size: 16px;
+  font-weight: bold;
+  color: red;
+  margin-top: 10px;
+}
+
+.success {
+  color: green;
+  font-weight: bold;
+}
+
+.error {
+  color: red;
+  font-weight: bold;
 }

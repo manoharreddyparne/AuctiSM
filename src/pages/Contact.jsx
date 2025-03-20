@@ -7,7 +7,7 @@ const Contact = () => {
     <footer className="w-100 bg-dark text-white py-5">
       <Container fluid className="px-0">
         <Row className="mx-0">
-          {/* Buyer Section */}
+
           <Col md={3} className="mb-4">
             <h4 className="fw-bold">Buyer Section</h4>
             <ul className="list-unstyled">
@@ -18,7 +18,7 @@ const Contact = () => {
             </ul>
           </Col>
 
-          {/* Seller Section */}
+
           <Col md={3} className="mb-4">
             <h4 className="fw-bold">Seller Section</h4>
             <ul className="list-unstyled">
@@ -29,7 +29,7 @@ const Contact = () => {
             </ul>
           </Col>
 
-          {/* Useful Resources */}
+
           <Col md={3} className="mb-4">
             <h4 className="fw-bold">Resources</h4>
             <ul className="list-unstyled">
@@ -40,7 +40,7 @@ const Contact = () => {
             </ul>
           </Col>
 
-          {/* Contact Information */}
+
           <Col md={3} className="mb-4">
             <h4 className="fw-bold">Contact Us</h4>
             <p><FaMapMarkerAlt /> 123 Auction Street, Tech City</p>

@@ -1,7 +1,6 @@
 const mongoose = require("mongoose");
 const Auction = require("./auctionModel");
 
-// Create Auction
 exports.createAuction = async (req, res) => {
   try {
     console.log("🔵 Creating auction:");
@@ -50,7 +49,6 @@ exports.createAuction = async (req, res) => {
   }
 };
 
-// Get All Auctions (for non-sellers)
 exports.getAllAuctions = async (req, res) => {
   try {
     if (!req.userId) {
@@ -69,7 +67,6 @@ exports.getAllAuctions = async (req, res) => {
   }
 };
 
-// Register for Auction
 exports.registerForAuction = async (req, res) => {
   try {
     if (!req.userId) {
@@ -123,7 +120,6 @@ exports.registerForAuction = async (req, res) => {
   }
 };
 
-// Get All Participants for an Auction
 exports.getAuctionParticipants = async (req, res) => {
   try {
     const auctionId = req.params.auctionId;
@@ -144,7 +140,6 @@ exports.getAuctionParticipants = async (req, res) => {
   }
 };
 
-// Place a Bid on an Auction
 exports.placeBid = async (req, res) => {
   try {
     if (!req.userId) {

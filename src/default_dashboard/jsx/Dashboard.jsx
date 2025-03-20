@@ -10,12 +10,11 @@ const Dashboard = () => {
   const [auctions, setAuctions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showLoginModal, setShowLoginModal] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);  // Track login status
+  const [isLoggedIn, setIsLoggedIn] = useState(false);  
   const [isDarkMode, setIsDarkMode] = useState(localStorage.getItem("darkMode") === "enabled");
 
   const navigate = useNavigate();
 
-  // Fetch auctions on mount
   useEffect(() => {
     const fetchAuctions = async () => {
       try {
@@ -30,9 +29,8 @@ const Dashboard = () => {
     fetchAuctions();
   }, []);
 
-  // Check if user is logged in
   useEffect(() => {
-    const token = localStorage.getItem("authToken"); // Get auth token from localStorage
+    const token = localStorage.getItem("authToken"); 
     if (token) {
       setIsLoggedIn(true);
     } else {
@@ -40,7 +38,6 @@ const Dashboard = () => {
     }
   }, []);
 
-  // Listen for storage events to update dark mode in real time
   useEffect(() => {
     const handleStorageChange = () => {
       setIsDarkMode(localStorage.getItem("darkMode") === "enabled");
@@ -49,12 +46,10 @@ const Dashboard = () => {
     return () => window.removeEventListener("storage", handleStorageChange);
   }, []);
 
-  // Update document body class based on dark mode
   useEffect(() => {
     document.body.classList.toggle("dark-mode", isDarkMode);
   }, [isDarkMode]);
 
-  // Compute auction status
   const computeStatus = (auction) => {
     const now = new Date();
     const start = new Date(auction.startDateTime);
@@ -70,23 +65,21 @@ const Dashboard = () => {
     categorizedAuctions[status].push(auction);
   });
 
-  // Handle auction click (show login modal if not logged in)
   const handleAuctionClick = (e) => {
     e.preventDefault();
     e.stopPropagation();
 
     if (!isLoggedIn) {
-      // If user is not logged in, show the login modal
+
       setShowLoginModal(true);
     } else {
-      // If logged in, handle auction click (navigate to auction detail)
       navigate(`/auction-detail/${e.target.closest('.auction-item').id}`);
     }
   };
 
   const handleModalYes = () => {
     setShowLoginModal(false);
-    navigate("/login"); // Navigate to login page after user confirms
+    navigate("/login"); 
   };
 
   if (loading) return <p>Loading auctions...</p>;

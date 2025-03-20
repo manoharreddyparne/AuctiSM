@@ -1,4 +1,4 @@
-/* Container for Auction Details */
+
 .auction-detail-container {
   max-width: 90%;
   width: 800px;
@@ -16,7 +16,7 @@
   color: #fff !important;
 }
 
-/* Back Button */
+
 .back-button {
   background: none;
   border: none;
@@ -31,7 +31,6 @@
   color: #0056b3;
 }
 
-/* Auction Title */
 .auction-title {
   font-size: 26px;
   font-weight: bold;
@@ -40,7 +39,6 @@
   text-align: center;
 }
 
-/* Auction Description */
 .auction-description {
   font-size: 16px;
   color: #000 !important;
@@ -52,12 +50,12 @@
   color: #fff !important;
 }
 
-/* Auction Image Gallery */
+
 .auction-gallery {
   margin-top: 15px;
   max-width: 100%;
   overflow: hidden;
-  position: relative; /* For positioning the index indicator */
+  position: relative; 
 }
 
 .auction-image {
@@ -73,7 +71,7 @@
   transform: scale(1.05);
 }
 
-/* Image Index Indicator */
+
 .image-index {
   position: absolute;
   bottom: 10px;
@@ -91,7 +89,6 @@
   color: white;
 }
 
-/* Bid Section */
 .bid-section {
   margin-top: 15px;
   padding: 15px;
@@ -101,7 +98,7 @@
   text-align: center;
 }
 
-/* Bid Input and Buttons */
+
 .bid-input-container {
   display: flex;
   align-items: center;
@@ -139,7 +136,6 @@
   background-color: #0b5ed7;
 }
 
-/* Action Buttons */
 .bid-action-buttons {
   display: flex;
   justify-content: center;
@@ -162,14 +158,45 @@
   background-color: #1b5e20;
 }
 
-/* Disabled Button */
+
+.register-auction-button {
+  display: inline-block;
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #6a11cb, #2575fc);
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 18px;
+  font-weight: bold;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  margin: 10px auto;
+}
+
+.register-auction-button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.register-auction-button:active {
+  transform: scale(0.98);
+}
+
+
+.dark-mode .register-auction-button {
+  background: linear-gradient(135deg, #444, #222);
+  color: #fff;
+}
+
 button:disabled {
   background-color: #ddd !important;
   color: #999 !important;
   cursor: not-allowed !important;
 }
 
-/* Status Messages */
+
 .info-text {
   font-size: 16px;
   font-weight: bold;
@@ -187,7 +214,7 @@ button:disabled {
   font-weight: bold;
 }
 
-/* Auction Ended & Status */
+
 .auction-ended {
   font-size: 18px;
   font-weight: bold;
@@ -233,7 +260,6 @@ button:disabled {
   background-color: #424242;
 }
 
-/* Responsive Design */
 @media (max-width: 1024px) {
   .auction-title {
     font-size: 22px;
@@ -295,6 +321,11 @@ button:disabled {
   .registration-closed {
     font-size: 14px;
   }
+
+  .register-auction-button {
+    padding: 10px 20px;
+    font-size: 16px;
+  }
 }
 
 @media (max-width: 480px) {
@@ -314,5 +345,10 @@ button:disabled {
   .bid-increment-buttons button {
     font-size: 10px;
     padding: 5px 8px;
+  }
+
+  .register-auction-button {
+    padding: 8px 16px;
+    font-size: 14px;
   }
 }

@@ -1,41 +1,38 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Contact from "../../pages/Contact";
-import AuctionList from "./AuctionList"; // Assuming this component now manages the modal
+import AuctionList from "./AuctionList"; 
 
 
 const Home = () => {
-  // Read dark mode from localStorage
+
   const [isDarkMode, setIsDarkMode] = useState(() => localStorage.getItem("darkMode") === "enabled");
   const [auctions, setAuctions] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Function to update dark mode state from localStorage
+
   const updateDarkMode = () => {
     const mode = localStorage.getItem("darkMode") === "enabled";
     setIsDarkMode(mode);
   };
 
-  // Listen for localStorage changes (works across tabs)
   useEffect(() => {
     window.addEventListener("storage", updateDarkMode);
 
-    // Override localStorage.setItem to detect changes instantly
     const originalSetItem = localStorage.setItem;
     localStorage.setItem = function (key, value) {
       originalSetItem.apply(this, arguments);
       if (key === "darkMode") {
-        updateDarkMode(); // Update immediately when darkMode changes
+        updateDarkMode(); 
       }
     };
 
     return () => {
       window.removeEventListener("storage", updateDarkMode);
-      localStorage.setItem = originalSetItem; // Restore original function
+      localStorage.setItem = originalSetItem; 
     };
   }, []);
 
-  // Fetch auctions from the API
   useEffect(() => {
     const fetchAuctions = async () => {
       try {

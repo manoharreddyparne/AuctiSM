@@ -22,7 +22,7 @@ const CustomNavbar = ({ searchQuery, setSearchQuery }) => {
     document.body.classList.toggle("dark-mode", newMode);
   };
 
-  // Apply dark mode on page load
+
   useEffect(() => {
     if (darkMode) {
       document.body.classList.add("dark-mode");
@@ -78,12 +78,12 @@ const CustomNavbar = ({ searchQuery, setSearchQuery }) => {
             ))}
           </Nav>
 
-          {/* Dark Mode Toggle */}
+
           <div className="dark-mode-toggle" onClick={toggleDarkMode}>
             {darkMode ? <FaSun className="toggle-icon sun" /> : <FaMoon className="toggle-icon moon" />}
           </div>
 
-          {/* Search Bar */}
+
           <Form className="search-form">
             <FaSearch className="search-icon" onClick={handleSearch} />
             <input
@@ -96,7 +96,7 @@ const CustomNavbar = ({ searchQuery, setSearchQuery }) => {
             />
           </Form>
 
-          {/* Authentication Buttons */}
+ 
           <div className="auth-buttons">
             {isLoggedIn ? (
               <>

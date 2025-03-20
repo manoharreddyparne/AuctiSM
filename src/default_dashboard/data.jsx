@@ -1,5 +1,5 @@
 const auctionData = [
-  // Ongoing Auctions
+
   {
     id: 1,
     title: "Vintage car",
@@ -28,7 +28,6 @@ const auctionData = [
     bid: 2100,
   },
 
-  // Upcoming Auctions
   {
     id: 4,
     title: "Rare Painting",
@@ -65,8 +64,7 @@ const auctionData = [
     image: "",
     bid: null,
   },
-  
-  // Recent Auctions (Example for testing)
+
   {
     id: 8,
     title: "Classic Car",
@@ -77,7 +75,6 @@ const auctionData = [
     bid: 10500,
   },
 
-  // Top Bid Today (Example for testing)
   {
     id: 9,
     title: "Diamond Ring",
@@ -87,8 +84,7 @@ const auctionData = [
     image: "",
     bid: 2500,
   },
-  
-  // Winner's List for the Month (Example for testing)
+
   {
     id: 10,
     title: "Vintage Guitar",

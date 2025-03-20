@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
 import Navbar from "./shared_components/Navbar";
 import UserNavbar from "./users_dashboard/UserNavbar";
@@ -20,23 +20,28 @@ function App() {
   const { user, loading, needsPassword, setNeedsPassword } = useContext(AuthContext);
   const navigate = useNavigate();
 
+  const [darkMode, setDarkMode] = useState(localStorage.getItem("darkMode") === "enabled");
   useEffect(() => {
-    // Optional debugging:
-    // console.log("User:", user);
-    // console.log("Needs Password:", needsPassword);
+    const interval = setInterval(() => {
+      const storedDark = localStorage.getItem("darkMode") === "enabled";
+      if (storedDark !== darkMode) {
+        setDarkMode(storedDark);
+      }
+    }, 50);
+    return () => clearInterval(interval);
+  }, [darkMode]);
+
+  useEffect(() => {
+
   }, [user, needsPassword]);
 
   if (loading) {
     return <div className="text-center mt-5">🔄 Loading...</div>;
   }
 
-  // onClose callback for the ResetPasswordModal:
   const handleModalClose = () => {
-    // Clear the password reset flag in both localStorage and context.
     localStorage.setItem("needsPassword", "false");
     setNeedsPassword(false);
-
-    // Optionally update the stored user to remove the needsPassword property.
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
       let userObj = JSON.parse(storedUser);
@@ -50,14 +55,10 @@ function App() {
 
   return (
     <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}>
-      <div className="global-background"></div>
+      <div className={`global-background ${darkMode ? "dark" : "light"}`}></div>
       {user ? <UserNavbar /> : <Navbar />}
-
       <Routes>
-        {/* Public Dashboard Routes */}
         <Route path="/*" element={<DashboardRoutes />} />
-
-        {/* Protected Routes */}
         <Route
           path="/mainpage/*"
           element={
@@ -66,8 +67,6 @@ function App() {
             </PrivateRoute>
           }
         />
-
-        {/* Seller Routes */}
         <Route
           path="/mainpage/my-auctions"
           element={
@@ -92,8 +91,6 @@ function App() {
             </PrivateRoute>
           }
         />
-
-        {/* Participant Auction Detail Route */}
         <Route
           path="/auction-detail/:auctionId"
           element={
@@ -102,8 +99,6 @@ function App() {
             </PrivateRoute>
           }
         />
-
-        {/* Auction Registration Route */}
         <Route
           path="/auction-register/:auctionId"
           element={
@@ -112,8 +107,6 @@ function App() {
             </PrivateRoute>
           }
         />
-
-        {/* Password Reset Route */}
         <Route
           path="/reset-password"
           element={
@@ -124,23 +117,14 @@ function App() {
                 onClose={handleModalClose}
                 onSubmitPassword={async (newPassword) => {
                   try {
-                    // Build payload with email and new password.
-                    const payload = {
-                      email: user.email,
-                      password: newPassword,
-                    };
-                    console.log("Submitting new password with payload:", payload);
-
+                    const payload = { email: user.email, password: newPassword };
                     const response = await fetch(`${process.env.REACT_APP_API_URL}/api/set-password`, {
                       method: "POST",
                       headers: { "Content-Type": "application/json" },
                       body: JSON.stringify(payload),
                     });
                     const data = await response.json();
-                    console.log("Reset password response:", data);
-
                     if (response.ok) {
-                      // On success, clear the flag and navigate away.
                       handleModalClose();
                     } else {
                       throw new Error(data.message || "Error resetting password.");
@@ -155,8 +139,6 @@ function App() {
             )
           }
         />
-
-        {/* Fallback Route */}
         <Route path="*" element={<Navigate to={user ? "/mainpage" : "/"} replace />} />
       </Routes>
     </GoogleOAuthProvider>
