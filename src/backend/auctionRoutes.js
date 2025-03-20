@@ -38,9 +38,9 @@ router.post("/create", authMiddleware, async (req, res) => {
       return res.status(400).json({ error: "Missing required fields" });
     }
     const finalCategory = category === "Other" ? newCategory : category;
-    const tz = timeZone || "UTC";
-    const startUTC = moment.tz(startDateTime, "YYYY-MM-DDTHH:mm", tz).utc().toISOString();
-    const endUTC = moment.tz(endDateTime, "YYYY-MM-DDTHH:mm", tz).utc().toISOString();
+    const tz = timeZone || "Asia/Kolkata";
+    const startUTC = moment.tz(startDateTime, "DD-MM-YYYY HH:mm", tz).utc().toISOString();
+    const endUTC = moment.tz(endDateTime, "DD-MM-YYYY HH:mm", tz).utc().toISOString();
     const newAuction = new Auction({
       sellerId: req.userId,
       productName,
@@ -55,7 +55,7 @@ router.post("/create", authMiddleware, async (req, res) => {
     const savedAuction = await newAuction.save();
     res.status(201).json(savedAuction);
   } catch (error) {
-    console.error("Error saving auction:", error);
+    console.error("❌ Error saving auction:", error);
     res.status(500).json({ error: "Failed to save auction", details: error.message });
   }
 });
@@ -153,13 +153,13 @@ router.put("/:auctionId", authMiddleware, async (req, res) => {
     if (Object.keys(updatedData).length === 0) {
       return res.status(400).json({ error: "No data provided for update" });
     }
-    if (updatedData.startDateTime) {
-      const tz = updatedData.timeZone || "UTC";
-      updatedData.startDateTime = new Date(moment.tz(updatedData.startDateTime, "YYYY-MM-DDTHH:mm", tz).utc().toISOString());
+    if (updatedData.startDateTime && /^\d{2}-\d{2}-\d{4} \d{2}:\d{2}$/.test(updatedData.startDateTime)) {
+      const tz = updatedData.timeZone || "Asia/Kolkata";
+      updatedData.startDateTime = new Date(moment.tz(updatedData.startDateTime, "DD-MM-YYYY HH:mm", tz).utc().toISOString());
     }
-    if (updatedData.endDateTime) {
-      const tz = updatedData.timeZone || "UTC";
-      updatedData.endDateTime = new Date(moment.tz(updatedData.endDateTime, "YYYY-MM-DDTHH:mm", tz).utc().toISOString());
+    if (updatedData.endDateTime && /^\d{2}-\d{2}-\d{4} \d{2}:\d{2}$/.test(updatedData.endDateTime)) {
+      const tz = updatedData.timeZone || "Asia/Kolkata";
+      updatedData.endDateTime = new Date(moment.tz(updatedData.endDateTime, "DD-MM-YYYY HH:mm", tz).utc().toISOString());
     }
     const auction = await Auction.findByIdAndUpdate(auctionId, updatedData, { new: true, runValidators: true });
     if (!auction) {
