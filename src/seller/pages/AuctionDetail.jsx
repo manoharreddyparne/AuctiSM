@@ -11,7 +11,7 @@ import BidRanking from "../../users_dashboard/BidRanking";
 import moment from "moment-timezone";
 
 const formatDateTimeLocal = (dateInput) => {
-  const formatted = moment.utc(dateInput).tz("Asia/Kolkata").format("YYYY-MM-DDTHH:mm");
+  const formatted = moment.utc(dateInput).tz("Asia/Kolkata").format("YYYY-MM-DDTHH:mm:ss");
   console.log("Converted:", dateInput, "->", formatted);
   return formatted;
 };
