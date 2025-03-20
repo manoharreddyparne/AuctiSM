@@ -11,14 +11,15 @@ import BidRanking from "../../users_dashboard/BidRanking";
 import moment from "moment-timezone";
 
 const formatDateTimeLocal = (dateInput) => {
-  return moment.utc(dateInput).tz("Asia/Kolkata").format("YYYY-MM-DDTHH:mm");
+  const formatted = moment.utc(dateInput).tz("Asia/Kolkata").format("YYYY-MM-DDTHH:mm");
+  console.log("Converted:", dateInput, "->", formatted);
+  return formatted;
 };
 
 const AuctionDetail = () => {
   const { auctionId } = useParams();
   const navigate = useNavigate();
   const authToken = localStorage.getItem("authToken");
-
   const [darkMode, setDarkMode] = useState(localStorage.getItem("darkMode") === "enabled");
   const [auction, setAuction] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -31,7 +32,6 @@ const AuctionDetail = () => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-
   const dragStartXRef = useRef(null);
   const isDraggingRef = useRef(false);
 
@@ -44,7 +44,7 @@ const AuctionDetail = () => {
 
   useEffect(() => {
     if (!auctionId) {
-      console.error("Error: Auction ID is missing from the URL.");
+      console.error("Auction ID missing from URL");
       return;
     }
     const fetchAuction = async () => {
