@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from "react";
 import "./CreateAuction.css";
 import { jwtDecode } from "jwt-decode";
@@ -6,6 +5,7 @@ import AuctionForm from "./AuctionForm";
 import { uploadImagesToS3 } from "../../utils/uploadS3";
 import LoadingOverlay from "../../shared_components/LoadingOverlay";
 import { useNavigate } from "react-router-dom";
+import moment from "moment-timezone";
 
 const CreateAuction = () => {
   const initialState = {
@@ -26,13 +26,11 @@ const CreateAuction = () => {
   const [isCreating, setIsCreating] = useState(false);
   const fileInputRef = useRef(null);
   const navigate = useNavigate();
-
-
   const [darkMode, setDarkMode] = useState(localStorage.getItem("darkMode") === "enabled");
+
   useEffect(() => {
     const interval = setInterval(() => {
-      const currentDark = localStorage.getItem("darkMode") === "enabled";
-      setDarkMode(currentDark);
+      setDarkMode(localStorage.getItem("darkMode") === "enabled");
     }, 0);
     return () => clearInterval(interval);
   }, []);
@@ -101,7 +99,6 @@ const CreateAuction = () => {
     const now = new Date();
     const start = new Date(formData.startDateTime);
     const end = new Date(formData.endDateTime);
-
     if (start - now < 60000) {
       tempErrors.startDateTime = "Start date/time must be at least 1 minute from now.";
     }
@@ -115,9 +112,7 @@ const CreateAuction = () => {
       setErrors(tempErrors);
       return;
     }
-
     setIsCreating(true);
-
     try {
       const authToken = localStorage.getItem("authToken");
       if (!authToken) {
@@ -125,7 +120,6 @@ const CreateAuction = () => {
         setIsCreating(false);
         return;
       }
-
       let userId;
       try {
         const decodedToken = jwtDecode(authToken);
@@ -140,25 +134,25 @@ const CreateAuction = () => {
         setIsCreating(false);
         return;
       }
-
       const uploadedImageUrls = await uploadImagesToS3(formData.images);
       if (uploadedImageUrls.length < 3) {
         console.error("Image upload failed or insufficient images.");
         setIsCreating(false);
         return;
       }
-
+      // Convert datetime-local values ("YYYY-MM-DDTHH:mm") to "DD-MM-YYYY HH:mm"
+      const startFormatted = moment(formData.startDateTime).format("DD-MM-YYYY HH:mm");
+      const endFormatted = moment(formData.endDateTime).format("DD-MM-YYYY HH:mm");
       const auctionData = {
         sellerId: userId,
         productName: formData.productName,
         description: formData.description,
         category: formData.category === "Other" ? formData.newCategory : formData.category,
         basePrice: parseInt(formData.basePrice, 10) || 0,
-        startDateTime: formData.startDateTime,
-        endDateTime: formData.endDateTime,
+        startDateTime: startFormatted,
+        endDateTime: endFormatted,
         imageUrls: uploadedImageUrls
       };
-
       const response = await fetch(`${process.env.REACT_APP_API_URL}/api/auctions/create`, {
         method: "POST",
         headers: {
@@ -167,13 +161,11 @@ const CreateAuction = () => {
         },
         body: JSON.stringify(auctionData)
       });
-
       if (!response.ok) {
         const errorDetails = await response.json();
         console.error("Failed to save auction data. Server Response:", errorDetails);
         throw new Error("Failed to save auction data.");
       }
-
       const createdAuction = await response.json();
       navigate(`/mainpage/my-auctions/${createdAuction._id}`, { replace: true });
     } catch (error) {

@@ -11,7 +11,6 @@ import BidRanking from "../../users_dashboard/BidRanking";
 import moment from "moment-timezone";
 
 const formatDateTimeLocal = (dateInput) => {
-  // Interpret the backend UTC ISO string and convert to IST (or any desired timezone)
   return moment.utc(dateInput).tz("Asia/Kolkata").format("YYYY-MM-DDTHH:mm");
 };
 
@@ -54,8 +53,8 @@ const AuctionDetail = () => {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${authToken}`,
-          },
+            Authorization: `Bearer ${authToken}`
+          }
         });
         if (response.ok) {
           const data = await response.json();
@@ -180,9 +179,9 @@ const AuctionDetail = () => {
             method: "DELETE",
             headers: {
               "Content-Type": "application/json",
-              Authorization: `Bearer ${authToken}`,
+              Authorization: `Bearer ${authToken}`
             },
-            body: JSON.stringify({ fileKey: key }),
+            body: JSON.stringify({ fileKey: key })
           });
         }
       }
@@ -190,8 +189,8 @@ const AuctionDetail = () => {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${authToken}`,
-        },
+          Authorization: `Bearer ${authToken}`
+        }
       });
       if (res.ok) {
         navigate("/mainpage/my-auctions");
@@ -231,9 +230,9 @@ const AuctionDetail = () => {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${authToken}`,
+          Authorization: `Bearer ${authToken}`
         },
-        body: JSON.stringify(updatedAuctionData),
+        body: JSON.stringify(updatedAuctionData)
       });
       if (res.ok) {
         const updated = await res.json();
@@ -268,7 +267,6 @@ const AuctionDetail = () => {
       <div className="countdown">
         <strong>Auction Status: </strong> {countdown}
       </div>
-
       <div className="bid-info-container">
         <div className="bid-updates-wrapper">
           <BidUpdates auctionId={auctionId} authToken={authToken} registrations={auction.registeredUsers} />
@@ -279,7 +277,6 @@ const AuctionDetail = () => {
           )}
         </div>
       </div>
-
       <AuctionImages 
         auction={auction}
         currentImageIndex={currentImageIndex}
@@ -313,7 +310,6 @@ const AuctionDetail = () => {
         handleMouseUp={() => { isDraggingRef.current = false; dragStartXRef.current = null; }}
         handleThumbnailClick={(index) => setCurrentImageIndex(index)}
       />
-
       <AuctionForm 
         isEditing={isEditing}
         toggleEdit={() => setIsEditing((prev) => !prev)}

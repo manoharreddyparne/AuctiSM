@@ -13,7 +13,6 @@ router.get("/public", async (req, res) => {
     const auctions = await Auction.find({});
     res.json(auctions);
   } catch (error) {
-    console.error("Error fetching public auctions:", error);
     res.status(500).json({ error: "Failed to fetch auctions.", details: error.message });
   }
 });
@@ -39,23 +38,22 @@ router.post("/create", authMiddleware, async (req, res) => {
     }
     const finalCategory = category === "Other" ? newCategory : category;
     const tz = timeZone || "Asia/Kolkata";
-    const startUTC = moment.tz(startDateTime, "DD-MM-YYYY HH:mm", tz).utc().toISOString();
-    const endUTC = moment.tz(endDateTime, "DD-MM-YYYY HH:mm", tz).utc().toISOString();
+    const startUTC = moment.tz(startDateTime, "DD-MM-YYYY HH:mm", tz).toDate();
+    const endUTC = moment.tz(endDateTime, "DD-MM-YYYY HH:mm", tz).toDate();
     const newAuction = new Auction({
       sellerId: req.userId,
       productName,
       description,
       category: finalCategory,
       basePrice: parseFloat(basePrice),
-      startDateTime: new Date(startUTC),
-      endDateTime: new Date(endUTC),
+      startDateTime: startUTC,
+      endDateTime: endUTC,
       imageUrls: Array.isArray(imageUrls) ? imageUrls : [],
       registeredUsers: []
     });
     const savedAuction = await newAuction.save();
     res.status(201).json(savedAuction);
   } catch (error) {
-    console.error("❌ Error saving auction:", error);
     res.status(500).json({ error: "Failed to save auction", details: error.message });
   }
 });
@@ -68,7 +66,6 @@ router.get("/myAuctions", authMiddleware, async (req, res) => {
     const auctions = await Auction.find({ sellerId: req.userId });
     res.json(auctions);
   } catch (error) {
-    console.error("Error fetching auctions for seller:", error);
     res.status(500).json({ error: "Failed to fetch auctions.", details: error.message });
   }
 });
@@ -78,7 +75,6 @@ router.get("/all", authMiddleware, async (req, res) => {
     const auctions = await Auction.find({});
     res.json(auctions);
   } catch (error) {
-    console.error("Error fetching auctions in /all:", error);
     res.status(500).json({ error: "Failed to fetch auctions.", details: error.message });
   }
 });
@@ -95,7 +91,6 @@ router.get("/:auctionId", authMiddleware, async (req, res) => {
     }
     res.json(auction);
   } catch (error) {
-    console.error("Error fetching auction:", error);
     res.status(500).json({ error: "Failed to fetch auction.", details: error.message });
   }
 });
@@ -116,7 +111,6 @@ router.get("/:auctionId/bids", authMiddleware, async (req, res) => {
     }
     res.status(200).json({ currentBid, bids: auction.bids });
   } catch (error) {
-    console.error("Error fetching bids:", error);
     res.status(500).json({ error: "Server error", details: error.message });
   }
 });
@@ -134,7 +128,6 @@ router.get("/:auctionId/registration-status", authMiddleware, async (req, res) =
     );
     res.json({ isRegistered });
   } catch (error) {
-    console.error("Error checking registration status:", error);
     res.status(500).json({ error: "Failed to check registration status", details: error.message });
   }
 });
@@ -155,11 +148,11 @@ router.put("/:auctionId", authMiddleware, async (req, res) => {
     }
     if (updatedData.startDateTime && /^\d{2}-\d{2}-\d{4} \d{2}:\d{2}$/.test(updatedData.startDateTime)) {
       const tz = updatedData.timeZone || "Asia/Kolkata";
-      updatedData.startDateTime = new Date(moment.tz(updatedData.startDateTime, "DD-MM-YYYY HH:mm", tz).utc().toISOString());
+      updatedData.startDateTime = moment.tz(updatedData.startDateTime, "DD-MM-YYYY HH:mm", tz).toDate();
     }
     if (updatedData.endDateTime && /^\d{2}-\d{2}-\d{4} \d{2}:\d{2}$/.test(updatedData.endDateTime)) {
       const tz = updatedData.timeZone || "Asia/Kolkata";
-      updatedData.endDateTime = new Date(moment.tz(updatedData.endDateTime, "DD-MM-YYYY HH:mm", tz).utc().toISOString());
+      updatedData.endDateTime = moment.tz(updatedData.endDateTime, "DD-MM-YYYY HH:mm", tz).toDate();
     }
     const auction = await Auction.findByIdAndUpdate(auctionId, updatedData, { new: true, runValidators: true });
     if (!auction) {
@@ -167,7 +160,6 @@ router.put("/:auctionId", authMiddleware, async (req, res) => {
     }
     res.json(auction);
   } catch (error) {
-    console.error("Error updating auction:", error);
     res.status(500).json({ error: "Failed to update auction.", details: error.message });
   }
 });
@@ -196,7 +188,6 @@ router.delete("/:auctionId", authMiddleware, async (req, res) => {
     await Auction.findByIdAndDelete(auctionId);
     res.json({ message: "Auction deleted successfully" });
   } catch (error) {
-    console.error("Error deleting auction:", error);
     res.status(500).json({ error: "Failed to delete auction", details: error.message });
   }
 });
