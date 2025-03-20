@@ -16,6 +16,7 @@ import AuctionDetail from "./seller/pages/AuctionDetail";
 import AuctionDetailParticipant from "./users_dashboard/AuctionDetailParticipant";
 import AuctionRegister from "./seller/pages/AuctionRegister";
 
+import AdminRoutes from "./admin/routes/AdminRoutes";
 function App() {
   const { user, loading, needsPassword, setNeedsPassword } = useContext(AuthContext);
   const navigate = useNavigate();
@@ -106,7 +107,9 @@ function App() {
               <AuctionRegister />
             </PrivateRoute>
           }
+          
         />
+          <Route path="/admin/*" element={<AdminRoutes />} />
         <Route
           path="/reset-password"
           element={
