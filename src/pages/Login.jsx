@@ -20,7 +20,8 @@ const Login = () => {
     e.preventDefault();
     setError("");
     setLoading(true);
-    console.log("🔵 Attempting manual login with:", { email, password });
+    //debug
+    //console.log(" Attempting manual login with:", { email, password });
 
     try {
       const response = await fetch(`${process.env.REACT_APP_API_URL}/api/login`, {
@@ -31,21 +32,23 @@ const Login = () => {
       });
 
       const data = await response.json();
-      console.log("🟢 Manual login response received:", data);
-
-      console.log("DEBUG: data.needsPassword =", data.needsPassword);
-      console.log("DEBUG: data.user?.needsPassword =", data.user ? data.user.needsPassword : undefined);
+      //debug
+      //console.log(" Manual login response received:", data);
+      
+      //console.log("DEBUG: data.needsPassword =", data.needsPassword);
+      //console.log("DEBUG: data.user?.needsPassword =", data.user ? data.user.needsPassword : undefined);
 
       if (response.ok && data.token) {
         try {
-          const decodedUser = jwtDecode(data.token);
-          console.log("🟢 Decoded token:", decodedUser);
+          
+          //debug
+          //console.log(" Decoded token:", decodedUser);
           if (
             (data.message && data.message.includes("reset")) ||
             data.needsPassword === true ||
             (data.user && data.user.needsPassword === true)
           ) {
-            console.warn("🔴 Manual login: Password reset required. Please use Google sign-in.");
+            console.warn(" Manual login: Password reset required. Please use Google sign-in.");
             setError("Password not set. Please log in with Google and reset your password.");
             return;
           }
@@ -55,16 +58,16 @@ const Login = () => {
           login(data.token, data.user);
           navigate("/mainpage");
         } catch (decodeError) {
-          console.error("❌ JWT Decode Error:", decodeError);
+          console.error(" JWT Decode Error:", decodeError);
           setError("Token decoding failed. Please try again.");
         }
       } else {
-        console.warn("⚠️ Manual login failed:", data);
+        console.warn(" Manual login failed:", data);
         setError(data.message || "Login failed. Please try again.");
         localStorage.removeItem("authToken");
       }
     } catch (err) {
-      console.error("🔴 Manual login error:", err);
+      console.error(" Manual login error:", err);
       setError("Something went wrong. Please try again.");
     } finally {
       setLoading(false);
@@ -72,7 +75,8 @@ const Login = () => {
   };
 
   const handleGoogleLogin = async (googleResponse) => {
-    console.log("🔵 Google login received:", googleResponse);
+    //debug
+    //console.log("Google login received:", googleResponse);
 
     try {
       const response = await fetch(`${process.env.REACT_APP_API_URL}/api/google-login`, {
@@ -82,18 +86,20 @@ const Login = () => {
       });
 
       const data = await response.json();
-      console.log("🟣 Google login response:", data);
+      //debug
+      //console.log(" Google login response:", data);
 
-      console.log("DEBUG: data.needsPassword =", data.needsPassword);
-      console.log("DEBUG: data.user?.needsPassword =", data.user ? data.user.needsPassword : undefined);
+      //console.log("DEBUG: data.needsPassword =", data.needsPassword);
+      //console.log("DEBUG: data.user?.needsPassword =", data.user ? data.user.needsPassword : undefined);
 
       if (data.token) {
         try {
           const decodedUser = jwtDecode(data.token);
-          console.log("🟢 Decoded Google JWT:", decodedUser);
+          //debug
+          //console.log(" Decoded Google JWT:", decodedUser);
 
           if (!decodedUser.userId || !decodedUser.email) {
-            console.error("❌ Google token missing required fields:", decodedUser);
+            console.error(" Google token missing required fields:", decodedUser);
             setError("Invalid Google token received. Please try again.");
             return;
           }
@@ -104,29 +110,30 @@ const Login = () => {
           localStorage.setItem("user", JSON.stringify(userData));
           localStorage.setItem("email", userData.email);
           if (data.needsPassword === true) {
-            console.log("🟠 Google login indicates password reset is needed.");
+            console.log(" Google login indicates password reset is needed.");
             login(data.token, userData); 
             setShowModal(true);
             return;
           }
           login(data.token, userData);
-          console.log("🟢 Redirecting to mainpage...");
+          console.log("Redirecting to mainpage...");
           navigate("/mainpage");
         } catch (decodeError) {
-          console.error("❌ JWT Decode Error:", decodeError);
+          console.error(" JWT Decode Error:", decodeError);
           setError("Failed to decode Google token.");
         }
       } else {
-        console.warn("⚠️ Google login failed:", data);
+        console.warn(" Google login failed:", data);
         setError(data.message || "Google login failed.");
       }
     } catch (err) {
-      console.error("🔴 Error in Google login:", err);
+      console.error(" Error in Google login:", err);
       setError("Something went wrong with Google login.");
     }
   };
   const handleSetPassword = async (newPassword) => {
-    console.log("🔵 Setting password for user...");
+    //debug
+    //console.log("Setting password for user...");
     try {
       const storedEmail = localStorage.getItem("email");
       if (!storedEmail) {
@@ -138,8 +145,8 @@ const Login = () => {
         password: newPassword,
         authProvider: "manual"
       };
-
-      console.log("Submitting new password with payload:", payload);
+      //debug
+      //console.log("Submitting new password with payload:", payload);
 
       const response = await fetch(`${process.env.REACT_APP_API_URL}/api/set-password`, {
         method: "POST",
@@ -148,23 +155,25 @@ const Login = () => {
       });
 
       const data = await response.json();
-      console.log("🔵 Password reset response:", data);
+      //debug
+      //console.log(" Password reset response:", data);
 
       if (response.ok) {
         alert("Password set successfully. You can now log in manually.");
         setShowModal(false);
         navigate("/mainpage");
       } else {
-        console.warn("⚠️ Password reset failed:", data);
+        console.warn(" Password reset failed:", data);
         setError(data.message || "Error setting password.");
       }
     } catch (err) {
-      console.error("🔴 Error in setting password:", err);
+      console.error(" Error in setting password:", err);
       setError("Something went wrong.");
     }
   };
   const handleSkipPassword = () => {
-    console.log("🔵 User skipped setting password.");
+    //debug
+    //console.log(" User skipped setting password.");
     setShowModal(false);
     navigate("/mainpage");
   };

@@ -10,8 +10,9 @@ require("dotenv").config();
 const router = express.Router();
 
 router.use((req, res, next) => {
-  console.log("🔵 Incoming Request:", req.method, req.url);
-  console.log("🔹 Headers:", req.headers);
+  //debug
+  //console.log(" Incoming Request:", req.method, req.url);
+  //console.log(" Headers:", req.headers);
   next();
 });
 
@@ -22,23 +23,27 @@ router.post("/reset-password", resetPassword);
 
 router.get("/profile", authenticate, async (req, res) => {
   try {
-    console.log("🟢 Fetching profile for user ID:", req.userId);
+    //debug
+    //console.log(" Fetching profile for user ID:", req.userId);
 
     if (!req.userId) {
-      console.log("❌ No userId found in token.");
+      //debug
+      //console.log(" No userId found in token.");
       return res.status(401).json({ message: "Unauthorized: Invalid token" });
     }
 
     const user = await User.findById(req.userId).select("-password -__v");
     if (!user) {
-      console.log("❌ User not found:", req.userId);
+      //debug
+      //console.log(" User not found:", req.userId);
       return res.status(404).json({ message: "User not found" });
     }
 
-    console.log("✅ Profile data fetched successfully:", user);
+    //debug
+    //console.log("✅ Profile data fetched successfully:", user);
     res.status(200).json(user);
   } catch (error) {
-    console.error("❌ Error fetching profile:", error);
+    console.error(" Error fetching profile:", error);
     res.status(500).json({ message: "Server error" });
   }
 });
@@ -50,18 +55,18 @@ router.post("/set-password", async (req, res) => {
     }
     const user = await User.findOne({ email });
     if (!user) {
-      console.log("❌ User not found:", email);
+      console.log(" User not found:", email);
       return res.status(404).json({ message: "User not found" });
     }
     user.password = await bcrypt.hash(password, 10);
     user.authProvider = "manual";
     user.needsPassword = false;
     await user.save();
-
-    console.log(`🟢 Password set successfully for user: ${email}`);
+    //debug
+    //console.log(` Password set successfully for user: ${email}`);
     res.status(200).json({ message: "Password set successfully" });
   } catch (error) {
-    console.error("❌ Error setting password:", error);
+    console.error(" Error setting password:", error);
     res.status(500).json({ message: "Internal server error" });
   }
 });
@@ -96,7 +101,7 @@ router.post("/login", async (req, res) => {
     );
     res.status(200).json({ token, needsPassword: user.needsPassword });
   } catch (error) {
-    console.error("❌ Login error:", error);
+    console.error(" Login error:", error);
     res.status(500).send("Internal server error");
   }
 });

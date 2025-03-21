@@ -37,7 +37,8 @@ const AuctionList = ({ type, auctions = [], isDarkMode }) => {
 
 
   useEffect(() => {
-    console.log(`AuctionList (${type}): Found ${filteredAuctions.length} auctions`);
+    //debug
+    //console.log(`AuctionList (${type}): Found ${filteredAuctions.length} auctions`);
   }, [filteredAuctions, type]);
 
 

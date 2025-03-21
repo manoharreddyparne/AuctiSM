@@ -27,7 +27,7 @@ const getPresignedUrl = async (req, res) => {
     const uploadURL = await s3.getSignedUrlPromise("putObject", params);
     res.status(200).json({ uploadURL, fileKey });
   } catch (error) {
-    console.error("❌ Error generating pre-signed URL:", error);
+    console.error(" Error generating pre-signed URL:", error);
     res.status(500).json({
       error: "Failed to generate pre-signed URL",
       details: error.message,
@@ -49,7 +49,7 @@ const deleteImage = async (req, res) => {
     await s3.deleteObject(params).promise();
     res.status(200).json({ message: "Image deleted successfully" });
   } catch (error) {
-    console.error("❌ Error deleting image from S3:", error);
+    console.error(" Error deleting image from S3:", error);
     res.status(500).json({ error: "Failed to delete image", details: error.message });
   }
 };
@@ -71,7 +71,8 @@ const deleteImages = async (req, res) => {
     await s3.deleteObjects(params).promise();
     res.status(200).json({ message: "Images deleted successfully" });
   } catch (error) {
-    console.error("❌ Error deleting images from S3:", error);
+    //debug
+    //console.error(" Error deleting images from S3:", error);
     res.status(500).json({ error: "Failed to delete images", details: error.message });
   }
 };

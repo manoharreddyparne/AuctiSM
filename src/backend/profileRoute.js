@@ -5,7 +5,8 @@ const User = require("./userModel");
 
 router.get("/", verifyToken, async (req, res) => {
   try {
-    console.log("🔍 Fetching user profile for:", req.user.userId);
+    //debug
+    //console.log("🔍 Fetching user profile for:", req.user.userId);
 
     if (!req.user || !req.user.userId) {
       console.error("❌ Invalid token payload");
@@ -15,7 +16,7 @@ router.get("/", verifyToken, async (req, res) => {
     const user = await User.findById(req.user.userId).select("fullName email googleId password");
 
     if (!user) {
-      console.log("❌ User not found:", req.user.userId);
+      console.log("User not found:", req.user.userId);
       return res.status(404).json({ message: "User not found" });
     }
 
@@ -31,7 +32,7 @@ router.get("/", verifyToken, async (req, res) => {
       user: { name: user.fullName, email: user.email, googleLogin: false },
     });
   } catch (error) {
-    console.error("❌ Error fetching user profile:", error);
+    console.error("Error fetching user profile:", error);
     res.status(500).json({ message: "Server error" });
   }
 });

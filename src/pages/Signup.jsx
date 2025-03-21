@@ -23,7 +23,8 @@ const Signup = () => {
   useEffect(() => {
     const token = localStorage.getItem("authToken");
     if (token) {
-      console.log("User already logged in, redirecting to main page...");
+      //debug
+      //console.log("User already logged in, redirecting to main page...");
       navigate("/mainpage");
     }
   }, [navigate]);
@@ -51,9 +52,11 @@ const Signup = () => {
     e.preventDefault();
     if (!validateForm()) return;
     try {
-      console.log("Sending signup request...", formData);
+      //debug
+      //console.log("Sending signup request...", formData);
       const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/signup`, formData);
-      console.log("Signup successful:", response.data);
+      //debug
+      // console.log("Signup successful:", response.data);
       localStorage.setItem("authToken", response.data.token);
       localStorage.setItem("user", JSON.stringify(response.data.user));
       axios.defaults.headers.common["Authorization"] = `Bearer ${response.data.token}`;
@@ -68,7 +71,8 @@ const Signup = () => {
   };
 
   const handleGoogleSuccess = async (response) => {
-    console.log("Google authentication success:", response);
+    //debug
+    //console.log("Google authentication success:", response);
     try {
       const res = await axios.post(`${process.env.REACT_APP_API_URL}/api/google-login`, {
         credential: response.credential,
@@ -79,11 +83,13 @@ const Signup = () => {
         localStorage.setItem("user", JSON.stringify(res.data.user));
         axios.defaults.headers.common["Authorization"] = `Bearer ${res.data.token}`;
         if (res.data.needsPassword) {
-          console.log("🟠 New Google User - Showing Password Reset Modal...");
+          //debug
+          //console.log(" New Google User - Showing Password Reset Modal...");
           setGoogleEmail(res.data.user.email);
           setShowPasswordModal(true);
         } else {
-          console.log("🟢 Existing Google User - Redirecting to Main Page...");
+          //debug
+          //console.log(" Existing Google User - Redirecting to Main Page...");
           navigate("/mainpage");
         }
       }
@@ -99,7 +105,8 @@ const Signup = () => {
         email: googleEmail,
         newPassword,
       });
-      console.log("Password reset successful:", res.data);
+      //debug
+      //console.log("Password reset successful:", res.data);
       navigate("/mainpage");
     } catch (error) {
       console.error("Password reset failed:", error);

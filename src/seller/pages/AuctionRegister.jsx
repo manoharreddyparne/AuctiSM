@@ -46,7 +46,8 @@ const AuctionRegister = () => {
           navigate(`/auction-detail/${auctionId}`);
         }
       } catch (error) {
-        console.error("Error checking registration status:", error);
+        //debug
+        //console.error("Error checking registration status:", error);
       }
     };
     checkRegistrationStatus();

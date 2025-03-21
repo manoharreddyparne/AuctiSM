@@ -19,7 +19,9 @@ const PrivateRoute = ({ children }) => {
   }
 
   if (user && needsPassword) {
-    console.warn("🔴 User needs to set a password. Redirecting to /reset-password...");
+
+    //debug
+    // console.warn(" User needs to set a password. Redirecting to /reset-password...");
     return <Navigate to="/reset-password" state={{ from: location }} replace />;
   }
 
@@ -28,7 +30,8 @@ const PrivateRoute = ({ children }) => {
   }
 
 
-  console.warn("🔴 User is not authenticated. Redirecting to /login...");
+  //debug
+  // console.warn(" User is not authenticated. Redirecting to /login...");
   return <Navigate to="/login" state={{ from: location }} replace />;
 };
 

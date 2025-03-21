@@ -9,7 +9,8 @@ const { JWT_SECRET, JWT_REFRESH_SECRET } = require('./config/config.js');
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 if (!JWT_SECRET || !JWT_REFRESH_SECRET) {
-  console.error("❌ JWT_SECRET or JWT_REFRESH_SECRET is missing! Check your config.");
+  //debug
+  //console.error(" JWT_SECRET or JWT_REFRESH_SECRET is missing! Check your config.");
   process.exit(1);
 }
 const generateTokens = (user) => {
@@ -28,11 +29,13 @@ const generateTokens = (user) => {
 const register = async (req, res) => {
   try {
     const { fullName, email, phone, dob, address, password } = req.body;
-    console.log("🟢 Registering user:", email);
+    //debug
+    //console.log(" Registering user:", email);
 
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      console.warn("⚠️ User already exists:", email);
+      //debug
+      //console.warn(" User already exists:", email);
       return res.status(400).json({ message: 'User already exists' });
     }
 
@@ -49,7 +52,8 @@ const register = async (req, res) => {
     });
 
     await newUser.save();
-    console.log("✅ User registered successfully:", email);
+    //debug
+    //console.log(" User registered successfully:", email);
     const { accessToken, refreshToken } = generateTokens(newUser);
     res.status(201).json({ 
       message: 'User created successfully',
@@ -58,15 +62,16 @@ const register = async (req, res) => {
       user: { id: newUser._id, email: newUser.email }
     });
   } catch (error) {
-    console.error('🚨 Error creating user:', error);
+    console.error('Error creating user:', error);
     res.status(500).json({ message: 'Error creating user. Please try again.' });
   }
 };
 const login = async (req, res) => {
   try {
     const { email, password } = req.body;
-    console.log("🔵 Login attempt for:", email);
-    console.log("Received password:", password);
+    //debug
+    //console.log("Login attempt for:", email);
+    //console.log("Received password:", password);
 
     const user = await User.findOne({ email }).select("+password");
     if (!user) {
@@ -75,7 +80,8 @@ const login = async (req, res) => {
     }
 
     if (user.needsPassword === true) {
-      console.warn("🔴 Manual login not allowed: Password not set. Please log in with Google and reset your password.");
+      //debug
+      //console.warn(" Manual login not allowed: Password not set. Please log in with Google and reset your password.");
       return res.status(400).json({ 
         message: "Password not set. Please log in with Google and reset your password.", 
         needsPassword: true 
@@ -83,24 +89,26 @@ const login = async (req, res) => {
     }
 
     if (!user.password) {
-      console.warn("🔴 No password set for user. Must reset password before manual login.");
+      //debug
+      //console.warn(" No password set for user. Must reset password before manual login.");
       return res.status(400).json({ 
         message: "Please reset your password to log in manually.", 
         needsPassword: true 
       });
     }
-
-    console.log("Stored password hash:", user.password);
+    //debug
+    //console.log("Stored password hash:", user.password);
     const isMatch = await bcrypt.compare(password.trim(), user.password);
-    console.log("bcrypt.compare result:", isMatch);
+    //console.log("bcrypt.compare result:", isMatch);
 
     if (!isMatch) {
-      console.warn("❌ Invalid credentials for:", email);
+      console.warn(" Invalid credentials for:", email);
       return res.status(400).json({ message: "Invalid credentials" });
     }
 
     const { accessToken, refreshToken } = generateTokens(user);
-    console.log("✅ Login successful for:", email);
+    //debug 
+    // console.log(" Login successful for:", email);
     res.status(200).json({ 
       message: "Login successful", 
       token: accessToken, 
@@ -108,7 +116,7 @@ const login = async (req, res) => {
       user: { id: user._id, email: user.email }
     });
   } catch (error) {
-    console.error("🚨 Error in login:", error);
+    console.error(" Error in login:", error);
     res.status(500).json({ message: "Login failed. Please try again." });
   }
 };
@@ -143,11 +151,13 @@ const googleLogin = async (req, res) => {
         needsPassword: true,
       });
       await user.save();
-      console.log("✅ New Google user created:", email);
+      //for debug
+      // console.log(" New Google user created:", email);
     } else if (!user.password) {
       user.needsPassword = true;
       await user.save();
-      console.log("🔵 Google user exists but needs a password:", email);
+      //debug
+      // console.log(" Google user exists but needs a password:", email);
     } else {
       user.needsPassword = false;
       await user.save();
@@ -177,7 +187,8 @@ const googleLogin = async (req, res) => {
 const setPassword = async (req, res) => {
   try {
     const { email, password } = req.body;
-    console.log("🔵 Setting password for user:", email);
+    //debug
+    // console.log(" Setting password for user:", email);
 
     const user = await User.findOne({ email });
     if (!user) return res.status(400).json({ message: "User not found" });
@@ -191,8 +202,8 @@ const setPassword = async (req, res) => {
     user.authProvider = "manual";
     user.needsPassword = false;
     await user.save();
-
-    console.log("✅ Password set successfully for:", email);
+    //debug
+    // console.log(" Password set successfully for:", email);
     const { accessToken, refreshToken } = generateTokens(user);
     res.json({
       message: "Password set successfully. You can now log in manually.",
@@ -209,7 +220,8 @@ const setPassword = async (req, res) => {
 const resetPassword = async (req, res) => {
   try {
     const { email, newPassword } = req.body;
-    console.log("🔵 Password reset request for:", email);
+    //debug
+    //console.log(" Password reset request for:", email);
 
     const user = await User.findOne({ email });
     if (!user) return res.status(400).json({ message: "User not found" });
@@ -222,8 +234,8 @@ const resetPassword = async (req, res) => {
     user.authProvider = "manual";
     user.needsPassword = false;
     await user.save();
-
-    console.log("✅ Password reset successful for:", email);
+    //debug
+    //console.log(" Password reset successful for:", email);
     const { accessToken, refreshToken } = generateTokens(user);
     res.json({
       message: "Password reset successful. You can now log in manually.",

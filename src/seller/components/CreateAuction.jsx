@@ -140,7 +140,7 @@ const CreateAuction = () => {
         setIsCreating(false);
         return;
       }
-      // Convert datetime-local values ("YYYY-MM-DDTHH:mm") to "DD-MM-YYYY HH:mm"
+
       const startFormatted = moment(formData.startDateTime).format("DD-MM-YYYY HH:mm");
       const endFormatted = moment(formData.endDateTime).format("DD-MM-YYYY HH:mm");
       const auctionData = {

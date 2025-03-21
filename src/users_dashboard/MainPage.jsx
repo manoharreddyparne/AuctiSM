@@ -16,7 +16,8 @@ function MainPage() {
       try {
         const token = localStorage.getItem("authToken");
         if (!token) {
-          console.error("No auth token found. Redirecting to login...");
+          //debug
+          //console.error("No auth token found. Redirecting to login...");
           navigate("/login");
           return;
         }

@@ -23,7 +23,8 @@ const Profile = () => {
 
       logout();
 
-      console.log("✅ All session data cleared.");
+      //debug
+      //console.log(" All session data cleared.");
     } catch (error) {
       console.error("Logout error:", error);
     }
@@ -34,7 +35,7 @@ const Profile = () => {
       const token = localStorage.getItem("authToken");
 
       if (!token) {
-        console.log("❌ No token found, redirecting to login...");
+        console.log(" No token found, redirecting to login...");
         navigate("/login");
         return;
       }
@@ -43,14 +44,14 @@ const Profile = () => {
         const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/profile`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-
-        console.log("✅ Profile data received:", response.data);
+        //debug
+        //console.log(" Profile data received:", response.data);
         setProfileData(response.data);
       } catch (error) {
-        console.error("❌ Error fetching profile:", error);
+        console.error(" Error fetching profile:", error);
 
         if (error.response && error.response.status === 401) {
-          console.log("🚨 Unauthorized: Clearing token and redirecting...");
+          console.log(" Unauthorized: Clearing token and redirecting...");
           clearStorageAndCookies();
           navigate("/login");
         }

@@ -52,11 +52,13 @@ const io = new Server(server, {
 });
 
 io.on("connection", (socket) => {
-  console.log("🔵 User connected:", socket.id);
+  //debug
+  //console.log(" User connected:", socket.id);
 
   socket.on("joinAuction", (auctionId) => {
     socket.join(auctionId);
-    console.log(`Socket ${socket.id} joined auction ${auctionId}`);
+    //debug
+    //console.log(`Socket ${socket.id} joined auction ${auctionId}`);
   });
 
   socket.on("placeBid", async (data) => {
@@ -74,15 +76,17 @@ io.on("connection", (socket) => {
       auction.bids.push({ bidderId: userId, bidAmount, bidTime: new Date() });
       await auction.save();
       io.to(auctionId).emit("bidUpdate", { auctionId, bidAmount, userId });
-      console.log(`Bid placed in auction ${auctionId} by ${userId}: ${bidAmount}`);
+      //debug
+      //console.log(`Bid placed in auction ${auctionId} by ${userId}: ${bidAmount}`);
     } catch (error) {
-      console.error("❌ Error placing bid:", error);
+      console.error("Error placing bid:", error);
       socket.emit("bidError", { code: "SERVER_ERROR", message: "Server error placing bid" });
     }
   });
 
   socket.on("disconnect", () => {
-    console.log("🔴 User disconnected:", socket.id);
+    //debug
+    //console.log("User disconnected:", socket.id);
   });
 });
 
@@ -118,10 +122,11 @@ app.post("/api/reset-password", authenticate, async (req, res) => {
     user.authProvider = "manual";
     user.needsPassword = false;
     await user.save();
-    console.log("Password reset successful for:", user.email);
+    //debug
+    //console.log("Password reset successful for:", user.email);
     res.status(200).json({ message: "Password updated successfully" });
   } catch (error) {
-    console.error("❌ Error resetting password:", error);
+    console.error(" Error resetting password:", error);
     res.status(500).json({ code: "SERVER_ERROR", message: "Server error" });
   }
 });
@@ -144,10 +149,11 @@ app.post("/api/set-password", authenticate, async (req, res) => {
     user.authProvider = "manual";
     user.needsPassword = false;
     await user.save();
-    console.log("Password set successfully for Google user:", user.email);
+    //debug
+    //console.log("Password set successfully for Google user:", user.email);
     res.status(200).json({ message: "Password set successfully. You can now log in manually." });
   } catch (error) {
-    console.error("❌ Error setting password:", error);
+    console.error(" Error setting password:", error);
     res.status(500).json({ code: "SERVER_ERROR", message: "Server error" });
   }
 });
@@ -170,7 +176,7 @@ app.post("/api/register-for-auction", authenticate, async (req, res) => {
     await user.save();
     res.status(200).json({ message: "User successfully registered for the auction" });
   } catch (error) {
-    console.error("❌ Error registering for auction:", error);
+    console.error(" Error registering for auction:", error);
     res.status(500).json({ code: "SERVER_ERROR", message: "Server error registering for auction" });
   }
 });
@@ -180,9 +186,9 @@ app.get("/", (req, res) => {
 });
 
 app.use((req, res, next) => {
-  console.log("🔵 Incoming Request:", req.method, req.url);
-  console.log("🔹 Headers:", req.headers);
-  console.log("🔹 Body:", req.body);
+  // console.log(" Incoming Request:", req.method, req.url);
+  // console.log(" Headers:", req.headers);
+  // console.log(" Body:", req.body);
   next();
 });
 
@@ -192,11 +198,11 @@ mongoose
     console.log("  Connected to MongoDB");
     const PORT = process.env.PORT || 5000;
     server.listen(PORT, () => {
-      console.log(`🚀 Server running on port ${PORT}`);
+      console.log(` Server running on port ${PORT}`);
     });
   })
   .catch((err) => {
-    console.log("MongoDB URI:", config.MONGO_URI ? "✅ Available" : "❌ Not Set");
+    console.log("MongoDB URI:", config.MONGO_URI ? " Available" : " Not Set");
     process.exit(1);
   });
 

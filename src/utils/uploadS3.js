@@ -38,7 +38,8 @@ export const uploadImagesToS3 = async (images) => {
     const uploadedImageUrls = await Promise.all(uploadPromises);
     return uploadedImageUrls.filter((url) => url !== null); 
   } catch (error) {
-    console.error("Error in uploadImagesToS3:", error);
+   //debug 
+    //console.error("Error in uploadImagesToS3:", error);
     return [];
   }
 };
@@ -59,7 +60,9 @@ export const deleteImageFromS3 = async (url) => {
 
     return await response.json(); 
   } catch (error) {
-    console.error("Error deleting image from S3:", error);
+
+    //debug
+    // console.error("Error deleting image from S3:", error);
     throw error;
   }
 };

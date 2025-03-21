@@ -10,12 +10,8 @@ import BidUpdates from "../components/BidUpdates";
 import BidRanking from "../../users_dashboard/BidRanking";
 import moment from "moment-timezone";
 
-const formatDateTimeLocal = (dateInput) => {
-  // Convert stored UTC date back to IST in the format required by datetime-local input
-  const formatted = moment.utc(dateInput).tz("Asia/Kolkata").format("YYYY-MM-DDTHH:mm");
-  console.log("Converted:", dateInput, "->", formatted);
-  return formatted;
-};
+const formatDateTimeLocal = (dateInput) =>
+  moment.utc(dateInput).tz("Asia/Kolkata").format("YYYY-MM-DDTHH:mm");
 
 const AuctionDetail = () => {
   const { auctionId } = useParams();
@@ -223,7 +219,8 @@ const AuctionDetail = () => {
       try {
         await deleteImageFromS3(url);
       } catch (error) {
-        console.error("Error deleting image from S3:", error);
+        //debug
+        //console.error("Error deleting image from S3:", error);
       }
     }
     const finalImageUrls = [...editedAuction.imageUrls, ...newImageUrls];

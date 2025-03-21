@@ -13,7 +13,8 @@ export const AuthProvider = ({ children }) => {
 
 
 const logout = useCallback(() => {
-  console.log("🔴 Logging out user...");
+  //debug
+  //console.log(" Logging out user...");
   localStorage.removeItem("authToken"); 
   localStorage.removeItem("user");
   localStorage.removeItem("needsPassword");
@@ -25,14 +26,16 @@ const logout = useCallback(() => {
 
 
 const login = async (token, userData) => {
-  console.log("🔵 Storing auth token and user data...");
+  //debug
+  //console.log(" Storing auth token and user data...");
 
   localStorage.setItem("authToken", token);
   localStorage.setItem("user", JSON.stringify(userData));
   setUser(userData);
 
   if (userData?.needsPassword) {
-    console.warn("🔴 User needs to set a password. Redirecting to reset page.");
+    //debug
+    //console.warn(" User needs to set a password. Redirecting to reset page.");
     localStorage.setItem("needsPassword", "true");
     navigate("/reset-password", { replace: true });
     return;
@@ -43,11 +46,13 @@ const login = async (token, userData) => {
       headers: { Authorization: `Bearer ${token}` },
     });
     const profile = response.data;
-    console.log("🟢 Profile fetched:", profile);
+    //debug
+    //console.log(" Profile fetched:", profile);
 
     setNeedsPassword(profile.needsPassword);
     if (profile.needsPassword) {
-      console.warn("🔴 Profile indicates password reset needed.");
+      //debig
+      //console.warn("Profile indicates password reset needed.");
       localStorage.setItem("needsPassword", "true");
       navigate("/reset-password", { replace: true });
     } else {
@@ -55,7 +60,7 @@ const login = async (token, userData) => {
       navigate("/mainpage", { replace: true });
     }
   } catch (error) {
-    console.error("❌ Error fetching profile:", error.response?.data || error.message);
+    console.error(" Error fetching profile:", error.response?.data || error.message);
     navigate("/login", { replace: true }); 
   }
 };
@@ -65,7 +70,8 @@ const login = async (token, userData) => {
     const token = localStorage.getItem("authToken");
   
     if (!token) {
-      console.warn("⚠️ No token found. User is not logged in.");
+
+      //console.warn(" No token found. User is not logged in.");
       setUser(null);
       setLoading(false);
       return;
@@ -75,7 +81,7 @@ const login = async (token, userData) => {
       const decoded = jwtDecode(token);
       
       if (decoded.exp * 1000 < Date.now()) {
-        console.warn("⚠️ Token expired. Logging out...");
+        console.warn(" Token expired. Logging out...");
         logout();
         return;
       }
@@ -84,7 +90,9 @@ const login = async (token, userData) => {
       let userData = storedUser ? JSON.parse(storedUser) : { id: decoded.userId, email: decoded.email };
   
       if (userData.needsPassword) {
-        console.warn("🔴 User needs to reset password.");
+
+        //debug
+        // console.warn(" User needs to reset password.");
         setNeedsPassword(true);
         if (window.location.pathname !== "/reset-password") {
           navigate("/reset-password", { replace: true });
@@ -93,7 +101,7 @@ const login = async (token, userData) => {
         setUser({ id: decoded.userId, email: decoded.email, ...userData });
       }
     } catch (error) {
-      console.error("❌ Invalid token:", error);
+      console.error(" Invalid token:", error);
       logout();
     }
   
