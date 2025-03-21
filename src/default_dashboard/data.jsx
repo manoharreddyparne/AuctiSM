@@ -1,283 +1,177 @@
+// data.jsx
 const auctionData = [
-
+  // Ongoing Auctions
   {
     id: 1,
-    title: "Vintage car",
+    productName: "Vintage car",
     basePrice: 150,
     endDate: "2025-02-20",
     status: "ongoing",
-    image: "https://my-auction-images-2025.s3.us-east-1.amazonaws.com/auction-images/1741146851517-Screenshot+(313).png",
+    imageUrls: [
+      "https://my-auction-images-2025.s3.us-east-1.amazonaws.com/static_images/1st.jpeg"
+    ],
     bid: 170000,
   },
   {
     id: 2,
-    title: "Gold Necklace",
+    productName: "Gold Necklace",
     basePrice: 800,
     endDate: "2025-02-27",
     status: "ongoing",
-    image: "https://my-auction-images-2025.s3.us-east-1.amazonaws.com/2nd.jpeg",
+    imageUrls: [
+      "https://my-auction-images-2025.s3.us-east-1.amazonaws.com/static_images/2nd.jpeg"
+    ],
     bid: 900,
   },
   {
     id: 3,
-    title: "Samsung SSD",
+    productName: "Samsung SSD",
     basePrice: 2000,
     endDate: "2025-02-25",
     status: "ongoing",
-    image: "https://my-auction-images-2025.s3.us-east-1.amazonaws.com/3rd.jpeg",
+    imageUrls: [
+      "https://my-auction-images-2025.s3.us-east-1.amazonaws.com/static_images/3rd.jpeg"
+    ],
     bid: 2100,
   },
-
   {
     id: 4,
-    title: "Rare Painting",
-    basePrice: 500,
-    endDate: "2025-02-22",
-    status: "upcoming",
-    image: "",
-    bid: null,
-  },
-  {
-    id: 5,
-    title: "Antique Vase",
-    basePrice: 300,
-    endDate: "2025-02-28",
-    status: "upcoming",
-    image: "",
-    bid: null,
-  },
-  {
-    id: 6,
-    title: "Luxury Handbag",
-    basePrice: 1200,
-    endDate: "2025-03-01",
-    status: "upcoming",
-    image: "",
-    bid: null,
-  },
-  {
-    id: 7,
-    title: "TEMP",
-    basePrice: 1200,
-    endDate: "2025-03-01",
-    status: "upcoming",
-    image: "",
-    bid: null,
-  },
-
-  {
-    id: 8,
-    title: "Classic Car",
-    basePrice: 10000,
-    endDate: "2025-02-18",
-    status: "recent",
-    image: "",
-    bid: 10500,
-  },
-
-  {
-    id: 9,
-    title: "Diamond Ring",
-    basePrice: 2000,
-    endDate: "2025-02-17",
-    status: "topBidToday",
-    image: "",
-    bid: 2500,
-  },
-
-  {
-    id: 10,
-    title: "Vintage Guitar",
-    basePrice: 3000,
-    endDate: "2025-02-05",
-    status: "winner",
-    image: "",
-    bid: 3500,
-    winner: "John Doe",
-  },
-  {
-    id: 11,
-    title: "Vintage Watch",
+    productName: "Vintage Watch",
     basePrice: 150,
     endDate: "2025-02-20",
     status: "ongoing",
-    image: "",
+    imageUrls: [
+      "https://my-auction-images-2025.s3.us-east-1.amazonaws.com/static_images/4th.jpeg"
+    ],
     bid: 170,
   },
   {
-    id: 12,
-    title: "Gold Necklace",
+    id: 5,
+    productName: "Gold Necklace",
     basePrice: 800,
     endDate: "2025-02-27",
     status: "ongoing",
-    image: "",
+    imageUrls: [
+      "https://my-auction-images-2025.s3.us-east-1.amazonaws.com/static_images/5th.jpeg"
+    ],
     bid: 900,
   },
   {
-    id: 13,
-    title: "Samsung SSD",
+    id: 6,
+    productName: "Samsung SSD",
     basePrice: 2000,
     endDate: "2025-02-25",
     status: "ongoing",
-    image: "",
+    imageUrls: [
+      "https://my-auction-images-2025.s3.us-east-1.amazonaws.com/static_images/6th.jpeg"
+    ],
     bid: 2100,
   },
-
-  // Winner's List for the Month (Example for testing)
-  {
-    id: 14,
-    title: "Vintage Guitar",
-    basePrice: 3000,
-    endDate: "2025-02-05",
-    status: "winner",
-    image: "",
-    bid: 3500,
-    winner: "John Doe",
-  },
-  {
-    id: 15,
-    title: "Diamond Ring",
-    basePrice: 2000,
-    endDate: "2025-02-17",
-    status: "topBidToday",
-    image: "",
-    bid: 2500,
-  },
-  {
-    id: 16,
-    title: "Luxury Watch",
-    basePrice: 5000,
-    endDate: "2025-03-01",
-    status: "upcoming",
-    image: "",
-    bid: null,
-  },
-  {
-    id: 17,
-    title: "Modern Artwork",
-    basePrice: 1500,
-    endDate: "2025-03-05",
-    status: "upcoming",
-    image: "",
-    bid: null,
-  },
-  
-  // Additional items for pagination testing
-  {
-    id: 18,
-    title: "Antique Clock",
-    basePrice: 2200,
-    endDate: "2025-04-02",
-    status: "upcoming",
-    image: "",
-    bid: null,
-  },
-  {
-    id: 19,
-    title: "Luxury Sofa",
-    basePrice: 5000,
-    endDate: "2025-05-01",
-    status: "upcoming",
-    image: "",
-    bid: null,
-  },
-  {
-    id: 20,
-    title: "Rare Coins",
-    basePrice: 1000,
-    endDate: "2025-05-15",
-    status: "upcoming",
-    image: "",
-    bid: null,
-  },
-  {
-    id: 21,
-    title: "Vintage car",
-    basePrice: 150,
-    endDate: "2025-02-20",
-    status: "ongoing",
-    image: "",
-    bid: 170000,
-  },
-  
-  {
-    id: 22,
-    title: "Vintage car",
-    basePrice: 150,
-    endDate: "2025-02-20",
-    status: "ongoing",
-    image: "",
-    bid: 170000,
-  },
-  
-  {
-    id: 23,
-    title: "Vintage car",
-    basePrice: 150,
-    endDate: "2025-02-20",
-    status: "ongoing",
-    image: "",
-    bid: 170000,
-  },
-  
-  {
-    id: 23,
-    title: "Vintage car",
-    basePrice: 150,
-    endDate: "2025-02-20",
-    status: "ongoing",
-    image: "",
-    bid: 170000,
-  },
-  
-  {
-    id: 23,
-    title: "Vintage car",
-    basePrice: 150,
-    endDate: "2025-02-20",
-    status: "ongoing",
-    image: "",
-    bid: 170000,
-  },
-  
   {
     id: 24,
-    title: "Vintage car",
+    productName: "Vintage car",
     basePrice: 150,
     endDate: "2025-02-20",
     status: "ongoing",
-    image: "",
+    imageUrls: [
+      "https://my-auction-images-2025.s3.us-east-1.amazonaws.com/static_images/1st.jpeg"
+    ],
     bid: 170000,
   },
-  
+
+  // Recent Auctions
   {
-    id: 25,
-    title: "Vintage car",
-    basePrice: 150,
-    endDate: "2025-02-20",
-    status: "ongoing",
-    image: "",
-    bid: 170000,
-  },
-  
-  {
-    id: 26,
-    title: "Vintage car",
-    basePrice: 150,
-    endDate: "2025-02-20",
-    status: "ongoing",
-    image: "'https://dummyjson.com/icon/abc123/150",
-    bid: 170000,
+    id: 7,
+    productName: "Vintage car - Recent",
+    basePrice: 160,
+    endDate: "2025-03-10",
+    status: "recent",
+    imageUrls: [
+      "https://my-auction-images-2025.s3.us-east-1.amazonaws.com/static_images/1st.jpeg"
+    ],
+    bid: 175000,
   },
   {
-    id: 26,
-    title: "Vintage car",
-    basePrice: 150,
-    endDate: "2025-02-20",
-    status: "ongoing",
-    image: "'https://dummyjson.com/icon/abc123/150",
-    bid: 170000,
+    id: 8,
+    productName: "Gold Necklace - Recent",
+    basePrice: 850,
+    endDate: "2025-03-12",
+    status: "recent",
+    imageUrls: [
+      "https://my-auction-images-2025.s3.us-east-1.amazonaws.com/static_images/2nd.jpeg"
+    ],
+    bid: 950,
   },
+  {
+    id: 9,
+    productName: "Samsung SSD - Recent",
+    basePrice: 2100,
+    endDate: "2025-03-15",
+    status: "recent",
+    imageUrls: [
+      "https://my-auction-images-2025.s3.us-east-1.amazonaws.com/static_images/3rd.jpeg"
+    ],
+    bid: 2200,
+  },
+
+  // Top Bid This Month
+  {
+    id: 10,
+    productName: "Vintage Watch - Top Bid",
+    basePrice: 155,
+    endDate: "2025-03-05",
+    status: "top-bid-this-month",
+    imageUrls: [
+      "https://my-auction-images-2025.s3.us-east-1.amazonaws.com/static_images/4th.jpeg"
+    ],
+    bid: 180,
+  },
+  {
+    id: 11,
+    productName: "Gold Necklace - Top Bid",
+    basePrice: 820,
+    endDate: "2025-03-07",
+    status: "top-bid-this-month",
+    imageUrls: [
+      "https://my-auction-images-2025.s3.us-east-1.amazonaws.com/static_images/5th.jpeg"
+    ],
+    bid: 920,
+  },
+  {
+    id: 12,
+    productName: "Samsung SSD - Top Bid",
+    basePrice: 2050,
+    endDate: "2025-03-09",
+    status: "top-bid-this-month",
+    imageUrls: [
+      "https://my-auction-images-2025.s3.us-east-1.amazonaws.com/static_images/6th.jpeg"
+    ],
+    bid: 2150,
+  },
+  {
+    id: 13,
+    productName: "Vintage car - Winner",
+    basePrice: 150,
+    endDate: "2025-01-20",
+    status: "winner-last-month",
+    imageUrls: [
+      "https://my-auction-images-2025.s3.us-east-1.amazonaws.com/static_images/1st.jpeg"
+    ],
+    bid: 170000,
+    winner: "Manohar reddy",
+  },
+  {
+    id: 14,
+    productName: "Gold Necklace - Winner",
+    basePrice: 800,
+    endDate: "2025-01-27",
+    status: "winner-last-month",
+    imageUrls: [
+      "https://my-auction-images-2025.s3.us-east-1.amazonaws.com/static_images/2nd.jpeg"
+    ],
+    bid: 900,
+    winner: "Rohith Yadav",
+  }
 ];
 
 export default auctionData;

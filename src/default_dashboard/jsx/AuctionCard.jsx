@@ -1,11 +1,8 @@
-import React, { useEffect } from "react";
+// AuctionCard.jsx
+import React from "react";
 import "../css/AuctionCard.css";
 
 const AuctionCard = ({ auction, onCardClick, isDarkMode }) => {
-  useEffect(() => {
-
-  }, [isDarkMode, auction]);
-
   const imageSrc =
     auction.imageUrls && auction.imageUrls.length > 0
       ? auction.imageUrls[0]
@@ -17,9 +14,8 @@ const AuctionCard = ({ auction, onCardClick, isDarkMode }) => {
   return (
     <div
       className={`auction-card ${isDarkMode ? "dark-mode" : ""}`}
-      onClick={() => onCardClick(auction.id)}
+      onClick={() => onCardClick(auction)}
     >
-
       <div className="auction-image-container">
         <img
           src={imageSrc}

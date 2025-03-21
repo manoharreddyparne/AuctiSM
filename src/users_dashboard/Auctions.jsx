@@ -22,7 +22,6 @@ function Auctions() {
         }
         const config = { headers: { Authorization: `Bearer ${token}` } };
         const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/auctions/all`, config);
-        // Exclude auctions created by the logged-in user (assuming sellerId holds the creator's id)
         const allAuctions = response.data.filter(
           (auction) => String(auction.sellerId) !== String(user.id)
         );
