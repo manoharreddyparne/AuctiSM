@@ -1,0 +1,33 @@
+.auctions-section {
+  margin-top: 20px;
+  margin-bottom: 40px;
+  background: transparent;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.contact-section {
+  margin-top: 50px;
+  padding-bottom: 30px;
+}
+
+/* Responsive grid for auction cards (assumes auction-list container) */
+.auction-list {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+@media (max-width: 1200px) {
+  .auction-list {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .auction-list {
+    grid-template-columns: 1fr;
+  }
+}

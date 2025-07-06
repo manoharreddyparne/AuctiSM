@@ -1,244 +1,216 @@
-.auction-detail {
-  position: relative;
-  max-width: 1200px;
-  margin: 100px auto 20px;
-  padding: 20px;
-  font-family: Arial, sans-serif;
-  background: rgba(255, 255, 255, 0.95);
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
+/* ✅ AuctionRegister.css */
+.auction-register-container {
+  max-width: 600px;
+  margin: 50px auto;
+  padding: 30px;
+  background-color: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+  color: #000;
 }
 
-.auction-detail.dark {
-  background: rgba(0, 0, 0, 0.85);
-  border-color: #444;
+.auction-register-container.dark-mode {
+  background-color: #1e1e1e;
   color: #eee;
 }
 
-.header-section {
+input,
+textarea {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 20px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 1rem;
+  background-color: #fff;
+  color: #000;
+}
+
+.auction-register-container.dark-mode input,
+.auction-register-container.dark-mode textarea {
+  background-color: #2a2a2a;
+  color: #fff;
+  border: 1px solid #555;
+}
+
+.button-group {
   display: flex;
-  flex-direction: column;
+  justify-content: space-between;
   gap: 10px;
-  margin-bottom: 20px;
 }
 
-.back-arrow {
-  align-self: flex-start;
-  padding: 8px 12px;
-  background: rgba(255, 255, 255, 0.9);
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 1.3rem;
-  color: #333;
+button {
+  padding: 10px 20px;
+  background-color: #5c6bc0;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
   cursor: pointer;
-  transition: background 0.2s ease, color 0.2s ease;
+  flex: 1;
+  font-size: 1rem;
 }
 
-.back-arrow:hover {
-  background: rgba(83, 6, 236, 0.7);
-  color: black;
+button:hover {
+  background-color: #3f51b5;
 }
 
-.auction-detail.dark .back-arrow {
-  background: rgba(83, 6, 236, 0.7);
-  color: #eee;
-}
-
-.product-name-container {
-  margin-top: 40px;
-}
-
-.auction-detail h1 {
-  margin: 0;
-  font-size: 2rem;
-  color: inherit;
-}
-
-.countdown {
-  font-size: 1.2rem;
-  margin-bottom: 20px;
-  color: #d9534f;
-  text-align: center;
-}
-
-.image-gallery {
+.checkbox-label {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  position: relative;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 0.95rem;
+  margin-bottom: 20px;
+  cursor: pointer;
   user-select: none;
+  line-height: 1.4;
 }
 
-.main-image-container {
-  position: relative;
-  width: 500px;
-  height: 500px;
-  margin-bottom: 10px;
-  overflow: hidden;
-  border: 1px solid #ddd;
-  border-radius: 8px;
+.checkbox-label input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  margin-top: 3px;
+  accent-color: #5c6bc0;
+  cursor: pointer;
+  flex-shrink: 0;
 }
 
-.main-image {
+.terms-link {
+  color: #007bff;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.terms-link:hover {
+  color: #0056b3;
+}
+
+/* 🔧 Fixed Modal Overlay */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
-  object-fit: cover;
-  transition: transform 0.3s ease;
-}
-
-.main-image:hover {
-  transform: scale(1.05);
-}
-
-.carousel-btn,
-.prev-btn,
-.next-btn {
-  display: none !important;
-}
-
-.dot-indicators {
+  padding: 20px;
+  background-color: rgba(0, 0, 0, 0.6);
   display: flex;
   justify-content: center;
-  gap: 8px;
-  margin-top: 10px;
+  align-items: center;
+  z-index: 9999;
+  overflow: auto; /* ✅ allow scrolling for overflow */
 }
 
-.dot {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background-color: #ccc;
+/* ✅ Fixed Modal Box */
+.modal-content {
+  background-color: #fff;
+  color: #000 !important;
+  width: 90%;
+  max-width: 600px;
+  max-height: 90vh;          /* ✅ more space for scroll */
+  overflow: hidden;          /* prevent overflow from layout shift */
+  border-radius: 10px;
+  padding: 0;                /* ✅ padding now goes to inner box */
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+}
+
+/* ✅ Scrollable inner content box */
+.modal-content .terms-content {
+  padding: 25px;
+  overflow-y: auto;
+  max-height: 90vh;
+}
+
+/* ✅ Override dark mode content inside modal */
+.modal-content *,
+.modal-content p,
+.modal-content h1,
+.modal-content h3,
+.modal-content li {
+  color: #000 !important;
+}
+
+/* ✅ Close Button */
+.modal-close {
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  font-size: 1.8rem;
+  background: none;
+  border: none;
+  color: #333;
   cursor: pointer;
-  transition: background-color 0.3s ease;
 }
 
-.dot.active {
-  background-color: #007bff;
+/* ✅ Scrollbar style (optional) */
+.modal-content .terms-content::-webkit-scrollbar {
+  width: 6px;
 }
-
-.auction-info {
-  margin-top: 20px;
-}
-
-.auction-info label {
-  display: block;
-  margin-bottom: 10px;
-  font-weight: bold;
-}
-
-.auction-info input,
-.auction-info textarea,
-.auction-info select {
-  width: 100%;
-  padding: 8px;
-  margin-top: 4px;
-  box-sizing: border-box;
-  border: 1px solid #ccc;
+.modal-content .terms-content::-webkit-scrollbar-thumb {
+  background-color: #aaa;
   border-radius: 4px;
 }
 
-.price-adjust {
+
+/* Success Message */
+.registration-success {
+  text-align: center;
+  padding: 30px 20px;
+  background-color: #e6ffed;
+  border: 2px solid #6cc070;
+  border-radius: 10px;
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+.registration-success p {
+  margin-top: 10px;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #2f7a45;
+}
+
+.checkmark-circle {
+  width: 70px;
+  height: 70px;
+  margin: 0 auto;
+  border-radius: 50%;
+  background-color: #6cc070;
+  color: white;
+  font-size: 2.5rem;
   display: flex;
   align-items: center;
-  gap: 5px;
-  margin-top: 5px;
+  justify-content: center;
+  animation: popIn 0.4s ease forwards;
 }
 
-.auction-actions {
-  margin-top: 20px;
+.error-message {
+  color: red;
+  font-weight: bold;
   text-align: center;
+  margin-top: 15px;
 }
 
-.auction-actions button {
-  margin-right: 10px;
-  padding: 10px 20px;
-  cursor: pointer;
-  border: none;
-  border-radius: 4px;
-  background-color: #007bff;
-  color: #fff;
-  transition: background-color 0.3s ease;
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-.auction-actions button:hover {
-  background-color: #0056b3;
-}
-
-.edit-images {
-  margin-top: 20px;
-  border: 1px solid #ddd;
-  padding: 10px;
-  border-radius: 4px;
-  background: #fff;
-}
-
-.image-preview-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-
-.image-preview {
-  position: relative;
-  width: 100px;
-  height: 100px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  overflow: hidden;
-}
-
-.image-preview img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.image-preview button {
-  position: absolute;
-  top: 2px;
-  right: 2px;
-  background: rgba(255, 0, 0, 0.7);
-  color: #fff;
-  border: none;
-  cursor: pointer;
-  font-size: 0.8rem;
-  padding: 2px 5px;
-  border-radius: 2px;
-  transition: background 0.3s ease;
-}
-
-.image-preview button:hover {
-  background: rgba(255, 0, 0, 0.9);
-}
-
-.bid-info-container {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 10px;
-}
-
-.bid-updates-wrapper,
-.bid-ranking-wrapper {
-  flex: 1;
-  max-height: 250px;
-  overflow-y: auto;
-  border: 1px solid #ccc;
-  padding: 10px;
-}
-
-.info-text {
-  font-size: 16px;
-  font-weight: bold;
-  color: red;
-  margin-top: 10px;
-}
-
-.success {
-  color: green;
-  font-weight: bold;
-}
-
-.error {
-  color: red;
-  font-weight: bold;
+@keyframes popIn {
+  0% {
+    transform: scale(0.4);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
 }

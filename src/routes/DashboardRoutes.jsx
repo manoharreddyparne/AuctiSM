@@ -1,8 +1,7 @@
 
 import React, { useContext } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
-import { AuthContext } from "../utils/AuthContext"; 
-import Home from "../default_dashboard/jsx/Home"; 
+import { AuthContext } from "../utils/AuthContext";  
 import Contact from "../pages/Contact";
 import GetStarted from "../pages/GetStarted";
 import Help from "../pages/Help";
@@ -11,6 +10,7 @@ import Signup from "../pages/Signup";
 import Error404Page from "../pages/404ErrorPage";
 import Auctions from "../default_dashboard/jsx/Auctions";
 import Guidance from "../default_dashboard/jsx/Guidance";
+import Home from "../default_dashboard/jsx/Home";
 
 function DashboardRoutes() {
   const { user } = useContext(AuthContext); 
@@ -19,7 +19,7 @@ function DashboardRoutes() {
     <Routes>
 
       <Route path="/" element={user ? <Navigate to="/mainpage" /> : <Home />} />
-      <Route path="/home" element={user ? <Navigate to="/mainpage" /> : <Home />} />
+      <Route path="/home" element={user ? <Navigate to="/mainpage" /> : <Home/>} />
 
       <Route path="/auctions" element={<Auctions />} />
       <Route path="/guidance" element={<Guidance />} />

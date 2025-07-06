@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+// ✅ AuctionRegister.jsx
+import React, { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import TermsAndConditions from "../../pages/TermsAndConditions";
@@ -10,16 +11,6 @@ const AuctionRegister = () => {
   const navigate = useNavigate();
   const [darkMode, setDarkMode] = useState(localStorage.getItem("darkMode") === "enabled");
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const currentDarkMode = localStorage.getItem("darkMode") === "enabled";
-      if (currentDarkMode !== darkMode) {
-        setDarkMode(currentDarkMode);
-      }
-    }, 50);
-    return () => clearInterval(interval);
-  }, [darkMode]);
-
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
@@ -28,10 +19,21 @@ const AuctionRegister = () => {
     additionalInfo: "",
     acceptedTerms: false,
   });
+
   const [error, setError] = useState(null);
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [showTermsModal, setShowTermsModal] = useState(false);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const currentDarkMode = localStorage.getItem("darkMode") === "enabled";
+      if (currentDarkMode !== darkMode) {
+        setDarkMode(currentDarkMode);
+      }
+    }, 100);
+    return () => clearInterval(interval);
+  }, [darkMode]);
 
   useEffect(() => {
     const checkRegistrationStatus = async () => {
@@ -45,10 +47,7 @@ const AuctionRegister = () => {
         if (response.data.isRegistered) {
           navigate(`/auction-detail/${auctionId}`);
         }
-      } catch (error) {
-        //debug
-        //console.error("Error checking registration status:", error);
-      }
+      } catch (error) {}
     };
     checkRegistrationStatus();
   }, [auctionId, navigate]);
@@ -79,7 +78,7 @@ const AuctionRegister = () => {
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setMessage(response.data.message || "Successfully registered for the auction!");
-      setTimeout(() => navigate(`/auction-detail/${auctionId}`), 1500);
+      setTimeout(() => navigate(`/auction-detail/${auctionId}`), 3000);
     } catch (error) {
       setError(error.response?.data?.error || "Registration failed.");
     } finally {
@@ -87,82 +86,97 @@ const AuctionRegister = () => {
     }
   };
 
-  const openTermsModal = () => {
-    setShowTermsModal(true);
-  };
+  const openTermsModal = () => setShowTermsModal(true);
+  const closeTermsModal = useCallback(() => setShowTermsModal(false), []);
 
-  const closeTermsModal = () => {
-    setShowTermsModal(false);
-  };
+  useEffect(() => {
+    const handleEsc = (e) => {
+      if (e.key === "Escape") closeTermsModal();
+    };
+    document.addEventListener("keydown", handleEsc);
+    return () => document.removeEventListener("keydown", handleEsc);
+  }, [closeTermsModal]);
 
-  const handleCancel = () => {
-    navigate(`/auction-detail/${auctionId}`);
-  };
+  const handleCancel = () => navigate(`/auction-detail/${auctionId}`);
 
   return (
     <div className={`auction-register-container ${darkMode ? "dark-mode" : ""}`}>
       <h2>Auction Registration</h2>
       {message ? (
-        <p className="success-message">✅ {message}</p>
+        <div className="registration-success">
+          <div className="checkmark-circle">✔</div>
+          <p>{message}</p>
+        </div>
       ) : (
         <form onSubmit={handleSubmit}>
-          <label>Full Name:</label>
+          <label htmlFor="fullName">Full Name:</label>
           <input
             type="text"
+            id="fullName"
             name="fullName"
             placeholder="Enter your full name"
             value={formData.fullName}
             onChange={handleChange}
             required
           />
-          <label>Email Address:</label>
+
+          <label htmlFor="email">Email Address:</label>
           <input
             type="email"
+            id="email"
             name="email"
             placeholder="Enter your email address"
             value={formData.email}
             onChange={handleChange}
             required
           />
-          <label>Mobile Number:</label>
+
+          <label htmlFor="mobileNumber">Mobile Number:</label>
           <input
             type="tel"
+            id="mobileNumber"
             name="mobileNumber"
             placeholder="Enter your mobile number"
             value={formData.mobileNumber}
             onChange={handleChange}
             required
           />
-          <label>Payment Details (e.g., UPI ID):</label>
+
+          <label htmlFor="paymentDetails">Payment Details (e.g., UPI ID):</label>
           <input
             type="text"
+            id="paymentDetails"
             name="paymentDetails"
             placeholder="Enter your UPI ID or payment method"
             value={formData.paymentDetails}
             onChange={handleChange}
             required
           />
-          <label>Additional Info:</label>
+
+          <label htmlFor="additionalInfo">Additional Info:</label>
           <textarea
+            id="additionalInfo"
             name="additionalInfo"
             placeholder="Any additional information (optional)"
             value={formData.additionalInfo}
             onChange={handleChange}
           ></textarea>
+
           <div className="terms-container">
-            <input
-              type="checkbox"
-              name="acceptedTerms"
-              checked={formData.acceptedTerms}
-              onChange={handleChange}
-            />
-            <label>
-              I accept the{" "}
-              <span className="terms-link" onClick={openTermsModal}>
-                Terms and Conditions
+            <label className="checkbox-label" htmlFor="acceptedTerms">
+              <input
+                type="checkbox"
+                id="acceptedTerms"
+                name="acceptedTerms"
+                checked={formData.acceptedTerms}
+                onChange={handleChange}
+              />
+              <span>
+                I accept the <span className="terms-link" onClick={openTermsModal}>Terms and Conditions</span>
               </span>
             </label>
           </div>
+
           <div className="button-group">
             <button type="submit" disabled={!formData.acceptedTerms || loading}>
               {loading ? <LoadingOverlay /> : "Register"}
@@ -173,10 +187,12 @@ const AuctionRegister = () => {
           </div>
         </form>
       )}
+
       {error && <p className="error-message">❌ {error}</p>}
+
       {showTermsModal && (
-        <div className="modal-overlay">
-          <div className="modal-content">
+        <div className="modal-overlay fade-in" onClick={closeTermsModal}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <button className="modal-close" onClick={closeTermsModal}>
               &times;
             </button>
